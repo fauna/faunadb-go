@@ -2,6 +2,7 @@ package faunadb
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -29,7 +30,7 @@ func (client *FaunaClient) Query(expr string) (value string, err error) {
 	return
 }
 
-func newRequest(secret string, endpoint string, expr string) (*http.Request, error) {
+func newRequest(secret, endpoint, expr string) (*http.Request, error) {
 	body := bytes.NewBufferString(fmt.Sprintf("\"%s\"", expr))
 	request, err := http.NewRequest("POST", endpoint, body)
 
@@ -37,10 +38,15 @@ func newRequest(secret string, endpoint string, expr string) (*http.Request, err
 		return nil, err
 	}
 
-	request.SetBasicAuth(secret, "")
+	request.Header.Add("Authorization", basicAuth(secret))
 	request.Header.Add("Content-Type", "application/json; charset=utf-8")
 
 	return request, nil
+}
+
+func basicAuth(secret string) string {
+	encoded := base64.StdEncoding.EncodeToString([]byte(secret))
+	return fmt.Sprintf("Basic %s:", encoded)
 }
 
 func parseResponse(raw io.Reader, result *string) error {
