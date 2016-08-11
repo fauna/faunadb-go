@@ -11,6 +11,7 @@ func TestEcho(t *testing.T) {
 	res, err := client.Query("HI")
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	expected := "{\"resource\":\"HI\"}"

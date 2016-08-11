@@ -10,7 +10,7 @@ import (
 
 type FaunaClient struct {
 	Secret   string
-	Endpoint string "https://cloud.faunadb.com"
+	Endpoint string
 	Http     http.Client
 }
 
