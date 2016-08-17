@@ -112,6 +112,18 @@ func (s *scan) readString() (str string, ok bool) {
 	return
 }
 
+func (s *scan) readObject() (obj map[string]Value, ok bool) {
+	var value Value
+
+	if value, ok = s.readNext(); ok {
+		if obj, ok = value.inner.(map[string]Value); !ok || !s.ensureNoMoreTokens() {
+			s.err = fmt.Errorf("Expected single object but got %T", value.inner)
+		}
+	}
+
+	return
+}
+
 func (s *scan) ensureNoMoreTokens() bool {
 	_, hasMore := s.next()
 
@@ -216,8 +228,8 @@ type literalObjectReader struct {
 }
 
 func (reader literalObjectReader) read() (Value, bool) {
-	if obj, ok := reader.scan.readNext(); ok && reader.scan.ensureNoMoreTokens() {
-		return obj, true
+	if obj, ok := reader.scan.readObject(); ok {
+		return Value{obj}, true
 	}
 	return Value{}, false
 }
@@ -227,10 +239,9 @@ type setRefReader struct {
 }
 
 func (reader setRefReader) read() (Value, bool) {
-	if v, ok := reader.scan.readNext(); ok && reader.scan.ensureNoMoreTokens() {
-		return Value{SetRefV{v.inner.(map[string]Value)}}, true
+	if obj, ok := reader.scan.readObject(); ok {
+		return Value{SetRefV{obj}}, true
 	}
-
 	return Value{}, false
 }
 
