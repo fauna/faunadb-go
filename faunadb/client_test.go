@@ -1,6 +1,9 @@
 package faunadb
 
-import "testing"
+import (
+	"faunadb/values"
+	"testing"
+)
 
 func TestEcho(t *testing.T) {
 	client := &FaunaClient{
@@ -14,7 +17,7 @@ func TestEcho(t *testing.T) {
 		return
 	}
 
-	expected := "{\"resource\":\"HI\"}"
+	expected := values.NewValue("HI")
 	if res != expected {
 		t.Errorf("Expected: %s got: %s", expected, res)
 	}

@@ -9,6 +9,12 @@ type Value struct {
 	inner interface{}
 }
 
+// TODO: This function should be removed after we refactor the library packages
+// Pure values should be created anywhere
+func NewValue(i interface{}) Value {
+	return Value{i}
+}
+
 func (value *Value) UnmarshalJSON(b []byte) (err error) {
 	var decoded Value
 
