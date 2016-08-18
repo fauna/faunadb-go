@@ -107,8 +107,7 @@ func (d structDecoder) decode(aStruct reflect.Value) error {
 			tree: &value,
 		}
 
-		err := decoder.decode(fieldValue)
-		if err != nil {
+		if err := decoder.decode(fieldValue); err != nil {
 			return err
 		}
 	}
@@ -146,8 +145,7 @@ func (d objectDecoder) decode(mapValue reflect.Value) error {
 			tree: &value,
 		}
 
-		err := decoder.decode(newElem)
-		if err != nil {
+		if err := decoder.decode(newElem); err != nil {
 			return err
 		}
 
@@ -189,8 +187,7 @@ func (d sliceDecoder) decode(sliceValue reflect.Value) error {
 			tree: &value,
 		}
 
-		err := decoder.decode(newSlice.Index(index))
-		if err != nil {
+		if err := decoder.decode(newSlice.Index(index)); err != nil {
 			return err
 		}
 	}
