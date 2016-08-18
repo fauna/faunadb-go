@@ -3,8 +3,11 @@ package faunadb
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
+	"faunadb/query"
 	"faunadb/values"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -18,7 +21,7 @@ type FaunaClient struct {
 	Http     http.Client
 }
 
-func (client *FaunaClient) Query(expr string) (values.Value, error) {
+func (client *FaunaClient) Query(expr query.Expr) (values.Value, error) {
 	request, err := newRequest(client.Secret, client.Endpoint, expr)
 	if err != nil {
 		return values.Value{}, err
@@ -29,6 +32,11 @@ func (client *FaunaClient) Query(expr string) (values.Value, error) {
 		return values.Value{}, err
 	}
 	defer response.Body.Close()
+
+	if response.StatusCode >= 300 {
+		str, _ := ioutil.ReadAll(response.Body)
+		return values.Value{}, fmt.Errorf("Query error %v: %s", response.StatusCode, str)
+	}
 
 	fullValueResponse, err := values.ReadValue(response.Body)
 	if err != nil {
@@ -44,9 +52,13 @@ func (client *FaunaClient) Query(expr string) (values.Value, error) {
 	return res.Resource, nil
 }
 
-func newRequest(secret, endpoint, expr string) (*http.Request, error) {
-	body := bytes.NewBufferString(fmt.Sprintf("\"%s\"", expr))
-	request, err := http.NewRequest("POST", endpoint, body)
+func newRequest(secret, endpoint string, expr query.Expr) (*http.Request, error) {
+	body, err := json.Marshal(expr)
+	if err != nil {
+		return nil, err
+	}
+
+	request, err := http.NewRequest("POST", endpoint, bytes.NewReader(body))
 
 	if err != nil {
 		return nil, err
