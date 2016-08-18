@@ -2,7 +2,6 @@ package values
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -21,117 +20,126 @@ func ReadValue(reader io.Reader) (Value, error) {
 	decoder.UseNumber()
 
 	jsonReader := jsonReader{&scan{decoder: decoder}}
-	value, _ := jsonReader.read()
-
-	if jsonReader.scan.err != nil {
-		return Value{}, jsonReader.scan.err
-	}
-
-	return value, nil
+	return jsonReader.read()
 }
 
 type valueReader interface {
-	read() (Value, bool)
+	read() (Value, error)
 }
 
 type jsonReader struct {
 	scan *scan
 }
 
-func (reader *jsonReader) read() (Value, bool) {
+func (reader *jsonReader) read() (Value, error) {
 	return reader.scan.readNext()
 }
 
 type scan struct {
 	decoder *json.Decoder
-	err     error
 }
 
-func (s *scan) readNext() (Value, bool) {
-	next, ok := s.next()
-
-	if !ok {
-		return Value{}, false
+func (s *scan) readNext() (Value, error) {
+	if next, err := s.next(); err == nil {
+		return next.read()
+	} else {
+		return Value{}, err
 	}
-
-	return next.read()
 }
 
-func (s *scan) next() (reader valueReader, _ bool) {
-	token, err := s.decoder.Token()
+func (s *scan) next() (reader valueReader, err error) {
+	var token json.Token
 
-	if err != nil {
-		s.err = err
-		return nil, false
+	if token, err = s.decoder.Token(); err != nil {
+		return
 	}
 
 	switch token {
 	default:
 		reader = literalReader{s, token}
+	case startOfObject:
+		reader, err = s.readSpecialObject()
 	case startOfArray:
 		reader = arrayReader{s}
-	case startOfObject:
-		reader = s.readSpecialObject()
 	case endOfArray, endOfObject:
-		return nil, false
+		err = io.EOF
 	}
 
-	return reader, true
+	return
 }
 
-func (s *scan) readSpecialObject() valueReader {
-	firstKey, ok := s.readString()
+func (s *scan) readSpecialObject() (reader valueReader, err error) {
+	if !s.hasMore() {
+		reader = objectReader{s, ""}
+		return
+	}
 
-	if ok {
+	var firstKey string
+
+	if firstKey, err = s.readString(); err == nil {
 		switch firstKey {
 		case "@ref":
-			return refReader{s}
+			reader = refReader{s}
 		case "@obj":
-			return literalObjectReader{s}
+			reader = literalObjectReader{s}
 		case "@set":
-			return setRefReader{s}
+			reader = setRefReader{s}
 		case "@date":
-			return dateTimeReader{dateConverter{}, s, "2006-01-02"}
+			reader = dateTimeReader{dateConverter{}, s, "2006-01-02"}
 		case "@ts":
-			return dateTimeReader{timeConverter{}, s, "2006-01-02T15:04:05.999999999Z"}
+			reader = dateTimeReader{timeConverter{}, s, "2006-01-02T15:04:05.999999999Z"}
+		default:
+			reader = objectReader{s, firstKey}
 		}
 	}
 
-	return objectReader{s, firstKey}
+	return
 }
 
-func (s *scan) readString() (str string, ok bool) {
+func (s *scan) readString() (str string, err error) {
 	var value Value
+	var ok bool
 
-	if value, ok = s.readNext(); ok {
+	if value, err = s.readNext(); err == nil {
 		if str, ok = value.inner.(string); !ok {
-			s.err = fmt.Errorf("Expected string but got %T", value.inner)
+			err = fmt.Errorf("Expected string but got %T", value.inner)
 		}
 	}
 
 	return
 }
 
-func (s *scan) readObject() (obj map[string]Value, ok bool) {
+func (s *scan) readObject() (obj map[string]Value, err error) {
 	var value Value
+	var ok bool
 
-	if value, ok = s.readNext(); ok {
-		if obj, ok = value.inner.(map[string]Value); !ok || !s.ensureNoMoreTokens() {
-			s.err = fmt.Errorf("Expected single object but got %T", value.inner)
+	if value, err = s.readNext(); err == nil {
+		if err = s.ensureNoMoreTokens(); err == nil {
+			if obj, ok = value.inner.(map[string]Value); !ok {
+				err = fmt.Errorf("Expected single object but got %T", value.inner)
+			}
 		}
 	}
 
 	return
 }
 
-func (s *scan) ensureNoMoreTokens() bool {
-	_, hasMore := s.next()
-
-	if hasMore {
-		s.err = errors.New("JSON type is bigger than expected")
+func (s *scan) ensureNoMoreTokens() error {
+	if s.hasMore() {
+		token, _ := s.decoder.Token()
+		return fmt.Errorf("Expected end of array or object but got %s", token)
 	}
 
-	return !hasMore
+	return nil
+}
+
+func (s *scan) hasMore() bool {
+	if !s.decoder.More() {
+		s.decoder.Token() // Discarts next } or ] token
+		return false
+	}
+
+	return true
 }
 
 type objectReader struct {
@@ -139,44 +147,50 @@ type objectReader struct {
 	firstKey string
 }
 
-func (reader objectReader) read() (Value, bool) {
+func (reader objectReader) read() (Value, error) {
 	object := make(map[string]Value)
 
 	if key := reader.firstKey; key != "" {
 		for {
-			value, ok := reader.scan.readNext()
-			if !ok {
-				break
-			}
+			if value, err := reader.scan.readNext(); err == nil {
+				object[key] = value
 
-			object[key] = value
+				if !reader.scan.hasMore() {
+					break
+				}
 
-			key, ok = reader.scan.readString()
-			if !ok {
-				break
+				if key, err = reader.scan.readString(); err != nil {
+					return Value{}, err
+				}
+			} else {
+				return Value{}, err
 			}
 		}
 	}
 
-	return Value{object}, true
+	return Value{object}, nil
 }
 
 type arrayReader struct {
 	scan *scan
 }
 
-func (reader arrayReader) read() (Value, bool) {
+func (reader arrayReader) read() (Value, error) {
 	var array []Value
 
 	for {
-		value, ok := reader.scan.readNext()
-		if !ok {
+		if !reader.scan.hasMore() {
 			break
 		}
-		array = append(array, value)
+
+		if value, err := reader.scan.readNext(); err == nil {
+			array = append(array, value)
+		} else {
+			return Value{}, err
+		}
 	}
 
-	return Value{array}, true
+	return Value{array}, nil
 }
 
 type literalReader struct {
@@ -184,65 +198,70 @@ type literalReader struct {
 	token json.Token
 }
 
-func (reader literalReader) read() (Value, bool) {
+func (reader literalReader) read() (Value, error) {
 	if number, ok := reader.token.(json.Number); ok {
 		return reader.parseJsonNumber(number)
-	} else {
-		return Value{reader.token}, true
 	}
+
+	return Value{reader.token}, nil
 }
 
-func (reader *literalReader) parseJsonNumber(number json.Number) (Value, bool) {
+func (reader *literalReader) parseJsonNumber(number json.Number) (Value, error) {
 	var err error
 
 	if strings.Contains(number.String(), ".") {
 		var n float64
 		if n, err = number.Float64(); err == nil {
-			return Value{n}, true
+			return Value{n}, nil
 		}
 	} else {
 		var n int64
 		if n, err = number.Int64(); err == nil {
-			return Value{n}, true
+			return Value{n}, nil
 		}
 	}
 
-	reader.scan.err = err
-	return Value{}, false
+	return Value{}, err
 }
 
 type refReader struct {
 	scan *scan
 }
 
-func (reader refReader) read() (Value, bool) {
-	if id, ok := reader.scan.readString(); ok && reader.scan.ensureNoMoreTokens() {
-		return Value{RefV{id}}, true
+func (reader refReader) read() (value Value, err error) {
+	var id string
+
+	if id, err = reader.scan.readString(); err == nil {
+		if err = reader.scan.ensureNoMoreTokens(); err == nil {
+			value = Value{RefV{id}}
+		}
 	}
 
-	return Value{}, false
+	return
 }
 
 type literalObjectReader struct {
 	scan *scan
 }
 
-func (reader literalObjectReader) read() (Value, bool) {
-	if obj, ok := reader.scan.readObject(); ok {
-		return Value{obj}, true
+func (reader literalObjectReader) read() (Value, error) {
+	if obj, err := reader.scan.readObject(); err == nil {
+		return Value{obj}, nil
+	} else {
+		return Value{}, err
 	}
-	return Value{}, false
 }
 
 type setRefReader struct {
 	scan *scan
 }
 
-func (reader setRefReader) read() (Value, bool) {
-	if obj, ok := reader.scan.readObject(); ok {
-		return Value{SetRefV{obj}}, true
+func (reader setRefReader) read() (Value, error) {
+	if obj, err := reader.scan.readObject(); err == nil {
+		return Value{SetRefV{obj}}, nil
+	} else {
+		return Value{}, err
 	}
-	return Value{}, false
 }
 
 type timeToValue interface {
@@ -255,22 +274,24 @@ type dateTimeReader struct {
 	format string
 }
 
-func (reader dateTimeReader) read() (Value, bool) {
-	if str, ok := reader.scan.readString(); ok && reader.scan.ensureNoMoreTokens() {
-		return reader.parseTime(str)
-	}
+func (reader dateTimeReader) read() (value Value, err error) {
+	var str string
 
-	return Value{}, false
-}
-
-func (reader *dateTimeReader) parseTime(raw string) (value Value, ok bool) {
-	if t, err := time.Parse(reader.format, raw); err == nil {
-		value, ok = reader.toValue(t), true
-	} else {
-		reader.scan.err = err
+	if str, err = reader.scan.readString(); err == nil {
+		if err = reader.scan.ensureNoMoreTokens(); err == nil {
+			value, err = reader.parseTime(str)
+		}
 	}
 
 	return
+}
+
+func (reader *dateTimeReader) parseTime(raw string) (Value, error) {
+	if t, err := time.Parse(reader.format, raw); err == nil {
+		return reader.toValue(t), nil
+	} else {
+		return Value{}, err
+	}
 }
 
 type dateConverter struct{}
