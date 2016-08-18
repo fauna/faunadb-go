@@ -30,7 +30,7 @@ func (value *Value) Get(i interface{}) error {
 }
 
 type RefV struct {
-	Id string
+	Id string `json:"@ref"`
 }
 
 type DateV struct {

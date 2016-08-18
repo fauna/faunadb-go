@@ -210,12 +210,17 @@ func (d assignDecoder) decode(pointer reflect.Value) error {
 	sourceType := d.source.Type()
 	pointerType := pointer.Type()
 
-	if !sourceType.AssignableTo(pointerType) {
-		return newDecodeError(d.path, "Can not assign value of type %s to a value of type %s", sourceType, pointerType)
+	if sourceType.ConvertibleTo(pointerType) {
+		pointer.Set(d.source.Convert(pointerType))
+		return nil
 	}
 
-	pointer.Set(d.source)
-	return nil
+	if sourceType.AssignableTo(pointerType) {
+		pointer.Set(d.source)
+		return nil
+	}
+
+	return newDecodeError(d.path, "Can not assign value of type %s to a value of type %s", sourceType, pointerType)
 }
 
 type path struct {
@@ -260,6 +265,7 @@ func (d *indirectReference) indirectValue(i interface{}) reflect.Value {
 	return d.indirect(reflect.ValueOf(i))
 }
 
+// FIXME: I think we can replace this method by reflect.Indirect
 func (d *indirectReference) indirect(source reflect.Value) (value reflect.Value) {
 	value = source
 
