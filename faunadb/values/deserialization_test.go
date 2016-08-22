@@ -32,6 +32,20 @@ func TestDeserializeFloat(t *testing.T) {
 	)
 }
 
+func TestConvertNumbersIfPossible(t *testing.T) {
+	var i int
+	assert(t,
+		fromJson("42", &i),
+		equal(i, 42),
+	)
+
+	var f float32
+	assert(t,
+		fromJson("42.24", &f),
+		equal(f, float32(42.24)),
+	)
+}
+
 func TestDeserializeBooleanTrue(t *testing.T) {
 	var boolean bool
 	assert(t,
@@ -214,6 +228,24 @@ func TestDeserializeStructWithPointers(t *testing.T) {
 	)
 }
 
+func TestDeserializeStructWithEmbeddedStructs(t *testing.T) {
+	type Embedded struct {
+		Str string
+	}
+
+	type Data struct {
+		Int int
+		Embedded
+	}
+
+	var data Data
+
+	assert(t,
+		fromJson(`{"Int":42,"Embedded":{"Str":"a string"}}`, &data),
+		equal(data, Data{42, Embedded{"a string"}}),
+	)
+}
+
 func TestIgnoresUnmapedNamesInStruct(t *testing.T) {
 	var object struct{ Name string }
 	assert(t,
@@ -242,10 +274,10 @@ func TestIgnoresPrivateMembersOfStrct(t *testing.T) {
 }
 
 func TestReportErrorPath(t *testing.T) {
-	var obj struct{ Arr []string }
+	var obj struct{ Arr []int }
 	assert(t,
-		fromJson(`{ "Arr": ["right", 1] }`, &obj),
-		failWith("Error while decoding fauna value at: Arr / 1. Can not assign value of type int64 to a value of type string"),
+		fromJson(`{ "Arr": [1, "right"] }`, &obj),
+		failWith("Error while decoding fauna value at: Arr / 1. Can not assign value of type string to a value of type int"),
 	)
 }
 
