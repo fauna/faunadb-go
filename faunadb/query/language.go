@@ -24,13 +24,13 @@ func Ref(id string) Expr {
 }
 
 func Create(class, params interface{}) Expr {
-	return wrap(fn{"create": class, "params": params})
+	return wrapFn(fn{"create": class, "params": params})
 }
 
 func Delete(ref interface{}) Expr {
-	return wrap(fn{"delete": ref})
+	return wrapFn(fn{"delete": ref})
 }
 
 func Get(ref interface{}) Expr {
-	return wrap(fn{"get": ref})
+	return wrapFn(fn{"get": ref})
 }
