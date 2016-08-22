@@ -228,6 +228,24 @@ func TestDeserializeStructWithPointers(t *testing.T) {
 	)
 }
 
+func TestDeserializeStructWithEmbeddedStructs(t *testing.T) {
+	type Embedded struct {
+		Str string
+	}
+
+	type Data struct {
+		Int int
+		Embedded
+	}
+
+	var data Data
+
+	assert(t,
+		fromJson(`{"Int":42,"Embedded":{"Str":"a string"}}`, &data),
+		equal(data, Data{42, Embedded{"a string"}}),
+	)
+}
+
 func TestIgnoresUnmapedNamesInStruct(t *testing.T) {
 	var object struct{ Name string }
 	assert(t,

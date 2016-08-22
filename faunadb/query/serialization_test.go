@@ -88,6 +88,22 @@ func TestSerializeStructWithNestedExpressions(t *testing.T) {
 	)
 }
 
+func TestSerializeStructWithEmbeddedStructs(t *testing.T) {
+	type Embedded struct {
+		Str string
+	}
+
+	type Data struct {
+		Int int
+		Embedded
+	}
+
+	assertJson(t,
+		Data{42, Embedded{"a string"}},
+		`{"object":{"Embedded":{"object":{"Str":"a string"}},"Int":42}}`,
+	)
+}
+
 func TestSerializeCreate(t *testing.T) {
 	assertJson(t,
 		Create(Ref("classes/spells"), Obj{
