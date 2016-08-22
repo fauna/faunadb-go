@@ -222,7 +222,7 @@ type path struct {
 	segments []string
 }
 
-func (p *path) String() string {
+func (p path) String() string {
 	str := strings.Join(p.segments, " / ")
 
 	if str == "" {
@@ -250,7 +250,7 @@ func newDecodeError(path path, message string, args ...interface{}) decodeError 
 }
 
 func (e decodeError) Error() string {
-	return fmt.Sprintf("Error while decoding fauna value at: %s. %s", e.path.String(), e.err)
+	return fmt.Sprintf("Error while decoding fauna value at: %s. %s", e.path, e.err)
 }
 
 // Reflect on the references trying to reach to an addressable value
