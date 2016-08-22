@@ -3,31 +3,45 @@ package faunadb
 import (
 	"bytes"
 	"encoding/base64"
+	"faunadb/values"
 	"fmt"
-	"io"
 	"net/http"
 )
 
+type resource struct {
+	Resource values.Value `fauna:"resource"`
+}
+
 type FaunaClient struct {
 	Secret   string
-	Endpoint string "https://cloud.faunadb.com"
+	Endpoint string
 	Http     http.Client
 }
 
-func (client *FaunaClient) Query(expr string) (value string, err error) {
+func (client *FaunaClient) Query(expr string) (values.Value, error) {
 	request, err := newRequest(client.Secret, client.Endpoint, expr)
 	if err != nil {
-		return
+		return values.Value{}, err
 	}
 
 	response, err := client.Http.Do(request)
 	if err != nil {
-		return
+		return values.Value{}, err
 	}
 	defer response.Body.Close()
 
-	err = parseResponse(response.Body, &value)
-	return
+	fullValueResponse, err := values.ReadValue(response.Body)
+	if err != nil {
+		return values.Value{}, err
+	}
+
+	var res resource
+	err = fullValueResponse.Get(&res)
+	if err != nil {
+		return values.Value{}, err
+	}
+
+	return res.Resource, nil
 }
 
 func newRequest(secret, endpoint, expr string) (*http.Request, error) {
@@ -47,16 +61,4 @@ func newRequest(secret, endpoint, expr string) (*http.Request, error) {
 func basicAuth(secret string) string {
 	encoded := base64.StdEncoding.EncodeToString([]byte(secret))
 	return fmt.Sprintf("Basic %s:", encoded)
-}
-
-func parseResponse(raw io.Reader, result *string) error {
-	parsed := new(bytes.Buffer)
-	_, err := parsed.ReadFrom(raw)
-
-	if err != nil {
-		return err
-	}
-
-	*result = parsed.String()
-	return nil
 }
