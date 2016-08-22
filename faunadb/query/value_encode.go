@@ -1,21 +1,10 @@
 package query
 
-import (
-	"encoding/json"
-	"reflect"
-)
+import "reflect"
 
-type wrapped struct {
-	value interface{}
-}
-
-func (w wrapped) MarshalJSON() ([]byte, error) {
-	return json.Marshal(w.value)
-}
-
-func wrap(expr Expr) wrapped {
-	switch v := expr.(type) {
-	case wrapped:
+func wrap(value interface{}) Expr {
+	switch v := value.(type) {
+	case Expr:
 		return v
 	case fn:
 		return wrapFn(v)
@@ -24,17 +13,17 @@ func wrap(expr Expr) wrapped {
 	}
 }
 
-func wrapFn(fn fn) wrapped {
-	call := make(map[string]wrapped)
+func wrapFn(fn fn) Expr {
+	call := make(map[string]Expr)
 
 	for key, value := range fn {
 		call[key] = wrap(value)
 	}
 
-	return wrapped{call}
+	return Expr{call}
 }
 
-func reflectWrap(expr Expr) wrapped {
+func reflectWrap(expr interface{}) Expr {
 	value := reflect.Indirect(reflect.ValueOf(expr))
 
 	switch value.Kind() {
@@ -48,42 +37,42 @@ func reflectWrap(expr Expr) wrapped {
 		}
 		fallthrough
 	default:
-		return wrapped{expr}
+		return Expr{expr}
 	}
 }
 
 //FIXME: Validate key is an string
-func wrapMap(value reflect.Value) wrapped {
-	obj := make(map[string]wrapped)
+func wrapMap(value reflect.Value) Expr {
+	obj := make(map[string]Expr)
 
 	for _, key := range value.MapKeys() {
 		obj[key.String()] = wrap(value.MapIndex(key).Interface())
 	}
 
-	return wrapped{map[string]Expr{"object": obj}}
+	return Expr{map[string]interface{}{"object": obj}}
 }
 
-func wrapArr(value reflect.Value) wrapped {
-	var arr []wrapped
+func wrapArr(value reflect.Value) Expr {
+	var arr []Expr
 
 	for i, size := 0, value.Len(); i < size; i++ {
 		arr = append(arr, wrap(value.Index(i).Interface()))
 	}
 
-	return wrapped{arr}
+	return Expr{arr}
 }
 
-func wrapStruct(value reflect.Value) wrapped {
-	obj := make(Obj)
+func wrapStruct(value reflect.Value) Expr {
+	obj := make(map[string]interface{})
 
 	for i, size := 0, value.NumField(); i < size; i++ {
 		key := getKeyName(value.Type().Field(i))
 		value := value.Field(i).Interface()
 
-		obj[key] = wrap(value)
+		obj[key] = value
 	}
 
-	return wrapped{obj}
+	return wrap(obj)
 }
 
 func getKeyName(field reflect.StructField) string {

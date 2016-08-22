@@ -111,8 +111,8 @@ func TestSerializeDelete(t *testing.T) {
 	)
 }
 
-func assertJson(t *testing.T, expr Expr, expected string) {
-	if json, err := json.Marshal(expr); err == nil {
+func assertJson(t *testing.T, expr interface{}, expected string) {
+	if json, err := json.Marshal(wrap(expr)); err == nil {
 		actual := string(json)
 
 		if expected != actual {

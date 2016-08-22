@@ -5,38 +5,32 @@ import (
 	"faunadb/values"
 )
 
-type Expr interface{}
-
-type fn map[string]Expr
-
-func (f fn) MarshalJSON() ([]byte, error) {
-	return json.Marshal(wrap(f))
+type Expr struct {
+	wrapped interface{}
 }
 
-type Obj map[string]Expr
-
-func (obj Obj) MarshalJSON() ([]byte, error) {
-	return json.Marshal(wrap(obj))
+func (e Expr) MarshalJSON() ([]byte, error) {
+	return json.Marshal(e.wrapped)
 }
 
-type Arr []Expr
+type Obj map[string]interface{}
 
-func (arr Arr) MarshalJSON() ([]byte, error) {
-	return json.Marshal(wrap(arr))
-}
+type Arr []interface{}
+
+type fn map[string]interface{}
 
 func Ref(id string) Expr {
-	return values.RefV{id}
+	return wrap(values.RefV{id})
 }
 
-func Create(class, params Expr) Expr {
-	return fn{"create": class, "params": params}
+func Create(class, params interface{}) Expr {
+	return wrap(fn{"create": class, "params": params})
 }
 
-func Delete(ref Expr) Expr {
-	return fn{"delete": ref}
+func Delete(ref interface{}) Expr {
+	return wrap(fn{"delete": ref})
 }
 
-func Get(ref Expr) Expr {
-	return fn{"get": ref}
+func Get(ref interface{}) Expr {
+	return wrap(fn{"get": ref})
 }
