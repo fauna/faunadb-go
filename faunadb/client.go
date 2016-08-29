@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-type resource struct { //FIXME: Replace this with value transversal once it's implemented
-	Resource Value `fauna:"resource"`
-}
-
 type FaunaClient struct {
 	Secret   string
 	Endpoint string
@@ -68,11 +64,5 @@ func (client *FaunaClient) parseResponse(response *http.Response) (Value, error)
 		return nil, err
 	}
 
-	var res resource
-
-	if err := value.To(&res); err != nil {
-		return nil, err
-	}
-
-	return res.Resource, nil
+	return value.At(ObjKey("resource")).GetValue()
 }
