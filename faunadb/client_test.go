@@ -1,24 +1,15 @@
 package faunadb_test
 
 import (
-	"faunadb"
-	q "faunadb/query"
-	"faunadb/values"
-	"os"
-	"reflect"
 	"testing"
+
+	f "github.com/faunadb/faunadb-go/faunadb"
+	"github.com/stretchr/testify/suite"
 )
 
-const dbName = "faunadb-go-test"
-
-var (
-	dbRef = q.Ref("databases/" + dbName)
-
-	client = &faunadb.FaunaClient{
-		Secret:   "secret",
-		Endpoint: "http://localhost:8443",
-	}
-)
+func TestRunClientTests(t *testing.T) {
+	suite.Run(t, new(ClientTestSuite))
+}
 
 type serverKey struct {
 	Secret string `fauna:"secret"`
@@ -29,66 +20,73 @@ type Spell struct {
 	Elements []string
 }
 
-func TestMain(m *testing.M) {
-	client.Query(q.Delete(dbRef))
-	client.Query(q.Create(q.Ref("databases"), q.Obj{"name": dbName}))
+type ClientTestSuite struct {
+	suite.Suite
+	client *f.FaunaClient
+}
 
-	res, _ := client.Query(
-		q.Create(q.Ref("keys"), q.Obj{
+func (s *ClientTestSuite) SetupSuite() {
+	dbName := "faunadb-go-test"
+	dbRef := f.Ref("databases/" + dbName)
+
+	adminClient := f.FaunaClient{
+		Secret:   "secret",
+		Endpoint: "http://localhost:8443",
+	}
+
+	_, _ = adminClient.Query(f.Delete(dbRef))
+
+	_, err := adminClient.Query(
+		f.Create(
+			f.Ref("databases"),
+			f.Obj{"name": dbName},
+		),
+	)
+	s.Require().NoError(err)
+
+	res, err := adminClient.Query(
+		f.Create(f.Ref("keys"), f.Obj{
 			"database": dbRef,
 			"role":     "server",
 		}),
 	)
+	s.Require().NoError(err)
 
 	var key serverKey
-	res.Get(&key)
+	s.Require().NoError(res.To(&key))
 
-	client = &faunadb.FaunaClient{
+	s.client = &f.FaunaClient{
 		Secret:   key.Secret,
-		Endpoint: client.Endpoint,
+		Endpoint: adminClient.Endpoint,
 	}
 
-	client.Query(q.Create(q.Ref("classes"), q.Obj{"name": "spells"}))
-
-	os.Exit(m.Run())
+	_, err = s.client.Query(
+		f.Create(
+			f.Ref("classes"),
+			f.Obj{"name": "spells"},
+		),
+	)
+	s.Require().NoError(err)
 }
 
-func TestCreateAnInstance(t *testing.T) {
+func (s *ClientTestSuite) TestCreateAnInstance() {
 	spell := Spell{
 		Name:     "fire",
 		Elements: []string{"air", "fire"},
 	}
 
-	res := query(t,
-		q.Create(
-			q.Ref("classes/spells"),
-			q.Obj{"data": spell},
+	res, err := s.client.Query(
+		f.Create(
+			f.Ref("classes/spells"),
+			f.Obj{"data": spell},
 		),
 	)
+	s.Require().NoError(err)
 
 	var data struct {
 		Spell Spell `fauna:"data"`
 	}
-	tryTo(t, res.Get(&data))
 
-	assertEqual(t, data.Spell, spell)
-}
-
-func query(t *testing.T, expr q.Expr) values.Value {
-	res, err := client.Query(expr)
-	tryTo(t, err)
-
-	return res
-}
-
-func tryTo(t *testing.T, err error) {
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func assertEqual(t *testing.T, actual, expected interface{}) {
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("\n%10s: %#v\n%10s: %#v", "Expected", expected, "got", actual)
-	}
+	s.Require().NoError(res.To(&data))
+	s.Require().Equal(spell, data.Spell)
 }
