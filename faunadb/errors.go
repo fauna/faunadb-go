@@ -11,6 +11,7 @@ type Unauthorized struct{ FaunaError }
 type NotFound struct{ FaunaError }
 type InternalError struct{ FaunaError }
 type Unavailable struct{ FaunaError }
+type UnknownError struct{ FaunaError }
 
 func checkForResponseErrors(response *http.Response) (err error) {
 	if response.StatusCode < 300 {
@@ -28,6 +29,8 @@ func checkForResponseErrors(response *http.Response) (err error) {
 		err = InternalError{}
 	case 503:
 		err = Unavailable{}
+	default:
+		err = UnknownError{}
 	}
 
 	return

@@ -31,3 +31,8 @@ func TestReturnUnavailableOn503(t *testing.T) {
 	err := checkForResponseErrors(&http.Response{StatusCode: 503})
 	require.Equal(t, Unavailable{}, err)
 }
+
+func TestReturnUnknownErrorByDefault(t *testing.T) {
+	err := checkForResponseErrors(&http.Response{StatusCode: 1001})
+	require.Equal(t, UnknownError{}, err)
+}
