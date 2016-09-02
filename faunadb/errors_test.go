@@ -16,3 +16,8 @@ func TestReturnUnauthorizedOn401(t *testing.T) {
 	err := checkForResponseErrors(&http.Response{StatusCode: 401})
 	require.Equal(t, Unauthorized{}, err)
 }
+
+func TestReturnNotFoundOn404(t *testing.T) {
+	err := checkForResponseErrors(&http.Response{StatusCode: 404})
+	require.Equal(t, NotFound{}, err)
+}

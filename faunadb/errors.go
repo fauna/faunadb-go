@@ -2,8 +2,7 @@ package faunadb
 
 import "net/http"
 
-type FaunaError struct {
-}
+type FaunaError struct{}
 
 func (err FaunaError) Error() string {
 	return ""
@@ -17,6 +16,10 @@ type Unauthorized struct {
 	FaunaError
 }
 
+type NotFound struct {
+	FaunaError
+}
+
 func checkForResponseErrors(response *http.Response) (err error) {
 	if response.StatusCode < 300 {
 		return
@@ -27,6 +30,8 @@ func checkForResponseErrors(response *http.Response) (err error) {
 		err = BadRequest{}
 	case 401:
 		err = Unauthorized{}
+	case 404:
+		err = NotFound{}
 	}
 
 	return
