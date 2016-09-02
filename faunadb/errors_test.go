@@ -14,38 +14,34 @@ var (
 	noErrors       = []QueryError{}
 )
 
-type fakeBody struct{ io.Reader }
-
-func (f fakeBody) Close() error { return nil }
-
 func TestReturnBadRequestOn400(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(400, emptyErrorBody))
-	require.Equal(t, BadRequest{errorResponseWith(400)}, err)
+	require.Equal(t, BadRequest{errorResponseWith(400, noErrors)}, err)
 }
 
 func TestReturnUnauthorizedOn401(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(401, emptyErrorBody))
-	require.Equal(t, Unauthorized{errorResponseWith(401)}, err)
+	require.Equal(t, Unauthorized{errorResponseWith(401, noErrors)}, err)
 }
 
 func TestReturnNotFoundOn404(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(404, emptyErrorBody))
-	require.Equal(t, NotFound{errorResponseWith(404)}, err)
+	require.Equal(t, NotFound{errorResponseWith(404, noErrors)}, err)
 }
 
 func TestReturnInternalErrorOn500(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(500, emptyErrorBody))
-	require.Equal(t, InternalError{errorResponseWith(500)}, err)
+	require.Equal(t, InternalError{errorResponseWith(500, noErrors)}, err)
 }
 
 func TestReturnUnavailableOn503(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(503, emptyErrorBody))
-	require.Equal(t, Unavailable{errorResponseWith(503)}, err)
+	require.Equal(t, Unavailable{errorResponseWith(503, noErrors)}, err)
 }
 
 func TestReturnUnknownErrorByDefault(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(1001, emptyErrorBody))
-	require.Equal(t, UnknownError{errorResponseWith(1001)}, err)
+	require.Equal(t, UnknownError{errorResponseWith(1001, noErrors)}, err)
 }
 
 func TestParseErrorResponse(t *testing.T) {
@@ -68,11 +64,11 @@ func TestParseErrorResponse(t *testing.T) {
 	}
 	`
 
+	err := checkForResponseErrors(httpErrorResponseWith(401, json))
+
 	expectedError := Unauthorized{
-		errorResponse{
-			parseable: true,
-			status:    401,
-			errors: []QueryError{
+		errorResponseWith(401,
+			[]QueryError{
 				QueryError{
 					Position:    []string{"data", "token"},
 					Code:        "invalid token",
@@ -86,10 +82,8 @@ func TestParseErrorResponse(t *testing.T) {
 					},
 				},
 			},
-		},
+		),
 	}
-
-	err := checkForResponseErrors(httpErrorResponseWith(401, json))
 
 	require.Equal(t, expectedError, err)
 	require.EqualError(t, err, "Response error 401. Errors: [data/token](invalid token): Invalid token.")
@@ -103,6 +97,10 @@ func TestUnparseableResponse(t *testing.T) {
 	require.EqualError(t, err, "Response error 503. Unparseable server response.")
 }
 
+type fakeBody struct{ io.Reader }
+
+func (f fakeBody) Close() error { return nil }
+
 func httpErrorResponseWith(status int, errorBody string) *http.Response {
 	return &http.Response{
 		StatusCode: status,
@@ -110,10 +108,10 @@ func httpErrorResponseWith(status int, errorBody string) *http.Response {
 	}
 }
 
-func errorResponseWith(status int) errorResponse {
+func errorResponseWith(status int, errors []QueryError) errorResponse {
 	return errorResponse{
 		parseable: true,
 		status:    status,
-		errors:    noErrors,
+		errors:    errors,
 	}
 }
