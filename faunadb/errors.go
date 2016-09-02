@@ -1,16 +1,19 @@
 package faunadb
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-)
+import "net/http"
 
-func checkForResponseErrors(response *http.Response) error {
-	if response.StatusCode >= 300 {
-		str, _ := ioutil.ReadAll(response.Body)
-		return fmt.Errorf("Query error %v: %s", response.StatusCode, str)
+type BadRequest struct{}
+
+func (err BadRequest) Error() string {
+	return "Bad request"
+}
+
+func checkForResponseErrors(response *http.Response) (err error) {
+	if response.StatusCode < 300 {
+		return
 	}
 
-	return nil
+	err = BadRequest{}
+
+	return
 }
