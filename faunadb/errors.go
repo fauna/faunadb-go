@@ -1,36 +1,81 @@
 package faunadb
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
-type FaunaError struct{}
+var errorsField = ObjKey("errors")
 
-func (err FaunaError) Error() string { return "" }
+type FaunaError interface {
+	Status() int
+	Errors() []QueryError
+}
 
-type BadRequest struct{ FaunaError }
-type Unauthorized struct{ FaunaError }
-type NotFound struct{ FaunaError }
-type InternalError struct{ FaunaError }
-type Unavailable struct{ FaunaError }
-type UnknownError struct{ FaunaError }
+type QueryError struct {
+	Position    []string            `fauna:"position"`
+	Code        string              `fauna:"code"`
+	Description string              `fauna:"description"`
+	Failures    []ValidationFailure `fauna:"failures"`
+}
 
-func checkForResponseErrors(response *http.Response) (err error) {
+type ValidationFailure struct {
+	Field       []string `fauna:"field"`
+	Code        string   `fauna:"code"`
+	Description string   `fauna:"description"`
+}
+
+type responseError struct {
+	status int
+	errors []QueryError
+}
+
+func (err responseError) Error() string        { return "" } //FIXME better message
+func (err responseError) Status() int          { return err.status }
+func (err responseError) Errors() []QueryError { return err.errors }
+
+type BadRequest struct{ responseError }
+type Unauthorized struct{ responseError }
+type NotFound struct{ responseError }
+type InternalError struct{ responseError }
+type Unavailable struct{ responseError }
+type UnknownError struct{ responseError }
+
+func checkForResponseErrors(response *http.Response) error {
 	if response.StatusCode < 300 {
-		return
+		return nil
 	}
+
+	errors, ok := parseResponseErrors(response)
+	if !ok {
+		return fmt.Errorf("Fixme") //FIXME
+	}
+
+	err := responseError{response.StatusCode, errors}
 
 	switch response.StatusCode {
 	case 400:
-		err = BadRequest{}
+		return BadRequest{err}
 	case 401:
-		err = Unauthorized{}
+		return Unauthorized{err}
 	case 404:
-		err = NotFound{}
+		return NotFound{err}
 	case 500:
-		err = InternalError{}
+		return InternalError{err}
 	case 503:
-		err = Unavailable{}
+		return Unavailable{err}
 	default:
-		err = UnknownError{}
+		return UnknownError{err}
+	}
+}
+
+func parseResponseErrors(response *http.Response) (errors []QueryError, ok bool) {
+	if response.Body != nil {
+		if res, err := parseJSON(response.Body); err == nil {
+			if err := res.At(errorsField).Get(&errors); err == nil {
+				ok = true
+			}
+		}
 	}
 
 	return
