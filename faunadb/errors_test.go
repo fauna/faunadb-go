@@ -21,3 +21,8 @@ func TestReturnNotFoundOn404(t *testing.T) {
 	err := checkForResponseErrors(&http.Response{StatusCode: 404})
 	require.Equal(t, NotFound{}, err)
 }
+
+func TestReturnInternalErrorOn500(t *testing.T) {
+	err := checkForResponseErrors(&http.Response{StatusCode: 500})
+	require.Equal(t, InternalError{}, err)
+}
