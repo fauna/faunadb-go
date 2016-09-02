@@ -100,6 +100,15 @@ func TestUnparseableResponse(t *testing.T) {
 	)
 }
 
+func TestUnparseableResponseOn503(t *testing.T) {
+	json := "can't parse this as an error"
+
+	require.Equal(t,
+		Unavailable{responseError{status: 503}},
+		checkForResponseErrors(httpErrorResponseWith(503, json)),
+	)
+}
+
 func httpErrorResponseWith(status int, errorBody string) *http.Response {
 	return &http.Response{
 		StatusCode: status,

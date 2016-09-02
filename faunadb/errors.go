@@ -47,6 +47,10 @@ func checkForResponseErrors(response *http.Response) error {
 	err := responseError{response.StatusCode, errors}
 
 	if !ok {
+		if response.StatusCode == 503 {
+			return Unavailable{err}
+		}
+
 		return UnknownError{err}
 	}
 
