@@ -3,9 +3,28 @@ package faunadb
 import (
 	"fmt"
 	"reflect"
-	"strconv"
-	"strings"
 )
+
+type DecodeError struct {
+	path path
+	err  error
+}
+
+func (d DecodeError) Error() string {
+	path := d.path
+	err := d.err
+
+	for {
+		if decodeErr, ok := err.(DecodeError); ok {
+			path = path.subPath(decodeErr.path)
+			err = decodeErr.err
+		} else {
+			break
+		}
+	}
+
+	return fmt.Sprintf("Error while decoding fauna value at: %s. %s", path, err)
+}
 
 type valueDecoder struct {
 	target     reflect.Value
@@ -38,7 +57,7 @@ func (c *valueDecoder) assign(value interface{}) error {
 		return nil
 	}
 
-	return decodeError{
+	return DecodeError{
 		err: fmt.Errorf("Can not assign value of type \"%s\" to a value of type \"%s\"", sourceType, c.targetType),
 	}
 }
@@ -49,7 +68,7 @@ func (c *valueDecoder) decodeArray(arr ArrayV) error {
 	}
 
 	if c.target.Kind() != reflect.Slice {
-		return decodeError{err: fmt.Errorf("Can not decode array into a value of type \"%s\"", c.targetType)}
+		return DecodeError{err: fmt.Errorf("Can not decode array into a value of type \"%s\"", c.targetType)}
 	}
 
 	return c.makeNewSlice(arr)
@@ -59,8 +78,8 @@ func (c *valueDecoder) makeNewSlice(arr []Value) error {
 	newArray := reflect.MakeSlice(c.targetType, len(arr), len(arr))
 
 	for index, value := range arr {
-		if err := value.To(newArray.Index(index)); err != nil {
-			return decodeError{path: strconv.Itoa(index), err: err}
+		if err := value.Get(newArray.Index(index)); err != nil {
+			return DecodeError{path: pathFromIndexes(index), err: err}
 		}
 	}
 
@@ -78,7 +97,7 @@ func (c *valueDecoder) decodeMap(obj ObjectV) error {
 	case reflect.Struct:
 		return c.fillStructFields(obj)
 	default:
-		return decodeError{err: fmt.Errorf("Can not decode map into a value of type \"%s\"", c.targetType)}
+		return DecodeError{err: fmt.Errorf("Can not decode map into a value of type \"%s\"", c.targetType)}
 	}
 }
 
@@ -89,8 +108,8 @@ func (c *valueDecoder) makeNewMap(obj map[string]Value) error {
 	for key, value := range obj {
 		newElem := reflect.New(elemType).Elem()
 
-		if err := value.To(newElem); err != nil {
-			return decodeError{path: key, err: err}
+		if err := value.Get(newElem); err != nil {
+			return DecodeError{path: pathFromKeys(key), err: err}
 		}
 
 		newMap.SetMapIndex(reflect.ValueOf(key), newElem)
@@ -108,43 +127,10 @@ func (c *valueDecoder) fillStructFields(obj map[string]Value) error {
 			continue
 		}
 
-		if err := value.To(field); err != nil {
-			return decodeError{path: key, err: err}
+		if err := value.Get(field); err != nil {
+			return DecodeError{path: pathFromKeys(key), err: err}
 		}
 	}
 
 	return c.assign(newStruct)
-}
-
-type decodeError struct {
-	path string
-	err  error
-}
-
-func (d decodeError) Error() string {
-	var segments []string
-
-	path := d.path
-	err := d.err
-
-	for {
-		if path != "" {
-			segments = append(segments, path)
-		}
-
-		if next, ok := err.(decodeError); ok {
-			path = next.path
-			err = next.err
-		} else {
-			break
-		}
-	}
-
-	path = strings.Join(segments, " / ")
-
-	if path == "" {
-		path = "root"
-	}
-
-	return fmt.Sprintf("Error while decoding fauna value at: %s. %s", path, err)
 }

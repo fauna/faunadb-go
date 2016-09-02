@@ -144,7 +144,7 @@ func TestDecodeEmptyValue(t *testing.T) {
 	var str string
 	var value StringV
 
-	require.NoError(t, value.To(&str))
+	require.NoError(t, value.Get(&str))
 	require.Equal(t, "", str)
 }
 
@@ -174,7 +174,7 @@ func TestDeserializeArrayOnInvalidTarget(t *testing.T) {
 
 	require.EqualError(t,
 		decodeJSON("[]", &wrongReference),
-		"Error while decoding fauna value at: root. Can not decode array into a value of type \"map[string]string\"",
+		"Error while decoding fauna value at: <root>. Can not decode array into a value of type \"map[string]string\"",
 	)
 }
 
@@ -211,7 +211,7 @@ func TestDeserializeObjectOnInvalidTarget(t *testing.T) {
 
 	require.EqualError(t,
 		decodeJSON("{}", &wrongReference),
-		"Error while decoding fauna value at: root. Can not decode map into a value of type \"[]string\"",
+		"Error while decoding fauna value at: <root>. Can not decode map into a value of type \"[]string\"",
 	)
 }
 
@@ -382,7 +382,7 @@ func decodeJSON(raw string, target interface{}) (err error) {
 	var value Value
 
 	if value, err = parseJSON(bytes.NewReader(buffer)); err == nil {
-		err = value.To(&target)
+		err = value.Get(&target)
 	}
 
 	return
