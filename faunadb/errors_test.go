@@ -19,32 +19,32 @@ type fakeBody struct{ io.Reader }
 func (f fakeBody) Close() error { return nil }
 
 func TestReturnBadRequestOn400(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(400))
+	err := checkForResponseErrors(httpErrorResponseWith(400, emptyErrorBody))
 	require.Equal(t, BadRequest{errorResponseWith(400)}, err)
 }
 
 func TestReturnUnauthorizedOn401(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(401))
+	err := checkForResponseErrors(httpErrorResponseWith(401, emptyErrorBody))
 	require.Equal(t, Unauthorized{errorResponseWith(401)}, err)
 }
 
 func TestReturnNotFoundOn404(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(404))
+	err := checkForResponseErrors(httpErrorResponseWith(404, emptyErrorBody))
 	require.Equal(t, NotFound{errorResponseWith(404)}, err)
 }
 
 func TestReturnInternalErrorOn500(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(500))
+	err := checkForResponseErrors(httpErrorResponseWith(500, emptyErrorBody))
 	require.Equal(t, InternalError{errorResponseWith(500)}, err)
 }
 
 func TestReturnUnavailableOn503(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(503))
+	err := checkForResponseErrors(httpErrorResponseWith(503, emptyErrorBody))
 	require.Equal(t, Unavailable{errorResponseWith(503)}, err)
 }
 
 func TestReturnUnknownErrorByDefault(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(1001))
+	err := checkForResponseErrors(httpErrorResponseWith(1001, emptyErrorBody))
 	require.Equal(t, UnknownError{errorResponseWith(1001)}, err)
 }
 
@@ -88,18 +88,22 @@ func TestParseErrorResponse(t *testing.T) {
 		},
 	}
 
-	response := &http.Response{
-		StatusCode: 401,
-		Body:       fakeBody{bytes.NewBufferString(json)},
-	}
-
-	require.Equal(t, expectedError, checkForResponseErrors(response))
+	require.Equal(t, expectedError, checkForResponseErrors(httpErrorResponseWith(401, json)))
 }
 
-func httpErrorResponseWith(status int) *http.Response {
+func TestUnparseableResponse(t *testing.T) {
+	json := "can't parse this as an error"
+
+	require.Equal(t,
+		UnknownError{responseError{status: 401}},
+		checkForResponseErrors(httpErrorResponseWith(401, json)),
+	)
+}
+
+func httpErrorResponseWith(status int, errorBody string) *http.Response {
 	return &http.Response{
 		StatusCode: status,
-		Body:       fakeBody{bytes.NewBufferString(emptyErrorBody)},
+		Body:       fakeBody{bytes.NewBufferString(errorBody)},
 	}
 }
 

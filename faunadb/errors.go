@@ -1,9 +1,6 @@
 package faunadb
 
-import (
-	"fmt"
-	"net/http"
-)
+import "net/http"
 
 var errorsField = ObjKey("errors")
 
@@ -47,11 +44,11 @@ func checkForResponseErrors(response *http.Response) error {
 	}
 
 	errors, ok := parseResponseErrors(response)
-	if !ok {
-		return fmt.Errorf("Fixme") //FIXME
-	}
-
 	err := responseError{response.StatusCode, errors}
+
+	if !ok {
+		return UnknownError{err}
+	}
 
 	switch response.StatusCode {
 	case 400:
