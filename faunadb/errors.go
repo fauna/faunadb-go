@@ -9,9 +9,17 @@ import (
 var errorsField = ObjKey("errors")
 
 type FaunaError interface {
+	error
 	Status() int
 	Errors() []QueryError
 }
+
+type BadRequest struct{ FaunaError }
+type Unauthorized struct{ FaunaError }
+type NotFound struct{ FaunaError }
+type InternalError struct{ FaunaError }
+type Unavailable struct{ FaunaError }
+type UnknownError struct{ FaunaError }
 
 type QueryError struct {
 	Position    []string            `fauna:"position"`
@@ -26,47 +34,40 @@ type ValidationFailure struct {
 	Description string   `fauna:"description"`
 }
 
-type responseError struct {
-	status int
-	errors []QueryError
+type errorResponse struct {
+	parseable bool
+	status    int
+	errors    []QueryError
 }
 
-func (err responseError) Status() int          { return err.status }
-func (err responseError) Errors() []QueryError { return err.errors }
+func (err errorResponse) Status() int          { return err.status }
+func (err errorResponse) Errors() []QueryError { return err.errors }
 
-func (err responseError) Error() string {
-	var errors []string
+func (err errorResponse) Error() string {
+	return fmt.Sprintf("Response error %d. %s", err.status, err.queryErrors())
+}
 
-	for _, each := range err.errors {
-		errors = append(errors,
-			fmt.Sprintf("[%s](%s): %s", strings.Join(each.Position, "/"), each.Code, each.Description))
+func (err *errorResponse) queryErrors() string {
+	if !err.parseable {
+		return "Unparseable server response."
 	}
 
-	return fmt.Sprintf("Response error %d. Errors: %s", err.status, strings.Join(errors, ", "))
+	var errors []string
+
+	for _, queryError := range err.errors {
+		errors = append(errors,
+			fmt.Sprintf("[%s](%s): %s", strings.Join(queryError.Position, "/"), queryError.Code, queryError.Description))
+	}
+
+	return fmt.Sprintf("Errors: %s", strings.Join(errors, ", "))
 }
 
-type BadRequest struct{ responseError }
-type Unauthorized struct{ responseError }
-type NotFound struct{ responseError }
-type InternalError struct{ responseError }
-type Unavailable struct{ responseError }
-type UnknownError struct{ responseError }
-
 func checkForResponseErrors(response *http.Response) error {
-	if response.StatusCode < 300 {
+	if response.StatusCode >= 200 && response.StatusCode < 300 {
 		return nil
 	}
 
-	errors, ok := parseResponseErrors(response)
-	err := responseError{response.StatusCode, errors}
-
-	if !ok {
-		if response.StatusCode == 503 {
-			return Unavailable{err}
-		}
-
-		return UnknownError{err}
-	}
+	err := parseErrorResponse(response)
 
 	switch response.StatusCode {
 	case 400:
@@ -84,14 +85,16 @@ func checkForResponseErrors(response *http.Response) error {
 	}
 }
 
-func parseResponseErrors(response *http.Response) (errors []QueryError, ok bool) {
+func parseErrorResponse(response *http.Response) FaunaError {
+	var errors []QueryError
+
 	if response.Body != nil {
-		if res, err := parseJSON(response.Body); err == nil {
-			if err := res.At(errorsField).Get(&errors); err == nil {
-				ok = true
+		if value, err := parseJSON(response.Body); err == nil {
+			if err := value.At(errorsField).Get(&errors); err == nil {
+				return errorResponse{true, response.StatusCode, errors}
 			}
 		}
 	}
 
-	return
+	return errorResponse{false, response.StatusCode, errors}
 }

@@ -69,8 +69,9 @@ func TestParseErrorResponse(t *testing.T) {
 	`
 
 	expectedError := Unauthorized{
-		responseError{
-			status: 401,
+		errorResponse{
+			parseable: true,
+			status:    401,
 			errors: []QueryError{
 				QueryError{
 					Position:    []string{"data", "token"},
@@ -96,20 +97,10 @@ func TestParseErrorResponse(t *testing.T) {
 
 func TestUnparseableResponse(t *testing.T) {
 	json := "can't parse this as an error"
+	err := checkForResponseErrors(httpErrorResponseWith(503, json))
 
-	require.Equal(t,
-		UnknownError{responseError{status: 401}},
-		checkForResponseErrors(httpErrorResponseWith(401, json)),
-	)
-}
-
-func TestUnparseableResponseOn503(t *testing.T) {
-	json := "can't parse this as an error"
-
-	require.Equal(t,
-		Unavailable{responseError{status: 503}},
-		checkForResponseErrors(httpErrorResponseWith(503, json)),
-	)
+	require.Equal(t, Unavailable{errorResponse{status: 503}}, err)
+	require.EqualError(t, err, "Response error 503. Unparseable server response.")
 }
 
 func httpErrorResponseWith(status int, errorBody string) *http.Response {
@@ -119,9 +110,10 @@ func httpErrorResponseWith(status int, errorBody string) *http.Response {
 	}
 }
 
-func errorResponseWith(status int) responseError {
-	return responseError{
-		status: status,
-		errors: noErrors,
+func errorResponseWith(status int) errorResponse {
+	return errorResponse{
+		parseable: true,
+		status:    status,
+		errors:    noErrors,
 	}
 }
