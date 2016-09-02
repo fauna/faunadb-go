@@ -26,3 +26,8 @@ func TestReturnInternalErrorOn500(t *testing.T) {
 	err := checkForResponseErrors(&http.Response{StatusCode: 500})
 	require.Equal(t, InternalError{}, err)
 }
+
+func TestReturnUnavailableOn503(t *testing.T) {
+	err := checkForResponseErrors(&http.Response{StatusCode: 503})
+	require.Equal(t, Unavailable{}, err)
+}
