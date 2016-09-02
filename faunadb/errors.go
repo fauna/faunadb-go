@@ -1,6 +1,10 @@
 package faunadb
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"strings"
+)
 
 var errorsField = ObjKey("errors")
 
@@ -27,9 +31,19 @@ type responseError struct {
 	errors []QueryError
 }
 
-func (err responseError) Error() string        { return "" } //FIXME better message
 func (err responseError) Status() int          { return err.status }
 func (err responseError) Errors() []QueryError { return err.errors }
+
+func (err responseError) Error() string {
+	var errors []string
+
+	for _, each := range err.errors {
+		errors = append(errors,
+			fmt.Sprintf("[%s](%s): %s", strings.Join(each.Position, "/"), each.Code, each.Description))
+	}
+
+	return fmt.Sprintf("Response error %d. Errors: %s", err.status, strings.Join(errors, ", "))
+}
 
 type BadRequest struct{ responseError }
 type Unauthorized struct{ responseError }
