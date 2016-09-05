@@ -294,6 +294,24 @@ func TestReportErrorPath(t *testing.T) {
 	)
 }
 
+func TestDeserializeNullV(t *testing.T) {
+	var null NullV
+
+	require.NoError(t, decodeJSON(`null`, &null))
+	require.Equal(t, NullV{}, null)
+}
+
+func TestDeserializeNull(t *testing.T) {
+	var null string
+	var pointer *string
+
+	require.NoError(t, decodeJSON(`null`, &null))
+	require.NoError(t, decodeJSON(`null`, &pointer))
+
+	require.Equal(t, "", null)
+	require.Nil(t, pointer)
+}
+
 func TestDeserializeComplexStruct(t *testing.T) {
 	type nestedStruct struct {
 		Nested string

@@ -48,20 +48,20 @@ type segment interface {
 type path []segment
 
 func pathFromKeys(keys ...string) path {
-	var p path
+	p := make(path, len(keys))
 
-	for _, key := range keys {
-		p = append(p, objectSegment(key))
+	for i, key := range keys {
+		p[i] = objectSegment(key)
 	}
 
 	return p
 }
 
 func pathFromIndexes(indexes ...int) path {
-	var p path
+	p := make(path, len(indexes))
 
-	for _, index := range indexes {
-		p = append(p, arraySegment(index))
+	for i, index := range indexes {
+		p[i] = arraySegment(index)
 	}
 
 	return p
@@ -93,10 +93,10 @@ func (p path) get(value Value) (Value, error) {
 }
 
 func (p path) String() (str string) {
-	var segments []string
+	segments := make([]string, len(p))
 
-	for _, seg := range p {
-		segments = append(segments, fmt.Sprintf("%v", seg))
+	for i, seg := range p {
+		segments[i] = fmt.Sprintf("%v", seg)
 	}
 
 	str = strings.Join(segments, " / ")

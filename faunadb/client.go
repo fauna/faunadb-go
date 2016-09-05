@@ -29,6 +29,22 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	return
 }
 
+func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) {
+	arr := make(Arr, len(exprs))
+
+	for i, expr := range exprs {
+		arr[i] = expr
+	}
+
+	var res Value
+
+	if res, err = client.Query(arr); err == nil {
+		err = res.Get(&values)
+	}
+
+	return
+}
+
 func (client *FaunaClient) performRequest(expr Expr) (response *http.Response, err error) {
 	var request *http.Request
 

@@ -139,6 +139,37 @@ func TestSerializeCreate(t *testing.T) {
 	require.Equal(t, `{"create":{"@ref":"classes/spells"},"params":{"object":{"name":"fire"}}}`, json)
 }
 
+func TestSerializeUpdate(t *testing.T) {
+	json, err := toJSON(
+		Update(Ref("classes/spells/123"), Obj{
+			"name": "fire",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"params":{"object":{"name":"fire"}},"update":{"@ref":"classes/spells/123"}}`, json)
+}
+
+func TestSerializeReplace(t *testing.T) {
+	json, err := toJSON(
+		Replace(Ref("classes/spells/123"), Obj{
+			"name": "fire",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"params":{"object":{"name":"fire"}},"replace":{"@ref":"classes/spells/123"}}`, json)
+}
+
+func TestSerializeDelete(t *testing.T) {
+	json, err := toJSON(
+		Delete(Ref("classes/spells/123")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"delete":{"@ref":"classes/spells/123"}}`, json)
+}
+
 func TestSerializeGet(t *testing.T) {
 	json, err := toJSON(
 		Get(Ref("classes/spells/42")),
@@ -148,13 +179,20 @@ func TestSerializeGet(t *testing.T) {
 	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
 }
 
-func TestSerializeDelete(t *testing.T) {
+func TestSerializeNull(t *testing.T) {
+	json, err := toJSON(Null())
+
+	require.NoError(t, err)
+	require.Equal(t, `null`, json)
+}
+
+func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
-		Delete(Ref("classes/spells/42")),
+		Exists(Ref("classes/spells/42")),
 	)
 
 	require.NoError(t, err)
-	require.Equal(t, `{"delete":{"@ref":"classes/spells/42"}}`, json)
+	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {
