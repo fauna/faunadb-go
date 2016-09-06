@@ -2,7 +2,7 @@ package faunadb
 
 import (
 	"bytes"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -97,14 +97,10 @@ func TestUnparseableResponse(t *testing.T) {
 	require.EqualError(t, err, "Response error 503. Unparseable server response.")
 }
 
-type fakeBody struct{ io.Reader }
-
-func (f fakeBody) Close() error { return nil }
-
 func httpErrorResponseWith(status int, errorBody string) *http.Response {
 	return &http.Response{
 		StatusCode: status,
-		Body:       fakeBody{bytes.NewBufferString(errorBody)},
+		Body:       ioutil.NopCloser(bytes.NewBufferString(errorBody)),
 	}
 }
 
