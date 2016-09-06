@@ -52,11 +52,10 @@ func (err *errorResponse) queryErrors() string {
 		return "Unparseable server response."
 	}
 
-	var errors []string
+	errors := make([]string, len(err.errors))
 
-	for _, queryError := range err.errors {
-		errors = append(errors,
-			fmt.Sprintf("[%s](%s): %s", strings.Join(queryError.Position, "/"), queryError.Code, queryError.Description))
+	for i, queryError := range err.errors {
+		errors[i] = fmt.Sprintf("[%s](%s): %s", strings.Join(queryError.Position, "/"), queryError.Code, queryError.Description)
 	}
 
 	return fmt.Sprintf("Errors: %s", strings.Join(errors, ", "))

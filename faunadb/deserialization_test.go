@@ -294,6 +294,24 @@ func TestReportErrorPath(t *testing.T) {
 	)
 }
 
+func TestDeserializeNullV(t *testing.T) {
+	var null NullV
+
+	require.NoError(t, decodeJSON(`null`, &null))
+	require.Equal(t, NullV{}, null)
+}
+
+func TestDeserializeNull(t *testing.T) {
+	var null string
+	var pointer *string
+
+	require.NoError(t, decodeJSON(`null`, &null))
+	require.NoError(t, decodeJSON(`null`, &pointer))
+
+	require.Equal(t, "", null)
+	require.Nil(t, pointer)
+}
+
 func TestDeserializeComplexStruct(t *testing.T) {
 	type nestedStruct struct {
 		Nested string
@@ -317,6 +335,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		Matrix           [][]int
 		Map              map[string]string
 		Object           nestedStruct
+		Null             *nestedStruct
 	}
 
 	json := `
@@ -341,7 +360,8 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		},
 		"Object": {
 			"Nested": "object"
-		}
+		},
+		"Null": null
 	}
 	`
 	expected := complexStruct{
@@ -368,6 +388,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		},
 		Map:    map[string]string{"key": "value"},
 		Object: nestedStruct{"object"},
+		Null:   nil,
 	}
 
 	var object complexStruct

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -17,13 +19,32 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	response, err := client.performRequest(expr)
 
 	if response != nil {
-		defer func() { _ = response.Body.Close() }()
+		defer func() {
+			_, _ = io.Copy(ioutil.Discard, response.Body) // Discard remaining bytes so the connection can be reused
+			_ = response.Body.Close()
+		}()
 	}
 
 	if err == nil {
 		if err = checkForResponseErrors(response); err == nil {
 			value, err = client.parseResponse(response)
 		}
+	}
+
+	return
+}
+
+func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) {
+	arr := make(Arr, len(exprs))
+
+	for i, expr := range exprs {
+		arr[i] = expr
+	}
+
+	var res Value
+
+	if res, err = client.Query(arr); err == nil {
+		err = res.Get(&values)
 	}
 
 	return

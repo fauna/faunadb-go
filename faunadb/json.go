@@ -53,6 +53,8 @@ func (p *jsonParser) parseLiteral(token json.Token) (value Value, err error) {
 		value = BooleanV(v)
 	case json.Number:
 		value, err = p.parseJSONNumber(v)
+	case nil:
+		value = NullV{}
 	default:
 		err = wrongToken{"a literal", v}
 	}

@@ -39,7 +39,7 @@ func indirectValue(i interface{}) (reflect.Value, reflect.Type) {
 	}
 
 	for {
-		if value.Kind() == reflect.Interface {
+		if value.Kind() == reflect.Interface && !value.IsNil() {
 			elem := value.Elem()
 
 			if elem.IsValid() {
@@ -53,7 +53,11 @@ func indirectValue(i interface{}) (reflect.Value, reflect.Type) {
 		}
 
 		if value.IsNil() {
-			value.Set(reflect.New(value.Type().Elem()))
+			if value.CanSet() {
+				value.Set(reflect.New(value.Type().Elem()))
+			} else {
+				break
+			}
 		}
 
 		value = value.Elem()

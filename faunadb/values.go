@@ -77,3 +77,9 @@ type ArrayV []Value
 func (arr ArrayV) Get(i interface{}) error      { return newValueDecoder(i).decodeArray(arr) }
 func (arr ArrayV) At(field Field) FieldValue    { return field.get(arr) }
 func (arr ArrayV) toJSON() (interface{}, error) { return arr, nil }
+
+type NullV struct{}
+
+func (null NullV) Get(i interface{}) error      { return nil }
+func (null NullV) At(field Field) FieldValue    { return field.get(null) }
+func (null NullV) toJSON() (interface{}, error) { return nil, nil }
