@@ -335,6 +335,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		Matrix           [][]int
 		Map              map[string]string
 		Object           nestedStruct
+		Null             *nestedStruct
 	}
 
 	json := `
@@ -359,7 +360,8 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		},
 		"Object": {
 			"Nested": "object"
-		}
+		},
+		"Null": null
 	}
 	`
 	expected := complexStruct{
@@ -386,6 +388,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		},
 		Map:    map[string]string{"key": "value"},
 		Object: nestedStruct{"object"},
+		Null:   nil,
 	}
 
 	var object complexStruct

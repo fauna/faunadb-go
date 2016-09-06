@@ -186,6 +186,24 @@ func TestSerializeNull(t *testing.T) {
 	require.Equal(t, `null`, json)
 }
 
+func TestSerializeNullOnObject(t *testing.T) {
+	json, err := toJSON(Obj{"data": Null()})
+
+	require.NoError(t, err)
+	require.Equal(t, `{"object":{"data":null}}`, json)
+}
+
+func TestSerializeNullOnStruct(t *testing.T) {
+	type structWithNull struct {
+		Null *string
+	}
+
+	json, err := toJSON(Obj{"data": structWithNull{nil}})
+
+	require.NoError(t, err)
+	require.Equal(t, `{"object":{"data":{"object":{"Null":null}}}}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),
