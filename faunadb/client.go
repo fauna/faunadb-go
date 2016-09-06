@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -17,7 +19,10 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	response, err := client.performRequest(expr)
 
 	if response != nil {
-		defer func() { _ = response.Body.Close() }()
+		defer func() {
+			_, _ = io.Copy(ioutil.Discard, response.Body) // Discard remaining bytes so the connection can be reused
+			_ = response.Body.Close()
+		}()
 	}
 
 	if err == nil {
