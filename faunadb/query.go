@@ -1,5 +1,10 @@
 package faunadb
 
+// Basic forms
+
+func Let(bindings Obj, in interface{}) Expr { return fn{"let": fn(bindings), "in": in} }
+func Var(name string) Expr                  { return fn{"var": name} }
+
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
 func Get(ref interface{}) Expr { return fn{"get": ref} }

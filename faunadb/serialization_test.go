@@ -204,6 +204,18 @@ func TestSerializeNullOnStruct(t *testing.T) {
 	require.Equal(t, `{"object":{"data":{"object":{"Null":null}}}}`, json)
 }
 
+func TestSerializeLet(t *testing.T) {
+	json, err := toJSON(
+		Let(
+			Obj{"v1": Ref("classes/spells/42")},
+			Exists(Var("v1")),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),
