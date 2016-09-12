@@ -40,11 +40,11 @@ func (date DateV) toJSON() (interface{}, error) { return map[string]interface{}{
 
 type TimeV time.Time
 
-func (locaTime TimeV) Get(i interface{}) error   { return newValueDecoder(i).assign(locaTime) }
-func (locaTime TimeV) At(field Field) FieldValue { return field.get(locaTime) }
+func (localTime TimeV) Get(i interface{}) error   { return newValueDecoder(i).assign(localTime) }
+func (localTime TimeV) At(field Field) FieldValue { return field.get(localTime) }
 
-func (locaTime TimeV) toJSON() (interface{}, error) {
-	return map[string]interface{}{"@ts": locaTime}, nil
+func (localTime TimeV) toJSON() (interface{}, error) {
+	return map[string]interface{}{"@ts": localTime}, nil
 }
 
 type RefV struct {
