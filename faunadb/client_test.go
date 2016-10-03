@@ -339,6 +339,21 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	s.Require().Equal(ref, refToCreate)
 }
 
+func (s *ClientTestSuite) TestMapOverACollection() {
+	var arr []int
+
+	res := s.query(
+		f.Map(
+			f.Arr{1, 2, 3},
+			f.Lambda("x",
+				f.Add(f.Var("x"), 1)),
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{2, 3, 4}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
