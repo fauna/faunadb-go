@@ -20,7 +20,8 @@ func Var(name string) Expr                  { return fn{"var": name} }
 
 // Collections
 
-func Map(collection, lambda interface{}) Expr { return fn{"map": lambda, "collection": collection} }
+func Map(coll, lambda interface{}) Expr     { return fn{"map": lambda, "collection": coll} }
+func Foreach(coll, lambda interface{}) Expr { return fn{"foreach": lambda, "collection": coll} }
 
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
