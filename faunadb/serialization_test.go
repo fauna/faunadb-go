@@ -250,6 +250,55 @@ func TestSerializeLambda(t *testing.T) {
 	require.Equal(t, `{"expr":{"var":"x"},"lambda":"x"}`, json)
 }
 
+func TestSerializeMap(t *testing.T) {
+	json, err := toJSON(Map(Arr{1, 2, 3}, Lambda("x", Var("x"))))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[1,2,3],"map":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+}
+
+func TestSerializeForeach(t *testing.T) {
+	json, err := toJSON(Foreach(Arr{1, 2, 3}, Lambda("x", Var("x"))))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[1,2,3],"foreach":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+}
+
+func TestSerializeFilter(t *testing.T) {
+	json, err := toJSON(Filter(Arr{true, false}, Lambda("x", Var("x"))))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[true,false],"filter":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+}
+
+func TestSerializeTake(t *testing.T) {
+	json, err := toJSON(Take(2, Arr{1, 2, 3}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[1,2,3],"take":2}`, json)
+}
+
+func TestSerializeDrop(t *testing.T) {
+	json, err := toJSON(Drop(2, Arr{1, 2, 3}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[1,2,3],"drop":2}`, json)
+}
+
+func TestSerializePrepend(t *testing.T) {
+	json, err := toJSON(Prepend(Arr{1, 2, 3}, Arr{4, 5, 6}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[4,5,6],"prepend":[1,2,3]}`, json)
+}
+
+func TestSerializeAppend(t *testing.T) {
+	json, err := toJSON(Append(Arr{4, 5, 6}, Arr{1, 2, 3}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"append":[4,5,6],"collection":[1,2,3]}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),

@@ -339,6 +339,93 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	s.Require().Equal(ref, refToCreate)
 }
 
+func (s *ClientTestSuite) TestMapOverACollection() {
+	var arr []int
+
+	res := s.query(
+		f.Map(
+			f.Arr{1, 2, 3},
+			f.Lambda("x",
+				f.Add(f.Var("x"), 1)),
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{2, 3, 4}, arr)
+}
+
+func (s *ClientTestSuite) TestExecuteForeachExpression() {
+	var arr []string
+
+	res := s.query(
+		f.Foreach(
+			f.Arr{"Fireball Level 1", "Fireball Level 2"},
+			f.Lambda("x",
+				f.Create(randomClass, f.Obj{"data": f.Obj{"name": f.Var("x")}})),
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]string{"Fireball Level 1", "Fireball Level 2"}, arr)
+}
+
+func (s *ClientTestSuite) TestFilterACollection() {
+	var arr []int
+
+	res := s.query(
+		f.Filter(
+			f.Arr{1, 2, 3},
+			f.Lambda("i",
+				f.Equals(0, f.Modulo(f.Var("i"), 2))),
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{2}, arr)
+}
+
+func (s *ClientTestSuite) TestTakeElementsFromCollection() {
+	var arr []int
+
+	res := s.query(f.Take(2, f.Arr{1, 2, 3}))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2}, arr)
+}
+
+func (s *ClientTestSuite) TestDropElementsFromCollection() {
+	var arr []int
+
+	res := s.query(f.Drop(2, f.Arr{1, 2, 3}))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{3}, arr)
+}
+
+func (s *ClientTestSuite) TestPrependElementsInACollection() {
+	var arr []int
+
+	res := s.query(f.Prepend(
+		f.Arr{1, 2},
+		f.Arr{3, 4},
+	))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2, 3, 4}, arr)
+}
+
+func (s *ClientTestSuite) TestAppendElementsInACollection() {
+	var arr []int
+
+	res := s.query(f.Append(
+		f.Arr{3, 4},
+		f.Arr{1, 2},
+	))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2, 3, 4}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
