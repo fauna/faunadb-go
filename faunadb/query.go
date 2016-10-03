@@ -26,6 +26,7 @@ func Filter(coll, lambda interface{}) Expr  { return fn{"filter": lambda, "colle
 func Take(num, coll interface{}) Expr       { return fn{"take": num, "collection": coll} }
 func Drop(num, coll interface{}) Expr       { return fn{"drop": num, "collection": coll} }
 func Prepend(elems, coll interface{}) Expr  { return fn{"prepend": elems, "collection": coll} }
+func Append(elems, coll interface{}) Expr   { return fn{"append": elems, "collection": coll} }
 
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
