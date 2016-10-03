@@ -218,8 +218,19 @@ func TestSerializeLet(t *testing.T) {
 
 func TestSerializeIf(t *testing.T) {
 	json, err := toJSON(If(true, "exists", "does not exists"))
+
 	require.NoError(t, err)
 	require.Equal(t, `{"else":"does not exists","if":true,"then":"exists"}`, json)
+}
+
+func TestSerializeDo(t *testing.T) {
+	json, err := toJSON(Do(Arr{
+		Get(Ref("classes/spells/4")),
+		Get(Ref("classes/spells/2")),
+	}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
 }
 
 func TestSerializeExists(t *testing.T) {
