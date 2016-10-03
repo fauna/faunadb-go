@@ -18,6 +18,10 @@ func Lambda(varName, expr interface{}) Expr { return fn{"lambda": varName, "expr
 func Let(bindings Obj, in interface{}) Expr { return fn{"let": fn(bindings), "in": in} }
 func Var(name string) Expr                  { return fn{"var": name} }
 
+// Collections
+
+func Map(collection, lambda interface{}) Expr { return fn{"map": lambda, "collection": collection} }
+
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
 func Get(ref interface{}) Expr { return fn{"get": ref} }

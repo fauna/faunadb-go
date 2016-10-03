@@ -250,6 +250,13 @@ func TestSerializeLambda(t *testing.T) {
 	require.Equal(t, `{"expr":{"var":"x"},"lambda":"x"}`, json)
 }
 
+func TestSerializeMap(t *testing.T) {
+	json, err := toJSON(Map(Arr{1, 2, 3}, Lambda("x", Var("x"))))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[1,2,3],"map":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),
