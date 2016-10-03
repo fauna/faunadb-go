@@ -5,6 +5,8 @@ package faunadb
 func Let(bindings Obj, in interface{}) Expr { return fn{"let": fn(bindings), "in": in} }
 func Var(name string) Expr                  { return fn{"var": name} }
 
+func If(cond, then, elze interface{}) Expr { return fn{"if": cond, "then": then, "else": elze} }
+
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
 func Get(ref interface{}) Expr { return fn{"get": ref} }

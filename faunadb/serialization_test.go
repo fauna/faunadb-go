@@ -216,6 +216,12 @@ func TestSerializeLet(t *testing.T) {
 	require.Equal(t, `{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`, json)
 }
 
+func TestSerializeIf(t *testing.T) {
+	json, err := toJSON(If(true, "exists", "does not exists"))
+	require.NoError(t, err)
+	require.Equal(t, `{"else":"does not exists","if":true,"then":"exists"}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),
