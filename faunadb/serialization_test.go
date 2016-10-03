@@ -204,6 +204,52 @@ func TestSerializeNullOnStruct(t *testing.T) {
 	require.Equal(t, `{"object":{"data":{"object":{"Null":null}}}}`, json)
 }
 
+func TestSerializeLet(t *testing.T) {
+	json, err := toJSON(
+		Let(
+			Obj{"v1": Ref("classes/spells/42")},
+			Exists(Var("v1")),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`, json)
+}
+
+func TestSerializeIf(t *testing.T) {
+	json, err := toJSON(If(true, "exists", "does not exists"))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"else":"does not exists","if":true,"then":"exists"}`, json)
+}
+
+func TestSerializeDo(t *testing.T) {
+	json, err := toJSON(Do(Arr{
+		Get(Ref("classes/spells/4")),
+		Get(Ref("classes/spells/2")),
+	}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
+}
+
+func TestSerializeDoWithVarargs(t *testing.T) {
+	json, err := toJSON(Do(
+		Get(Ref("classes/spells/4")),
+		Get(Ref("classes/spells/2")),
+	))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
+}
+
+func TestSerializeLambda(t *testing.T) {
+	json, err := toJSON(Lambda("x", Var("x")))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"expr":{"var":"x"},"lambda":"x"}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),

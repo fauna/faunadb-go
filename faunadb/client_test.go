@@ -300,6 +300,45 @@ func (s *ClientTestSuite) TestDeleteAnInstance() {
 	s.Require().False(exists)
 }
 
+func (s *ClientTestSuite) TestEvalLetExpression() {
+	var arr []int
+
+	res := s.query(
+		f.Let(
+			f.Obj{"x": 1, "y": 2},
+			f.Arr{f.Var("x"), f.Var("y")},
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2}, arr)
+}
+
+func (s *ClientTestSuite) TestEvalIfExpression() {
+	var str string
+
+	res := s.query(f.If(true, "true", "false"))
+
+	s.Require().NoError(res.Get(&str))
+	s.Require().Equal("true", str)
+}
+
+func (s *ClientTestSuite) TestEvalDoExpression() {
+	var ref f.RefV
+
+	refToCreate := f.Ref(s.randomStartingWith(randomClass.ID, "/"))
+
+	res := s.queryForRef(
+		f.Do(
+			f.Create(refToCreate, f.Obj{"data": f.Obj{"name": "Magic Missile"}}),
+			f.Get(refToCreate),
+		),
+	)
+
+	s.Require().NoError(res.Get(&ref))
+	s.Require().Equal(ref, refToCreate)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
