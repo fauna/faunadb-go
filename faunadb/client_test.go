@@ -369,6 +369,21 @@ func (s *ClientTestSuite) TestExecuteForeachExpression() {
 	s.Require().Equal([]string{"Fireball Level 1", "Fireball Level 2"}, arr)
 }
 
+func (s *ClientTestSuite) TestFilterACollection() {
+	var arr []int
+
+	res := s.query(
+		f.Filter(
+			f.Arr{1, 2, 3},
+			f.Lambda("i",
+				f.Equals(0, f.Modulo(f.Var("i"), 2))),
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{2}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
