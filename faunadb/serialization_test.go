@@ -264,6 +264,13 @@ func TestSerializeForeach(t *testing.T) {
 	require.Equal(t, `{"collection":[1,2,3],"foreach":{"expr":{"var":"x"},"lambda":"x"}}`, json)
 }
 
+func TestSerializeFilter(t *testing.T) {
+	json, err := toJSON(Filter(Arr{true, false}, Lambda("x", Var("x"))))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[true,false],"filter":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),

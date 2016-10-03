@@ -22,6 +22,7 @@ func Var(name string) Expr                  { return fn{"var": name} }
 
 func Map(coll, lambda interface{}) Expr     { return fn{"map": lambda, "collection": coll} }
 func Foreach(coll, lambda interface{}) Expr { return fn{"foreach": lambda, "collection": coll} }
+func Filter(coll, lambda interface{}) Expr  { return fn{"filter": lambda, "collection": coll} }
 
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
