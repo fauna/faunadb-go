@@ -285,6 +285,13 @@ func TestSerializeDrop(t *testing.T) {
 	require.Equal(t, `{"collection":[1,2,3],"drop":2}`, json)
 }
 
+func TestSerializePrepend(t *testing.T) {
+	json, err := toJSON(Prepend(Arr{1, 2, 3}, Arr{4, 5, 6}))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"collection":[4,5,6],"prepend":[1,2,3]}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),
