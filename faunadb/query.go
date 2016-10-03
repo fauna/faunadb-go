@@ -1,12 +1,22 @@
 package faunadb
 
+// Helper functions
+
+func varargs(expr ...interface{}) interface{} {
+	if len(expr) == 1 {
+		return expr[0]
+	}
+
+	return expr
+}
+
 // Basic forms
 
 func Let(bindings Obj, in interface{}) Expr { return fn{"let": fn(bindings), "in": in} }
 func Var(name string) Expr                  { return fn{"var": name} }
 
 func If(cond, then, elze interface{}) Expr { return fn{"if": cond, "then": then, "else": elze} }
-func Do(exprs interface{}) Expr            { return fn{"do": exprs} }
+func Do(exprs ...interface{}) Expr         { return fn{"do": varargs(exprs...)} }
 
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
