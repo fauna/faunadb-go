@@ -323,6 +323,22 @@ func (s *ClientTestSuite) TestEvalIfExpression() {
 	s.Require().Equal("true", str)
 }
 
+func (s *ClientTestSuite) TestEvalDoExpression() {
+	var ref f.RefV
+
+	refToCreate := f.Ref(s.randomStartingWith(randomClass.ID, "/"))
+
+	res := s.queryForRef(
+		f.Do(
+			f.Create(refToCreate, f.Obj{"data": f.Obj{"name": "Magic Missile"}}),
+			f.Get(refToCreate),
+		),
+	)
+
+	s.Require().NoError(res.Get(&ref))
+	s.Require().Equal(ref, refToCreate)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
