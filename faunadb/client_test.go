@@ -354,6 +354,21 @@ func (s *ClientTestSuite) TestMapOverACollection() {
 	s.Require().Equal([]int{2, 3, 4}, arr)
 }
 
+func (s *ClientTestSuite) TestExecuteForeachExpression() {
+	var arr []string
+
+	res := s.query(
+		f.Foreach(
+			f.Arr{"Fireball Level 1", "Fireball Level 2"},
+			f.Lambda("x",
+				f.Create(randomClass, f.Obj{"data": f.Obj{"name": f.Var("x")}})),
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]string{"Fireball Level 1", "Fireball Level 2"}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
