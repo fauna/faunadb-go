@@ -384,6 +384,15 @@ func (s *ClientTestSuite) TestFilterACollection() {
 	s.Require().Equal([]int{2}, arr)
 }
 
+func (s *ClientTestSuite) TestTakeElementsFromCollection() {
+	var arr []int
+
+	res := s.query(f.Take(2, f.Arr{1, 2, 3}))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
