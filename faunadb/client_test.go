@@ -414,6 +414,18 @@ func (s *ClientTestSuite) TestPrependElementsInACollection() {
 	s.Require().Equal([]int{1, 2, 3, 4}, arr)
 }
 
+func (s *ClientTestSuite) TestAppendElementsInACollection() {
+	var arr []int
+
+	res := s.query(f.Append(
+		f.Arr{3, 4},
+		f.Arr{1, 2},
+	))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2, 3, 4}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
