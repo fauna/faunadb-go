@@ -300,6 +300,20 @@ func (s *ClientTestSuite) TestDeleteAnInstance() {
 	s.Require().False(exists)
 }
 
+func (s *ClientTestSuite) TestEvalLetExpression() {
+	var arr []int
+
+	res := s.query(
+		f.Let(
+			f.Obj{"x": 1, "y": 2},
+			f.Arr{f.Var("x"), f.Var("y")},
+		),
+	)
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
