@@ -402,6 +402,18 @@ func (s *ClientTestSuite) TestDropElementsFromCollection() {
 	s.Require().Equal([]int{3}, arr)
 }
 
+func (s *ClientTestSuite) TestPrependElementsInACollection() {
+	var arr []int
+
+	res := s.query(f.Prepend(
+		f.Arr{1, 2},
+		f.Arr{3, 4},
+	))
+
+	s.Require().NoError(res.Get(&arr))
+	s.Require().Equal([]int{1, 2, 3, 4}, arr)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
