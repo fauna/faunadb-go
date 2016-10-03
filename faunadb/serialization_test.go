@@ -243,6 +243,13 @@ func TestSerializeDoWithVarargs(t *testing.T) {
 	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
 }
 
+func TestSerializeLambda(t *testing.T) {
+	json, err := toJSON(Lambda("x", Var("x")))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"expr":{"var":"x"},"lambda":"x"}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),

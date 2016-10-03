@@ -12,11 +12,11 @@ func varargs(expr ...interface{}) interface{} {
 
 // Basic forms
 
+func Do(exprs ...interface{}) Expr          { return fn{"do": varargs(exprs...)} }
+func If(cond, then, elze interface{}) Expr  { return fn{"if": cond, "then": then, "else": elze} }
+func Lambda(varName, expr interface{}) Expr { return fn{"lambda": varName, "expr": expr} }
 func Let(bindings Obj, in interface{}) Expr { return fn{"let": fn(bindings), "in": in} }
 func Var(name string) Expr                  { return fn{"var": name} }
-
-func If(cond, then, elze interface{}) Expr { return fn{"if": cond, "then": then, "else": elze} }
-func Do(exprs ...interface{}) Expr         { return fn{"do": varargs(exprs...)} }
 
 func Ref(id string) Expr       { return RefV{id} }
 func Null() Expr               { return NullV{} }
