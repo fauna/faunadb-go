@@ -314,6 +314,15 @@ func (s *ClientTestSuite) TestEvalLetExpression() {
 	s.Require().Equal([]int{1, 2}, arr)
 }
 
+func (s *ClientTestSuite) TestEvalIfExpression() {
+	var str string
+
+	res := s.query(f.If(true, "true", "false"))
+
+	s.Require().NoError(res.Get(&str))
+	s.Require().Equal("true", str)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
