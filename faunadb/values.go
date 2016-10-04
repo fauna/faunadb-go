@@ -34,9 +34,13 @@ func (boolean BooleanV) toJSON() (interface{}, error) { return boolean, nil }
 
 type DateV time.Time
 
-func (date DateV) Get(i interface{}) error      { return newValueDecoder(i).assign(date) }
-func (date DateV) At(field Field) FieldValue    { return field.get(date) }
-func (date DateV) toJSON() (interface{}, error) { return map[string]interface{}{"@date": date}, nil }
+func (date DateV) Get(i interface{}) error   { return newValueDecoder(i).assign(date) }
+func (date DateV) At(field Field) FieldValue { return field.get(date) }
+
+func (date DateV) toJSON() (interface{}, error) {
+	t := time.Time(date)
+	return map[string]interface{}{"@date": t.Format("2006-01-02")}, nil
+}
 
 type TimeV time.Time
 
@@ -44,7 +48,8 @@ func (localTime TimeV) Get(i interface{}) error   { return newValueDecoder(i).as
 func (localTime TimeV) At(field Field) FieldValue { return field.get(localTime) }
 
 func (localTime TimeV) toJSON() (interface{}, error) {
-	return map[string]interface{}{"@ts": localTime}, nil
+	t := time.Time(localTime)
+	return map[string]interface{}{"@ts": t.Format("2006-01-02T15:04:05.999999999Z")}, nil
 }
 
 type RefV struct {

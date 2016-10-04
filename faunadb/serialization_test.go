@@ -2,9 +2,24 @@ package faunadb
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestSerializeDateV(t *testing.T) {
+	json, err := toJSON(DateV(time.Unix(0, 0).UTC()))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"@date":"1970-01-01"}`, json)
+}
+
+func TestSerializeTimeV(t *testing.T) {
+	json, err := toJSON(TimeV(time.Unix(1, 2).UTC()))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"@ts":"1970-01-01T00:00:01.000000002Z"}`, json)
+}
 
 func TestSerializeObject(t *testing.T) {
 	json, err := toJSON(Obj{"key": "value"})
@@ -306,6 +321,18 @@ func TestSerializeExists(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
+}
+
+func TestSerializeExistsWithTimestamp(t *testing.T) {
+	json, err := toJSON(
+		Exists(
+			Ref("classes/spells/42"),
+			TS(TimeV(time.Unix(1, 1).UTC())),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:01.000000001Z"}}`, json)
 }
 
 func TestSerializeCount(t *testing.T) {

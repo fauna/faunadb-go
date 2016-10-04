@@ -32,9 +32,8 @@ func withOptions(f fn, optionals []OptionalParameter) Expr {
 	return f
 }
 
-func Events(events interface{}) OptionalParameter {
-	return params{"events": events}
-}
+func Events(events interface{}) OptionalParameter { return params{"events": events} }
+func TS(timestamp interface{}) OptionalParameter  { return params{"ts": timestamp} }
 
 // Basic forms
 
@@ -56,8 +55,11 @@ func Append(elems, coll interface{}) Expr   { return fn{"append": elems, "collec
 
 // Read
 
-func Get(ref interface{}) Expr    { return fn{"get": ref} }
-func Exists(ref interface{}) Expr { return fn{"exists": ref} }
+func Get(ref interface{}) Expr { return fn{"get": ref} }
+
+func Exists(ref interface{}, options ...OptionalParameter) Expr {
+	return withOptions(fn{"exists": ref}, options)
+}
 
 func Count(set interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"count": set}, options)
