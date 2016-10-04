@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+	"time"
 )
 
 var (
 	exprType              = reflect.TypeOf((*Expr)(nil)).Elem()
+	timeType              = reflect.TypeOf((*time.Time)(nil)).Elem()
 	errMapKeyMustBeString = errors.New("Error while encoding map to json: All map keys must be of type string")
 )
 
@@ -26,6 +28,10 @@ func escapeValue(any interface{}) (interface{}, error) {
 
 	if valueType.Implements(exprType) {
 		return value.Interface().(Expr).toJSON()
+	}
+
+	if valueType == timeType {
+		return TimeV(value.Interface().(time.Time)).toJSON()
 	}
 
 	switch value.Kind() {

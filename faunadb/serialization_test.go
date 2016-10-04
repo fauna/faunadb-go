@@ -327,7 +327,7 @@ func TestSerializeExistsWithTimestamp(t *testing.T) {
 	json, err := toJSON(
 		Exists(
 			Ref("classes/spells/42"),
-			TS(TimeV(time.Unix(1, 1).UTC())),
+			TS(time.Unix(1, 1).UTC()),
 		),
 	)
 
