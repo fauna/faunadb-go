@@ -18,8 +18,10 @@ var (
 	classes = f.Ref("classes")
 	indexes = f.Ref("indexes")
 
-	dataField = f.ObjKey("data")
-	refField  = f.ObjKey("ref")
+	dataField   = f.ObjKey("data")
+	refField    = f.ObjKey("ref")
+	beforeField = f.ObjKey("before")
+	afterField  = f.ObjKey("after")
 )
 
 var randomClass,
@@ -27,6 +29,7 @@ var randomClass,
 	characters,
 	allSpells,
 	magicMissile,
+	fireball,
 	thor f.RefV
 
 type Spell struct {
@@ -80,6 +83,15 @@ func (s *ClientTestSuite) setupSchema() {
 				Cost:     10,
 			}},
 		),
+	)
+
+	fireball = s.queryForRef(
+		f.Create(spells,
+			f.Obj{"data": Spell{
+				Name:     "Fireball",
+				Elements: []string{"fire"},
+				Cost:     10,
+			}}),
 	)
 
 	thor = s.queryForRef(
@@ -441,7 +453,7 @@ func (s *ClientTestSuite) TestCountElementsOnAIndex() {
 	res := s.query(f.Count(f.Match(allSpells)))
 
 	s.Require().NoError(res.Get(&num))
-	s.Require().Equal(1, num)
+	s.Require().Equal(2, num)
 }
 
 func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
@@ -460,7 +472,39 @@ func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
 	)
 
 	s.Require().NoError(res.Get(&allEvents))
-	s.Require().Equal(events{1, 0}, allEvents)
+	s.Require().Equal(events{2, 0}, allEvents)
+}
+
+func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
+	res := s.query(
+		f.Paginate(
+			f.Match(allSpells),
+			f.Size(1),
+		),
+	)
+
+	var spells []f.RefV
+	var before, after f.Value
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().NoError(res.At(afterField).Get(&after))
+
+	s.Require().Len(spells, 1)
+	s.Require().NotNil(after)
+
+	res = s.query(
+		f.Paginate(
+			f.Match(allSpells),
+			f.After(after),
+			f.Size(1),
+		),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().NoError(res.At(beforeField).Get(&before))
+
+	s.Require().Len(spells, 1)
+	s.Require().NotNil(before)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

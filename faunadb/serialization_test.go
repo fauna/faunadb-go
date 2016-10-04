@@ -363,6 +363,31 @@ func TestSerializeCountEvents(t *testing.T) {
 	require.Equal(t, `{"count":{"@ref":"databases"},"events":true}`, json)
 }
 
+func TestSerializePaginate(t *testing.T) {
+	json, err := toJSON(
+		Paginate(Ref("databases")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"paginate":{"@ref":"databases"}}`, json)
+}
+
+func TestSerializePaginateWithParameters(t *testing.T) {
+	json, err := toJSON(
+		Paginate(
+			Ref("databases"),
+			Before(Ref("databases/test10")),
+			After(Ref("databases/test")),
+			Events(true),
+			Sources(true),
+			TS(10),
+			Size(2),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"after":{"@ref":"databases/test"},"before":{"@ref":"databases/test10"},"events":true,"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10}`, json)
+}
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

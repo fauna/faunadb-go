@@ -23,8 +23,8 @@ func (p params) params() map[string]interface{} {
 }
 
 func withOptions(f fn, optionals []OptionalParameter) Expr {
-	for _, params := range optionals {
-		for k, v := range params.params() {
+	for _, option := range optionals {
+		for k, v := range option.params() {
 			f[k] = v
 		}
 	}
@@ -32,8 +32,12 @@ func withOptions(f fn, optionals []OptionalParameter) Expr {
 	return f
 }
 
-func Events(events interface{}) OptionalParameter { return params{"events": events} }
-func TS(timestamp interface{}) OptionalParameter  { return params{"ts": timestamp} }
+func Events(events interface{}) OptionalParameter   { return params{"events": events} }
+func TS(timestamp interface{}) OptionalParameter    { return params{"ts": timestamp} }
+func After(ref interface{}) OptionalParameter       { return params{"after": ref} }
+func Before(ref interface{}) OptionalParameter      { return params{"before": ref} }
+func Sources(sources interface{}) OptionalParameter { return params{"sources": sources} }
+func Size(size interface{}) OptionalParameter       { return params{"size": size} }
 
 // Basic forms
 
@@ -65,6 +69,10 @@ func Exists(ref interface{}, options ...OptionalParameter) Expr {
 
 func Count(set interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"count": set}, options)
+}
+
+func Paginate(set interface{}, options ...OptionalParameter) Expr {
+	return withOptions(fn{"paginate": set}, options)
 }
 
 // Others
