@@ -444,6 +444,25 @@ func (s *ClientTestSuite) TestCountElementsOnAIndex() {
 	s.Require().Equal(1, num)
 }
 
+func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
+	type events struct {
+		Creates int `fauna:"creates"`
+		Deletes int `fauna:"deletes"`
+	}
+
+	var allEvents events
+
+	res := s.query(
+		f.Count(
+			f.Match(allSpells),
+			f.Events(true),
+		),
+	)
+
+	s.Require().NoError(res.Get(&allEvents))
+	s.Require().Equal(events{1, 0}, allEvents)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

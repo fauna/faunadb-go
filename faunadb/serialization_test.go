@@ -315,6 +315,15 @@ func TestSerializeCount(t *testing.T) {
 	require.Equal(t, `{"count":{"@ref":"databases"}}`, json)
 }
 
+func TestSerializeCountEvents(t *testing.T) {
+	json, err := toJSON(
+		Count(Ref("databases"), Events(true)),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"count":{"@ref":"databases"},"events":true}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
