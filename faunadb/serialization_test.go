@@ -7,6 +7,36 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSerializeObjectV(t *testing.T) {
+	json, err := toJSON(ObjectV{
+		"data": ObjectV{
+			"name": StringV("test"),
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `{"object":{"data":{"object":{"name":"test"}}}}`, json)
+}
+
+func TestSerializeArrayV(t *testing.T) {
+	json, err := toJSON(ArrayV{
+		ObjectV{"name": StringV("a")},
+		ObjectV{"name": StringV("b")},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `[{"object":{"name":"a"}},{"object":{"name":"b"}}]`, json)
+}
+
+func TestSerializeSetRefV(t *testing.T) {
+	json, err := toJSON(SetRefV{
+		ObjectV{"name": StringV("a")},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `{"@set":{"object":{"name":"a"}}}`, json)
+}
+
 func TestSerializeDateV(t *testing.T) {
 	json, err := toJSON(DateV(time.Unix(0, 0).UTC()))
 
