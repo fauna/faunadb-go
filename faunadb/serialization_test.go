@@ -314,6 +314,18 @@ func TestSerializeGet(t *testing.T) {
 	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
 }
 
+func TestSerializeGetWithTimestamp(t *testing.T) {
+	json, err := toJSON(
+		Get(
+			Ref("classes/spells/42"),
+			TS(time.Unix(0, 0).UTC()),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"get":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),

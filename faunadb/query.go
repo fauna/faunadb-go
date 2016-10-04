@@ -55,7 +55,9 @@ func Append(elems, coll interface{}) Expr   { return fn{"append": elems, "collec
 
 // Read
 
-func Get(ref interface{}) Expr { return fn{"get": ref} }
+func Get(ref interface{}, options ...OptionalParameter) Expr {
+	return withOptions(fn{"get": ref}, options)
+}
 
 func Exists(ref interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"exists": ref}, options)
