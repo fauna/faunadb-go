@@ -290,15 +290,6 @@ func TestSerializeAppend(t *testing.T) {
 	require.Equal(t, `{"append":[4,5,6],"collection":[1,2,3]}`, json)
 }
 
-func TestSerializeExists(t *testing.T) {
-	json, err := toJSON(
-		Exists(Ref("classes/spells/42")),
-	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
-}
-
 func TestSerializeGet(t *testing.T) {
 	json, err := toJSON(
 		Get(Ref("classes/spells/42")),
@@ -306,6 +297,15 @@ func TestSerializeGet(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
+}
+
+func TestSerializeExists(t *testing.T) {
+	json, err := toJSON(
+		Exists(Ref("classes/spells/42")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {
