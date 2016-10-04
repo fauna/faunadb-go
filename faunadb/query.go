@@ -28,9 +28,12 @@ func Drop(num, coll interface{}) Expr       { return fn{"drop": num, "collection
 func Prepend(elems, coll interface{}) Expr  { return fn{"prepend": elems, "collection": coll} }
 func Append(elems, coll interface{}) Expr   { return fn{"append": elems, "collection": coll} }
 
-func Ref(id string) Expr       { return RefV{id} }
-func Null() Expr               { return NullV{} }
+// Read
+
 func Get(ref interface{}) Expr { return fn{"get": ref} }
+
+func Ref(id string) Expr { return RefV{id} }
+func Null() Expr         { return NullV{} }
 
 func Create(ref, params interface{}) Expr  { return fn{"create": ref, "params": params} }
 func Update(ref, params interface{}) Expr  { return fn{"update": ref, "params": params} }

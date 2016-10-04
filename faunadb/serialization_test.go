@@ -170,15 +170,6 @@ func TestSerializeDelete(t *testing.T) {
 	require.Equal(t, `{"delete":{"@ref":"classes/spells/123"}}`, json)
 }
 
-func TestSerializeGet(t *testing.T) {
-	json, err := toJSON(
-		Get(Ref("classes/spells/42")),
-	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
-}
-
 func TestSerializeNull(t *testing.T) {
 	json, err := toJSON(Null())
 
@@ -306,6 +297,15 @@ func TestSerializeExists(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
+}
+
+func TestSerializeGet(t *testing.T) {
+	json, err := toJSON(
+		Get(Ref("classes/spells/42")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {
