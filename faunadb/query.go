@@ -32,6 +32,7 @@ func Append(elems, coll interface{}) Expr   { return fn{"append": elems, "collec
 
 func Get(ref interface{}) Expr    { return fn{"get": ref} }
 func Exists(ref interface{}) Expr { return fn{"exists": ref} }
+func Count(set interface{}) Expr  { return fn{"count": set} }
 
 func Ref(id string) Expr { return RefV{id} }
 func Null() Expr         { return NullV{} }
@@ -44,3 +45,4 @@ func Delete(ref interface{}) Expr          { return fn{"delete": ref} }
 func Add(args ...interface{}) Expr    { return fn{"add": varargs(args...)} }
 func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
 func Equals(args ...interface{}) Expr { return fn{"equals": varargs(args...)} }
+func Match(ref interface{}) Expr      { return fn{"match": ref} }

@@ -308,6 +308,13 @@ func TestSerializeExists(t *testing.T) {
 	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
 }
 
+func TestSerializeCount(t *testing.T) {
+	json, err := toJSON(Count(Ref("databases")))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"count":{"@ref":"databases"}}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

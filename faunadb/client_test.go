@@ -16,6 +16,7 @@ func TestRunClientTests(t *testing.T) {
 
 var (
 	classes = f.Ref("classes")
+	indexes = f.Ref("indexes")
 
 	dataField = f.ObjKey("data")
 	refField  = f.ObjKey("ref")
@@ -24,6 +25,7 @@ var (
 var randomClass,
 	spells,
 	characters,
+	allSpells,
 	magicMissile,
 	thor f.RefV
 
@@ -61,6 +63,13 @@ func (s *ClientTestSuite) setupSchema() {
 
 	characters = s.queryForRef(
 		f.Create(classes, f.Obj{"name": "characters"}),
+	)
+
+	allSpells = s.queryForRef(
+		f.Create(indexes, f.Obj{
+			"name":   "all_spells",
+			"source": spells,
+		}),
 	)
 
 	magicMissile = s.queryForRef(
@@ -424,6 +433,15 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 
 	s.Require().NoError(res.Get(&arr))
 	s.Require().Equal([]int{1, 2, 3, 4}, arr)
+}
+
+func (s *ClientTestSuite) TestCountElementsOnAIndex() {
+	var num int
+
+	res := s.query(f.Count(f.Match(allSpells)))
+
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(1, num)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
