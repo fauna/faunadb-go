@@ -75,15 +75,18 @@ func Paginate(set interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"paginate": set}, options)
 }
 
-// Others
+// Write
 
-func Ref(id string) Expr                   { return RefV{id} }
-func Null() Expr                           { return NullV{} }
 func Create(ref, params interface{}) Expr  { return fn{"create": ref, "params": params} }
 func Update(ref, params interface{}) Expr  { return fn{"update": ref, "params": params} }
 func Replace(ref, params interface{}) Expr { return fn{"replace": ref, "params": params} }
 func Delete(ref interface{}) Expr          { return fn{"delete": ref} }
-func Add(args ...interface{}) Expr         { return fn{"add": varargs(args...)} }
-func Modulo(args ...interface{}) Expr      { return fn{"modulo": varargs(args...)} }
-func Equals(args ...interface{}) Expr      { return fn{"equals": varargs(args...)} }
-func Match(ref interface{}) Expr           { return fn{"match": ref} }
+
+// Others
+
+func Ref(id string) Expr              { return RefV{id} }
+func Null() Expr                      { return NullV{} }
+func Add(args ...interface{}) Expr    { return fn{"add": varargs(args...)} }
+func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
+func Equals(args ...interface{}) Expr { return fn{"equals": varargs(args...)} }
+func Match(ref interface{}) Expr      { return fn{"match": ref} }
