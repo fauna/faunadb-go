@@ -18,10 +18,11 @@ var (
 	classes = f.Ref("classes")
 	indexes = f.Ref("indexes")
 
-	dataField   = f.ObjKey("data")
-	refField    = f.ObjKey("ref")
-	beforeField = f.ObjKey("before")
-	afterField  = f.ObjKey("after")
+	dataField     = f.ObjKey("data")
+	refField      = f.ObjKey("ref")
+	beforeField   = f.ObjKey("before")
+	afterField    = f.ObjKey("after")
+	resourceField = f.ObjKey("resource")
 )
 
 var randomClass,
@@ -319,6 +320,27 @@ func (s *ClientTestSuite) TestDeleteAnInstance() {
 
 	s.Require().NoError(value.Get(&exists))
 	s.Require().False(exists)
+}
+
+func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
+	var created, inserted, removed *f.RefV
+
+	res := s.query(
+		f.Create(
+			randomClass,
+			f.Obj{"data": f.Obj{
+				"name": "Magic Missile",
+			}}),
+	)
+	s.Require().NoError(res.At(refField).Get(&created))
+
+	res = s.query(f.Insert(created, 1, f.CREATE, f.Obj{"data": f.Obj{"cooldown": 5}}))
+	s.Require().NoError(res.At(resourceField).Get(&inserted))
+	s.Require().Equal(inserted, created)
+
+	res = s.query(f.Remove(created, 2, f.DELETE))
+	s.Require().NoError(res.Get(&removed))
+	s.Require().Nil(removed)
 }
 
 func (s *ClientTestSuite) TestEvalLetExpression() {
