@@ -1,5 +1,10 @@
 package faunadb
 
+const (
+	CREATE = "create"
+	DELETE = "delete"
+)
+
 // Helper functions
 
 func varargs(expr ...interface{}) interface{} {
@@ -81,6 +86,10 @@ func Create(ref, params interface{}) Expr  { return fn{"create": ref, "params": 
 func Update(ref, params interface{}) Expr  { return fn{"update": ref, "params": params} }
 func Replace(ref, params interface{}) Expr { return fn{"replace": ref, "params": params} }
 func Delete(ref interface{}) Expr          { return fn{"delete": ref} }
+
+func Insert(ref, ts, action, params interface{}) Expr {
+	return fn{"insert": ref, "ts": ts, "action": action, "params": params}
+}
 
 // Others
 
