@@ -229,6 +229,19 @@ func TestSerializeInsert(t *testing.T) {
 	require.Equal(t, `{"action":"create","insert":{"@ref":"classes/spells/104979509696660483"},"params":{"object":{"data":{"object":{"name":"test"}}}},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
 }
 
+func TestSerializeRemove(t *testing.T) {
+	json, err := toJSON(
+		Remove(
+			Ref("classes/spells/104979509696660483"),
+			time.Unix(0, 0).UTC(),
+			DELETE,
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"action":"delete","remove":{"@ref":"classes/spells/104979509696660483"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
+}
+
 func TestSerializeNull(t *testing.T) {
 	json, err := toJSON(Null())
 

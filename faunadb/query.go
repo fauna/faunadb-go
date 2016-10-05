@@ -91,6 +91,10 @@ func Insert(ref, ts, action, params interface{}) Expr {
 	return fn{"insert": ref, "ts": ts, "action": action, "params": params}
 }
 
+func Remove(ref, ts, action interface{}) Expr {
+	return fn{"remove": ref, "ts": ts, "action": action}
+}
+
 // Others
 
 func Ref(id string) Expr              { return RefV{id} }
