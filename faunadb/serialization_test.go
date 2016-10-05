@@ -510,6 +510,15 @@ func TestSerializeConcatWithSeparator(t *testing.T) {
 	require.Equal(t, `{"concat":["a","b"],"separator":"/"}`, json)
 }
 
+func TestSerializeCasefold(t *testing.T) {
+	json, err := toJSON(
+		Casefold("GET DOWN"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"casefold":"GET DOWN"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

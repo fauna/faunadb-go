@@ -106,6 +106,10 @@ func Concat(terms interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"concat": terms}, options)
 }
 
+func Casefold(str interface{}) Expr {
+	return fn{"casefold": str}
+}
+
 // Others
 
 func Ref(id string) Expr              { return RefV{id} }
