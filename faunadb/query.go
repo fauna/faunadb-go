@@ -3,6 +3,11 @@ package faunadb
 const (
 	CREATE = "create"
 	DELETE = "delete"
+
+	SECOND      = "second"
+	MILLISECOND = "millisecond"
+	MICROSECOND = "microsecond"
+	NANOSECOND  = "nanosecond"
 )
 
 // Helper functions
@@ -112,7 +117,8 @@ func Casefold(str interface{}) Expr {
 
 // Time and Date
 
-func Time(str interface{}) Expr { return fn{"time": str} }
+func Time(str interface{}) Expr        { return fn{"time": str} }
+func Epoch(num, unit interface{}) Expr { return fn{"epoch": num, "unit": unit} }
 
 // Others
 

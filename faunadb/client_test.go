@@ -580,6 +580,26 @@ func (s *ClientTestSuite) TestEvalTimeExpression() {
 	)
 }
 
+func (s *ClientTestSuite) TestEvalEpochExpression() {
+	var t []time.Time
+
+	res := s.query(f.Arr{
+		f.Epoch(30, f.SECOND),
+		f.Epoch(30, f.MILLISECOND),
+		f.Epoch(30, f.MICROSECOND),
+		f.Epoch(30, f.NANOSECOND),
+	})
+
+	s.Require().NoError(res.Get(&t))
+
+	s.Require().Equal(t, []time.Time{
+		time.Unix(30, 0).UTC(),
+		time.Unix(0, 30000000).UTC(),
+		time.Unix(0, 30000).UTC(),
+		time.Unix(0, 30).UTC(),
+	})
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

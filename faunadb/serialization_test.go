@@ -528,6 +528,18 @@ func TestSerializeTime(t *testing.T) {
 	require.Equal(t, `{"time":"1970-01-01T00:00:00+00:00"}`, json)
 }
 
+func TestSerializeEpoch(t *testing.T) {
+	json, err := toJSON(Arr{
+		Epoch(0, SECOND),
+		Epoch(0, MILLISECOND),
+		Epoch(0, MICROSECOND),
+		Epoch(0, NANOSECOND),
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `[{"epoch":0,"unit":"second"},{"epoch":0,"unit":"millisecond"},{"epoch":0,"unit":"microsecond"},{"epoch":0,"unit":"nanosecond"}]`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
