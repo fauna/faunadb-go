@@ -519,6 +519,15 @@ func TestSerializeCasefold(t *testing.T) {
 	require.Equal(t, `{"casefold":"GET DOWN"}`, json)
 }
 
+func TestSerializeTime(t *testing.T) {
+	json, err := toJSON(
+		Time("1970-01-01T00:00:00+00:00"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"time":"1970-01-01T00:00:00+00:00"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

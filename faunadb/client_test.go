@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"testing"
+	"time"
 
 	f "github.com/faunadb/faunadb-go/faunadb"
 	"github.com/stretchr/testify/suite"
@@ -562,6 +563,21 @@ func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 
 	s.Require().NoError(res.Get(&str))
 	s.Require().Equal("get down", str)
+}
+
+func (s *ClientTestSuite) TestEvalTimeExpression() {
+	var t time.Time
+
+	res := s.query(
+		f.Time("1970-01-01T00:00:00-04:00"),
+	)
+
+	s.Require().NoError(res.Get(&t))
+
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(4)*time.Hour),
+	)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

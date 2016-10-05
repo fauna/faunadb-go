@@ -110,6 +110,10 @@ func Casefold(str interface{}) Expr {
 	return fn{"casefold": str}
 }
 
+// Time and Date
+
+func Time(str interface{}) Expr { return fn{"time": str} }
+
 // Others
 
 func Ref(id string) Expr              { return RefV{id} }
