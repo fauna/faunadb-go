@@ -39,9 +39,7 @@ func DeleteTestDB() {
 
 func createTestDatabase() (err error) {
 	_, err = adminClient.Query(
-		Create(Ref("databases"), Obj{
-			"name": dbName,
-		}),
+		CreateDatabase(Obj{"name": dbName}),
 	)
 
 	return

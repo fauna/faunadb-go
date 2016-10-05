@@ -253,6 +253,17 @@ func TestSerializeCreateClass(t *testing.T) {
 	require.Equal(t, `{"create_class":{"object":{"name":"boons"}}}`, json)
 }
 
+func TestSerializeCreateDatabase(t *testing.T) {
+	json, err := toJSON(
+		CreateDatabase(Obj{
+			"name": "db-next",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"create_database":{"object":{"name":"db-next"}}}`, json)
+}
+
 func TestSerializeNull(t *testing.T) {
 	json, err := toJSON(Null())
 
