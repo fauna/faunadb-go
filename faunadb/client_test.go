@@ -327,7 +327,8 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 			randomClass,
 			f.Obj{"data": f.Obj{
 				"name": "Magic Missile",
-			}}),
+			}},
+		),
 	)
 	s.Require().NoError(res.At(refField).Get(&created))
 
