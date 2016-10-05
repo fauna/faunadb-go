@@ -573,7 +573,6 @@ func (s *ClientTestSuite) TestEvalTimeExpression() {
 	)
 
 	s.Require().NoError(res.Get(&t))
-
 	s.Require().Equal(t,
 		time.Unix(0, 0).UTC().
 			Add(time.Duration(4)*time.Hour),
@@ -598,6 +597,20 @@ func (s *ClientTestSuite) TestEvalEpochExpression() {
 		time.Unix(0, 30000).UTC(),
 		time.Unix(0, 30).UTC(),
 	})
+}
+
+func (s *ClientTestSuite) TestEvalDateExpression() {
+	var t time.Time
+
+	res := s.query(
+		f.Date("1970-01-02"),
+	)
+
+	s.Require().NoError(res.Get(&t))
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(24)*time.Hour),
+	)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

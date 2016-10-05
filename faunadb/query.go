@@ -118,6 +118,7 @@ func Casefold(str interface{}) Expr {
 // Time and Date
 
 func Time(str interface{}) Expr        { return fn{"time": str} }
+func Date(str interface{}) Expr        { return fn{"date": str} }
 func Epoch(num, unit interface{}) Expr { return fn{"epoch": num, "unit": unit} }
 
 // Others
