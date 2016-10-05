@@ -15,9 +15,7 @@ func TestRunClientTests(t *testing.T) {
 }
 
 var (
-	classes = f.Ref("classes")
-	indexes = f.Ref("indexes")
-
+	indexes       = f.Ref("indexes")
 	dataField     = f.ObjKey("data")
 	refField      = f.ObjKey("ref")
 	beforeField   = f.ObjKey("before")
@@ -58,15 +56,15 @@ func (s *ClientTestSuite) SetupSuite() {
 
 func (s *ClientTestSuite) setupSchema() {
 	randomClass = s.queryForRef(
-		f.Create(classes, f.Obj{"name": s.randomStartingWith("some_class_")}),
+		f.CreateClass(f.Obj{"name": s.randomStartingWith("some_class_")}),
 	)
 
 	spells = s.queryForRef(
-		f.Create(classes, f.Obj{"name": "spells"}),
+		f.CreateClass(f.Obj{"name": "spells"}),
 	)
 
 	characters = s.queryForRef(
-		f.Create(classes, f.Obj{"name": "characters"}),
+		f.CreateClass(f.Obj{"name": "characters"}),
 	)
 
 	allSpells = s.queryForRef(
