@@ -15,7 +15,6 @@ func TestRunClientTests(t *testing.T) {
 }
 
 var (
-	indexes       = f.Ref("indexes")
 	dataField     = f.ObjKey("data")
 	refField      = f.ObjKey("ref")
 	beforeField   = f.ObjKey("before")
@@ -68,7 +67,7 @@ func (s *ClientTestSuite) setupSchema() {
 	)
 
 	allSpells = s.queryForRef(
-		f.Create(indexes, f.Obj{
+		f.CreateIndex(f.Obj{
 			"name":   "all_spells",
 			"source": spells,
 		}),
