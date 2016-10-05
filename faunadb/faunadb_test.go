@@ -49,7 +49,7 @@ func createServerKey() (secret string, err error) {
 	var key Value
 
 	key, err = adminClient.Query(
-		Create(Ref("keys"), Obj{
+		CreateKey(Obj{
 			"database": dbRef,
 			"role":     "server",
 		}),

@@ -276,6 +276,18 @@ func TestSerializeCreateIndex(t *testing.T) {
 	require.Equal(t, `{"create_index":{"object":{"name":"new-index","source":{"@ref":"classes/spells"}}}}`, json)
 }
 
+func TestSerializeCreateKey(t *testing.T) {
+	json, err := toJSON(
+		CreateKey(Obj{
+			"database": Ref("databases/prydain"),
+			"role":     "server",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"create_key":{"object":{"database":{"@ref":"databases/prydain"},"role":"server"}}}`, json)
+}
+
 func TestSerializeNull(t *testing.T) {
 	json, err := toJSON(Null())
 
