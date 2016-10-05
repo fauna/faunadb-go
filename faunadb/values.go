@@ -34,9 +34,13 @@ func (boolean BooleanV) toJSON() (interface{}, error) { return boolean, nil }
 
 type DateV time.Time
 
-func (date DateV) Get(i interface{}) error      { return newValueDecoder(i).assign(date) }
-func (date DateV) At(field Field) FieldValue    { return field.get(date) }
-func (date DateV) toJSON() (interface{}, error) { return map[string]interface{}{"@date": date}, nil }
+func (date DateV) Get(i interface{}) error   { return newValueDecoder(i).assign(date) }
+func (date DateV) At(field Field) FieldValue { return field.get(date) }
+
+func (date DateV) toJSON() (interface{}, error) {
+	t := time.Time(date)
+	return map[string]interface{}{"@date": t.Format("2006-01-02")}, nil
+}
 
 type TimeV time.Time
 
@@ -44,7 +48,8 @@ func (localTime TimeV) Get(i interface{}) error   { return newValueDecoder(i).as
 func (localTime TimeV) At(field Field) FieldValue { return field.get(localTime) }
 
 func (localTime TimeV) toJSON() (interface{}, error) {
-	return map[string]interface{}{"@ts": localTime}, nil
+	t := time.Time(localTime)
+	return map[string]interface{}{"@ts": t.Format("2006-01-02T15:04:05.999999999Z")}, nil
 }
 
 type RefV struct {
@@ -63,20 +68,56 @@ func (set SetRefV) Get(i interface{}) error   { return newValueDecoder(i).assign
 func (set SetRefV) At(field Field) FieldValue { return field.get(set) }
 
 func (set SetRefV) toJSON() (interface{}, error) {
-	return map[string]interface{}{"@set": set.Parameters}, nil
+	escaped, err := set.Parameters.toJSON()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{"@set": escaped}, nil
 }
 
 type ObjectV map[string]Value
 
-func (obj ObjectV) Get(i interface{}) error      { return newValueDecoder(i).decodeMap(obj) }
-func (obj ObjectV) At(field Field) FieldValue    { return field.get(obj) }
-func (obj ObjectV) toJSON() (interface{}, error) { return map[string]interface{}{"object": obj}, nil }
+func (obj ObjectV) Get(i interface{}) error   { return newValueDecoder(i).decodeMap(obj) }
+func (obj ObjectV) At(field Field) FieldValue { return field.get(obj) }
+
+func (obj ObjectV) toJSON() (interface{}, error) {
+	res := make(map[string]interface{}, len(obj))
+
+	for k, v := range obj {
+		escaped, err := v.toJSON()
+
+		if err != nil {
+			return nil, err
+		}
+
+		res[k] = escaped
+	}
+
+	return map[string]interface{}{"object": res}, nil
+}
 
 type ArrayV []Value
 
-func (arr ArrayV) Get(i interface{}) error      { return newValueDecoder(i).decodeArray(arr) }
-func (arr ArrayV) At(field Field) FieldValue    { return field.get(arr) }
-func (arr ArrayV) toJSON() (interface{}, error) { return arr, nil }
+func (arr ArrayV) Get(i interface{}) error   { return newValueDecoder(i).decodeArray(arr) }
+func (arr ArrayV) At(field Field) FieldValue { return field.get(arr) }
+
+func (arr ArrayV) toJSON() (interface{}, error) {
+	res := make([]interface{}, len(arr))
+
+	for i, elem := range arr {
+		escaped, err := elem.toJSON()
+
+		if err != nil {
+			return nil, err
+		}
+
+		res[i] = escaped
+	}
+
+	return res, nil
+}
 
 type NullV struct{}
 

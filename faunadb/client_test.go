@@ -16,15 +16,20 @@ func TestRunClientTests(t *testing.T) {
 
 var (
 	classes = f.Ref("classes")
+	indexes = f.Ref("indexes")
 
-	dataField = f.ObjKey("data")
-	refField  = f.ObjKey("ref")
+	dataField   = f.ObjKey("data")
+	refField    = f.ObjKey("ref")
+	beforeField = f.ObjKey("before")
+	afterField  = f.ObjKey("after")
 )
 
 var randomClass,
 	spells,
 	characters,
+	allSpells,
 	magicMissile,
+	fireball,
 	thor f.RefV
 
 type Spell struct {
@@ -63,6 +68,13 @@ func (s *ClientTestSuite) setupSchema() {
 		f.Create(classes, f.Obj{"name": "characters"}),
 	)
 
+	allSpells = s.queryForRef(
+		f.Create(indexes, f.Obj{
+			"name":   "all_spells",
+			"source": spells,
+		}),
+	)
+
 	magicMissile = s.queryForRef(
 		f.Create(spells,
 			f.Obj{"data": Spell{
@@ -71,6 +83,15 @@ func (s *ClientTestSuite) setupSchema() {
 				Cost:     10,
 			}},
 		),
+	)
+
+	fireball = s.queryForRef(
+		f.Create(spells,
+			f.Obj{"data": Spell{
+				Name:     "Fireball",
+				Elements: []string{"fire"},
+				Cost:     10,
+			}}),
 	)
 
 	thor = s.queryForRef(
@@ -424,6 +445,66 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 
 	s.Require().NoError(res.Get(&arr))
 	s.Require().Equal([]int{1, 2, 3, 4}, arr)
+}
+
+func (s *ClientTestSuite) TestCountElementsOnAIndex() {
+	var num int
+
+	res := s.query(f.Count(f.Match(allSpells)))
+
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(2, num)
+}
+
+func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
+	type events struct {
+		Creates int `fauna:"creates"`
+		Deletes int `fauna:"deletes"`
+	}
+
+	var allEvents events
+
+	res := s.query(
+		f.Count(
+			f.Match(allSpells),
+			f.Events(true),
+		),
+	)
+
+	s.Require().NoError(res.Get(&allEvents))
+	s.Require().Equal(events{2, 0}, allEvents)
+}
+
+func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
+	res := s.query(
+		f.Paginate(
+			f.Match(allSpells),
+			f.Size(1),
+		),
+	)
+
+	var spells []f.RefV
+	var before, after f.Value
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().NoError(res.At(afterField).Get(&after))
+
+	s.Require().Len(spells, 1)
+	s.Require().NotNil(after)
+
+	res = s.query(
+		f.Paginate(
+			f.Match(allSpells),
+			f.After(after),
+			f.Size(1),
+		),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().NoError(res.At(beforeField).Get(&before))
+
+	s.Require().Len(spells, 1)
+	s.Require().NotNil(before)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

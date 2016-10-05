@@ -2,9 +2,54 @@ package faunadb
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestSerializeObjectV(t *testing.T) {
+	json, err := toJSON(ObjectV{
+		"data": ObjectV{
+			"name": StringV("test"),
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `{"object":{"data":{"object":{"name":"test"}}}}`, json)
+}
+
+func TestSerializeArrayV(t *testing.T) {
+	json, err := toJSON(ArrayV{
+		ObjectV{"name": StringV("a")},
+		ObjectV{"name": StringV("b")},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `[{"object":{"name":"a"}},{"object":{"name":"b"}}]`, json)
+}
+
+func TestSerializeSetRefV(t *testing.T) {
+	json, err := toJSON(SetRefV{
+		ObjectV{"name": StringV("a")},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `{"@set":{"object":{"name":"a"}}}`, json)
+}
+
+func TestSerializeDateV(t *testing.T) {
+	json, err := toJSON(DateV(time.Unix(0, 0).UTC()))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"@date":"1970-01-01"}`, json)
+}
+
+func TestSerializeTimeV(t *testing.T) {
+	json, err := toJSON(TimeV(time.Unix(1, 2).UTC()))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"@ts":"1970-01-01T00:00:01.000000002Z"}`, json)
+}
 
 func TestSerializeObject(t *testing.T) {
 	json, err := toJSON(Obj{"key": "value"})
@@ -170,15 +215,6 @@ func TestSerializeDelete(t *testing.T) {
 	require.Equal(t, `{"delete":{"@ref":"classes/spells/123"}}`, json)
 }
 
-func TestSerializeGet(t *testing.T) {
-	json, err := toJSON(
-		Get(Ref("classes/spells/42")),
-	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
-}
-
 func TestSerializeNull(t *testing.T) {
 	json, err := toJSON(Null())
 
@@ -299,6 +335,27 @@ func TestSerializeAppend(t *testing.T) {
 	require.Equal(t, `{"append":[4,5,6],"collection":[1,2,3]}`, json)
 }
 
+func TestSerializeGet(t *testing.T) {
+	json, err := toJSON(
+		Get(Ref("classes/spells/42")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
+}
+
+func TestSerializeGetWithTimestamp(t *testing.T) {
+	json, err := toJSON(
+		Get(
+			Ref("classes/spells/42"),
+			TS(time.Unix(0, 0).UTC()),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"get":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
+}
+
 func TestSerializeExists(t *testing.T) {
 	json, err := toJSON(
 		Exists(Ref("classes/spells/42")),
@@ -308,6 +365,59 @@ func TestSerializeExists(t *testing.T) {
 	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
 }
 
+func TestSerializeExistsWithTimestamp(t *testing.T) {
+	json, err := toJSON(
+		Exists(
+			Ref("classes/spells/42"),
+			TS(time.Unix(1, 1).UTC()),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:01.000000001Z"}}`, json)
+}
+
+func TestSerializeCount(t *testing.T) {
+	json, err := toJSON(Count(Ref("databases")))
+
+	require.NoError(t, err)
+	require.Equal(t, `{"count":{"@ref":"databases"}}`, json)
+}
+
+func TestSerializeCountEvents(t *testing.T) {
+	json, err := toJSON(
+		Count(Ref("databases"), Events(true)),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"count":{"@ref":"databases"},"events":true}`, json)
+}
+
+func TestSerializePaginate(t *testing.T) {
+	json, err := toJSON(
+		Paginate(Ref("databases")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"paginate":{"@ref":"databases"}}`, json)
+}
+
+func TestSerializePaginateWithParameters(t *testing.T) {
+	json, err := toJSON(
+		Paginate(
+			Ref("databases"),
+			Before(Ref("databases/test10")),
+			After(Ref("databases/test")),
+			Events(true),
+			Sources(true),
+			TS(10),
+			Size(2),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"after":{"@ref":"databases/test"},"before":{"@ref":"databases/test10"},"events":true,"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10}`, json)
+}
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
