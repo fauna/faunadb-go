@@ -491,6 +491,25 @@ func TestSerializePaginateWithParameters(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, `{"after":{"@ref":"databases/test"},"before":{"@ref":"databases/test10"},"events":true,"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10}`, json)
 }
+
+func TestSerializeConcat(t *testing.T) {
+	json, err := toJSON(
+		Concat(Arr{"a", "b"}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"concat":["a","b"]}`, json)
+}
+
+func TestSerializeConcatWithSeparator(t *testing.T) {
+	json, err := toJSON(
+		Concat(Arr{"a", "b"}, Separator("/")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"concat":["a","b"],"separator":"/"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
