@@ -39,9 +39,7 @@ func DeleteTestDB() {
 
 func createTestDatabase() (err error) {
 	_, err = adminClient.Query(
-		Create(Ref("databases"), Obj{
-			"name": dbName,
-		}),
+		CreateDatabase(Obj{"name": dbName}),
 	)
 
 	return
@@ -51,7 +49,7 @@ func createServerKey() (secret string, err error) {
 	var key Value
 
 	key, err = adminClient.Query(
-		Create(Ref("keys"), Obj{
+		CreateKey(Obj{
 			"database": dbRef,
 			"role":     "server",
 		}),

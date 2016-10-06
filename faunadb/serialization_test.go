@@ -215,6 +215,79 @@ func TestSerializeDelete(t *testing.T) {
 	require.Equal(t, `{"delete":{"@ref":"classes/spells/123"}}`, json)
 }
 
+func TestSerializeInsert(t *testing.T) {
+	json, err := toJSON(
+		Insert(
+			Ref("classes/spells/104979509696660483"),
+			time.Unix(0, 0).UTC(),
+			CREATE,
+			Obj{"data": Obj{"name": "test"}},
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"action":"create","insert":{"@ref":"classes/spells/104979509696660483"},"params":{"object":{"data":{"object":{"name":"test"}}}},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
+}
+
+func TestSerializeRemove(t *testing.T) {
+	json, err := toJSON(
+		Remove(
+			Ref("classes/spells/104979509696660483"),
+			time.Unix(0, 0).UTC(),
+			DELETE,
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"action":"delete","remove":{"@ref":"classes/spells/104979509696660483"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
+}
+
+func TestSerializeCreateClass(t *testing.T) {
+	json, err := toJSON(
+		CreateClass(Obj{
+			"name": "boons",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"create_class":{"object":{"name":"boons"}}}`, json)
+}
+
+func TestSerializeCreateDatabase(t *testing.T) {
+	json, err := toJSON(
+		CreateDatabase(Obj{
+			"name": "db-next",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"create_database":{"object":{"name":"db-next"}}}`, json)
+}
+
+func TestSerializeCreateIndex(t *testing.T) {
+	json, err := toJSON(
+		CreateIndex(Obj{
+			"name":   "new-index",
+			"source": Ref("classes/spells"),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"create_index":{"object":{"name":"new-index","source":{"@ref":"classes/spells"}}}}`, json)
+}
+
+func TestSerializeCreateKey(t *testing.T) {
+	json, err := toJSON(
+		CreateKey(Obj{
+			"database": Ref("databases/prydain"),
+			"role":     "server",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"create_key":{"object":{"database":{"@ref":"databases/prydain"},"role":"server"}}}`, json)
+}
+
 func TestSerializeNull(t *testing.T) {
 	json, err := toJSON(Null())
 

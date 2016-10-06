@@ -15,13 +15,11 @@ func TestRunClientTests(t *testing.T) {
 }
 
 var (
-	classes = f.Ref("classes")
-	indexes = f.Ref("indexes")
-
-	dataField   = f.ObjKey("data")
-	refField    = f.ObjKey("ref")
-	beforeField = f.ObjKey("before")
-	afterField  = f.ObjKey("after")
+	dataField     = f.ObjKey("data")
+	refField      = f.ObjKey("ref")
+	beforeField   = f.ObjKey("before")
+	afterField    = f.ObjKey("after")
+	resourceField = f.ObjKey("resource")
 )
 
 var randomClass,
@@ -57,19 +55,19 @@ func (s *ClientTestSuite) SetupSuite() {
 
 func (s *ClientTestSuite) setupSchema() {
 	randomClass = s.queryForRef(
-		f.Create(classes, f.Obj{"name": s.randomStartingWith("some_class_")}),
+		f.CreateClass(f.Obj{"name": s.randomStartingWith("some_class_")}),
 	)
 
 	spells = s.queryForRef(
-		f.Create(classes, f.Obj{"name": "spells"}),
+		f.CreateClass(f.Obj{"name": "spells"}),
 	)
 
 	characters = s.queryForRef(
-		f.Create(classes, f.Obj{"name": "characters"}),
+		f.CreateClass(f.Obj{"name": "characters"}),
 	)
 
 	allSpells = s.queryForRef(
-		f.Create(indexes, f.Obj{
+		f.CreateIndex(f.Obj{
 			"name":   "all_spells",
 			"source": spells,
 		}),
@@ -319,6 +317,28 @@ func (s *ClientTestSuite) TestDeleteAnInstance() {
 
 	s.Require().NoError(value.Get(&exists))
 	s.Require().False(exists)
+}
+
+func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
+	var created, inserted, removed *f.RefV
+
+	res := s.query(
+		f.Create(
+			randomClass,
+			f.Obj{"data": f.Obj{
+				"name": "Magic Missile",
+			}},
+		),
+	)
+	s.Require().NoError(res.At(refField).Get(&created))
+
+	res = s.query(f.Insert(created, 1, f.CREATE, f.Obj{"data": f.Obj{"cooldown": 5}}))
+	s.Require().NoError(res.At(resourceField).Get(&inserted))
+	s.Require().Equal(inserted, created)
+
+	res = s.query(f.Remove(created, 2, f.DELETE))
+	s.Require().NoError(res.Get(&removed))
+	s.Require().Nil(removed)
 }
 
 func (s *ClientTestSuite) TestEvalLetExpression() {
