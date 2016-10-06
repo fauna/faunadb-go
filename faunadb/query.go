@@ -123,6 +123,10 @@ func Time(str interface{}) Expr        { return fn{"time": str} }
 func Date(str interface{}) Expr        { return fn{"date": str} }
 func Epoch(num, unit interface{}) Expr { return fn{"epoch": num, "unit": unit} }
 
+// Set
+
+func Match(ref interface{}) Expr { return fn{"match": ref} }
+
 // Others
 
 func Ref(id string) Expr              { return RefV{id} }
@@ -130,4 +134,3 @@ func Null() Expr                      { return NullV{} }
 func Add(args ...interface{}) Expr    { return fn{"add": varargs(args...)} }
 func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
 func Equals(args ...interface{}) Expr { return fn{"equals": varargs(args...)} }
-func Match(ref interface{}) Expr      { return fn{"match": ref} }

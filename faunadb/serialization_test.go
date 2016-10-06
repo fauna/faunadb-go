@@ -549,6 +549,15 @@ func TestSerializeDate(t *testing.T) {
 	require.Equal(t, `{"date":"1970-01-01"}`, json)
 }
 
+func TestSerializeMatch(t *testing.T) {
+	json, err := toJSON(
+		Match(Ref("databases")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"match":{"@ref":"databases"}}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
