@@ -634,6 +634,15 @@ func TestSerializeDifference(t *testing.T) {
 	require.Equal(t, `{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
 }
 
+func TestSerializeDistinct(t *testing.T) {
+	json, err := toJSON(
+		Distinct(Ref("indexes/active_users")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"distinct":{"@ref":"indexes/active_users"}}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

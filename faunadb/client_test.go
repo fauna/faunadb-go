@@ -28,6 +28,7 @@ var randomClass,
 	characters,
 	allSpells,
 	spellsByElement,
+	elementsOfSpells,
 	magicMissile,
 	fireball,
 	faerieFire,
@@ -81,6 +82,16 @@ func (s *ClientTestSuite) setupSchema() {
 			"name":   "spells_by_name",
 			"source": spells,
 			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "elements"},
+			}},
+		}),
+	)
+
+	elementsOfSpells = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "elements_of_spells",
+			"source": spells,
+			"values": f.Arr{f.Obj{
 				"field": f.Arr{"data", "elements"},
 			}},
 		}),
@@ -609,6 +620,20 @@ func (s *ClientTestSuite) TestDifference() {
 	s.Require().NoError(res.At(dataField).Get(&spells))
 	s.Require().Len(spells, 1)
 	s.Require().Contains(spells, magicMissile)
+}
+
+func (s *ClientTestSuite) TestDistinct() {
+	var elements []string
+
+	res := s.query(
+		f.Paginate(
+			f.Distinct(f.Match(elementsOfSpells)),
+		),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&elements))
+	s.Require().Len(elements, 3)
+	s.Require().Equal([]string{"arcane", "fire", "nature"}, elements)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {

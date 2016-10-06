@@ -130,6 +130,7 @@ func MatchTerm(ref, terms interface{}) Expr { return fn{"match": ref, "terms": t
 func Union(sets ...interface{}) Expr        { return fn{"union": varargs(sets...)} }
 func Intersection(sets ...interface{}) Expr { return fn{"intersection": varargs(sets...)} }
 func Difference(sets ...interface{}) Expr   { return fn{"difference": varargs(sets...)} }
+func Distinct(set interface{}) Expr         { return fn{"distinct": set} }
 
 // Others
 
