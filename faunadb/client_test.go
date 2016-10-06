@@ -596,6 +596,21 @@ func (s *ClientTestSuite) TestIntersection() {
 	s.Require().Contains(spells, faerieFire)
 }
 
+func (s *ClientTestSuite) TestDifference() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.Difference(
+			f.MatchTerm(spellsByElement, "arcane"),
+			f.MatchTerm(spellsByElement, "nature"),
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Len(spells, 1)
+	s.Require().Contains(spells, magicMissile)
+}
+
 func (s *ClientTestSuite) TestEvalConcatExpression() {
 	var str string
 
