@@ -570,6 +570,18 @@ func TestSerializeMatchWithTerms(t *testing.T) {
 	require.Equal(t, `{"match":{"@ref":"indexes/spells_by_name"},"terms":"magic missile"}`, json)
 }
 
+func TestSerializeUnion(t *testing.T) {
+	json, err := toJSON(
+		Union(
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

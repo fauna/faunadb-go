@@ -27,7 +27,7 @@ var randomClass,
 	spells,
 	characters,
 	allSpells,
-	spellsByName,
+	spellsByElement,
 	magicMissile,
 	fireball,
 	thor f.RefV
@@ -75,12 +75,12 @@ func (s *ClientTestSuite) setupSchema() {
 		}),
 	)
 
-	spellsByName = s.queryForRef(
+	spellsByElement = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "spells_by_name",
 			"source": spells,
 			"terms": f.Arr{f.Obj{
-				"field": f.Arr{"data", "name"},
+				"field": f.Arr{"data", "elements"},
 			}},
 		}),
 	)
@@ -544,14 +544,30 @@ func (s *ClientTestSuite) TestFindASingleInstanceOnAIndex() {
 
 	res := s.query(
 		f.Paginate(f.MatchTerm(
-			spellsByName,
-			"Fireball",
+			spellsByElement,
+			"fire",
 		)),
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
 	s.Require().Len(spells, 1)
 	s.Require().Contains(spells, fireball)
+}
+
+func (s *ClientTestSuite) TestUnion() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.Union(
+			f.MatchTerm(spellsByElement, "arcane"),
+			f.MatchTerm(spellsByElement, "fire"),
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Len(spells, 2)
+	s.Require().Contains(spells, fireball)
+	s.Require().Contains(spells, magicMissile)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {

@@ -127,6 +127,7 @@ func Epoch(num, unit interface{}) Expr { return fn{"epoch": num, "unit": unit} }
 
 func Match(ref interface{}) Expr            { return fn{"match": ref} }
 func MatchTerm(ref, terms interface{}) Expr { return fn{"match": ref, "terms": terms} }
+func Union(sets ...interface{}) Expr        { return fn{"union": varargs(sets...)} }
 
 // Others
 
