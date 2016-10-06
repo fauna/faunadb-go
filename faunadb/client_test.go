@@ -27,6 +27,7 @@ var randomClass,
 	spells,
 	characters,
 	allSpells,
+	spellsByName,
 	magicMissile,
 	fireball,
 	thor f.RefV
@@ -71,6 +72,16 @@ func (s *ClientTestSuite) setupSchema() {
 		f.CreateIndex(f.Obj{
 			"name":   "all_spells",
 			"source": spells,
+		}),
+	)
+
+	spellsByName = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "spells_by_name",
+			"source": spells,
+			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "name"},
+			}},
 		}),
 	)
 
@@ -526,6 +537,21 @@ func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 
 	s.Require().Len(spells, 1)
 	s.Require().NotNil(before)
+}
+
+func (s *ClientTestSuite) TestFindASingleInstanceOnAIndex() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.MatchTerm(
+			spellsByName,
+			"Fireball",
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Len(spells, 1)
+	s.Require().Contains(spells, fireball)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {

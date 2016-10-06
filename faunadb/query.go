@@ -125,7 +125,8 @@ func Epoch(num, unit interface{}) Expr { return fn{"epoch": num, "unit": unit} }
 
 // Set
 
-func Match(ref interface{}) Expr { return fn{"match": ref} }
+func Match(ref interface{}) Expr            { return fn{"match": ref} }
+func MatchTerm(ref, terms interface{}) Expr { return fn{"match": ref, "terms": terms} }
 
 // Others
 

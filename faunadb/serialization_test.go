@@ -558,6 +558,18 @@ func TestSerializeMatch(t *testing.T) {
 	require.Equal(t, `{"match":{"@ref":"databases"}}`, json)
 }
 
+func TestSerializeMatchWithTerms(t *testing.T) {
+	json, err := toJSON(
+		MatchTerm(
+			Ref("indexes/spells_by_name"),
+			"magic missile",
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"match":{"@ref":"indexes/spells_by_name"},"terms":"magic missile"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
