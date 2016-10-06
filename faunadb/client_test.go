@@ -30,6 +30,7 @@ var randomClass,
 	spellsByElement,
 	magicMissile,
 	fireball,
+	faerieFire,
 	thor f.RefV
 
 type Spell struct {
@@ -100,6 +101,15 @@ func (s *ClientTestSuite) setupSchema() {
 			f.Obj{"data": Spell{
 				Name:     "Fireball",
 				Elements: []string{"fire"},
+				Cost:     10,
+			}}),
+	)
+
+	faerieFire = s.queryForRef(
+		f.Create(spells,
+			f.Obj{"data": Spell{
+				Name:     "Faerie Fire",
+				Elements: []string{"arcane", "nature"},
 				Cost:     10,
 			}}),
 	)
@@ -485,7 +495,7 @@ func (s *ClientTestSuite) TestCountElementsOnAIndex() {
 	res := s.query(f.Count(f.Match(allSpells)))
 
 	s.Require().NoError(res.Get(&num))
-	s.Require().Equal(2, num)
+	s.Require().Equal(3, num)
 }
 
 func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
@@ -504,7 +514,7 @@ func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
 	)
 
 	s.Require().NoError(res.Get(&allEvents))
-	s.Require().Equal(events{2, 0}, allEvents)
+	s.Require().Equal(events{3, 0}, allEvents)
 }
 
 func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
@@ -565,9 +575,25 @@ func (s *ClientTestSuite) TestUnion() {
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Len(spells, 2)
+	s.Require().Len(spells, 3)
 	s.Require().Contains(spells, fireball)
 	s.Require().Contains(spells, magicMissile)
+	s.Require().Contains(spells, faerieFire)
+}
+
+func (s *ClientTestSuite) TestIntersection() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.Intersection(
+			f.MatchTerm(spellsByElement, "arcane"),
+			f.MatchTerm(spellsByElement, "nature"),
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Len(spells, 1)
+	s.Require().Contains(spells, faerieFire)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {

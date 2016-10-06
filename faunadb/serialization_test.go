@@ -590,6 +590,28 @@ func TestSerializeUnion(t *testing.T) {
 	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
 }
 
+func TestSerializeIntersection(t *testing.T) {
+	json, err := toJSON(
+		Intersection(Arr{
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+
+	json, err = toJSON(
+		Intersection(
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
