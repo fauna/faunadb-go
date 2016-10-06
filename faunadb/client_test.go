@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"testing"
+	"time"
 
 	f "github.com/faunadb/faunadb-go/faunadb"
 	"github.com/stretchr/testify/suite"
@@ -332,11 +333,11 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 	)
 	s.Require().NoError(res.At(refField).Get(&created))
 
-	res = s.query(f.Insert(created, 1, f.CREATE, f.Obj{"data": f.Obj{"cooldown": 5}}))
+	res = s.query(f.Insert(created, 1, f.ActionCreate, f.Obj{"data": f.Obj{"cooldown": 5}}))
 	s.Require().NoError(res.At(resourceField).Get(&inserted))
 	s.Require().Equal(inserted, created)
 
-	res = s.query(f.Remove(created, 2, f.DELETE))
+	res = s.query(f.Remove(created, 2, f.ActionDelete))
 	s.Require().NoError(res.Get(&removed))
 	s.Require().Nil(removed)
 }
@@ -562,6 +563,54 @@ func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 
 	s.Require().NoError(res.Get(&str))
 	s.Require().Equal("get down", str)
+}
+
+func (s *ClientTestSuite) TestEvalTimeExpression() {
+	var t time.Time
+
+	res := s.query(
+		f.Time("1970-01-01T00:00:00-04:00"),
+	)
+
+	s.Require().NoError(res.Get(&t))
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(4)*time.Hour),
+	)
+}
+
+func (s *ClientTestSuite) TestEvalEpochExpression() {
+	var t []time.Time
+
+	res := s.query(f.Arr{
+		f.Epoch(30, f.TimeUnitSecond),
+		f.Epoch(30, f.TimeUnitMillisecond),
+		f.Epoch(30, f.TimeUnitMicrosecond),
+		f.Epoch(30, f.TimeUnitNanosecond),
+	})
+
+	s.Require().NoError(res.Get(&t))
+
+	s.Require().Equal(t, []time.Time{
+		time.Unix(30, 0).UTC(),
+		time.Unix(0, 30000000).UTC(),
+		time.Unix(0, 30000).UTC(),
+		time.Unix(0, 30).UTC(),
+	})
+}
+
+func (s *ClientTestSuite) TestEvalDateExpression() {
+	var t time.Time
+
+	res := s.query(
+		f.Date("1970-01-02"),
+	)
+
+	s.Require().NoError(res.Get(&t))
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(24)*time.Hour),
+	)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

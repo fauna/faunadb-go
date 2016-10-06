@@ -220,7 +220,7 @@ func TestSerializeInsert(t *testing.T) {
 		Insert(
 			Ref("classes/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
-			CREATE,
+			ActionCreate,
 			Obj{"data": Obj{"name": "test"}},
 		),
 	)
@@ -234,7 +234,7 @@ func TestSerializeRemove(t *testing.T) {
 		Remove(
 			Ref("classes/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
-			DELETE,
+			ActionDelete,
 		),
 	)
 
@@ -517,6 +517,36 @@ func TestSerializeCasefold(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"casefold":"GET DOWN"}`, json)
+}
+
+func TestSerializeTime(t *testing.T) {
+	json, err := toJSON(
+		Time("1970-01-01T00:00:00+00:00"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"time":"1970-01-01T00:00:00+00:00"}`, json)
+}
+
+func TestSerializeEpoch(t *testing.T) {
+	json, err := toJSON(Arr{
+		Epoch(0, TimeUnitSecond),
+		Epoch(0, TimeUnitMillisecond),
+		Epoch(0, TimeUnitMicrosecond),
+		Epoch(0, TimeUnitNanosecond),
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, `[{"epoch":0,"unit":"second"},{"epoch":0,"unit":"millisecond"},{"epoch":0,"unit":"microsecond"},{"epoch":0,"unit":"nanosecond"}]`, json)
+}
+
+func TestSerializeDate(t *testing.T) {
+	json, err := toJSON(
+		Date("1970-01-01"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"date":"1970-01-01"}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {
