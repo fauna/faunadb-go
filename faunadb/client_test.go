@@ -571,8 +571,7 @@ func (s *ClientTestSuite) TestFindASingleInstanceOnAIndex() {
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Len(spells, 1)
-	s.Require().Contains(spells, fireball)
+	s.Require().Equal([]f.RefV{fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestUnion() {
@@ -586,10 +585,7 @@ func (s *ClientTestSuite) TestUnion() {
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Len(spells, 3)
-	s.Require().Contains(spells, fireball)
-	s.Require().Contains(spells, magicMissile)
-	s.Require().Contains(spells, faerieFire)
+	s.Require().Equal([]f.RefV{magicMissile, fireball, faerieFire}, spells)
 }
 
 func (s *ClientTestSuite) TestIntersection() {
@@ -603,8 +599,7 @@ func (s *ClientTestSuite) TestIntersection() {
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Len(spells, 1)
-	s.Require().Contains(spells, faerieFire)
+	s.Require().Equal([]f.RefV{faerieFire}, spells)
 }
 
 func (s *ClientTestSuite) TestDifference() {
@@ -618,8 +613,7 @@ func (s *ClientTestSuite) TestDifference() {
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Len(spells, 1)
-	s.Require().Contains(spells, magicMissile)
+	s.Require().Equal([]f.RefV{magicMissile}, spells)
 }
 
 func (s *ClientTestSuite) TestDistinct() {
