@@ -333,11 +333,11 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 	)
 	s.Require().NoError(res.At(refField).Get(&created))
 
-	res = s.query(f.Insert(created, 1, f.CREATE, f.Obj{"data": f.Obj{"cooldown": 5}}))
+	res = s.query(f.Insert(created, 1, f.ActionCreate, f.Obj{"data": f.Obj{"cooldown": 5}}))
 	s.Require().NoError(res.At(resourceField).Get(&inserted))
 	s.Require().Equal(inserted, created)
 
-	res = s.query(f.Remove(created, 2, f.DELETE))
+	res = s.query(f.Remove(created, 2, f.ActionDelete))
 	s.Require().NoError(res.Get(&removed))
 	s.Require().Nil(removed)
 }
@@ -583,10 +583,10 @@ func (s *ClientTestSuite) TestEvalEpochExpression() {
 	var t []time.Time
 
 	res := s.query(f.Arr{
-		f.Epoch(30, f.SECOND),
-		f.Epoch(30, f.MILLISECOND),
-		f.Epoch(30, f.MICROSECOND),
-		f.Epoch(30, f.NANOSECOND),
+		f.Epoch(30, f.TimeUnitSecond),
+		f.Epoch(30, f.TimeUnitMillisecond),
+		f.Epoch(30, f.TimeUnitMicrosecond),
+		f.Epoch(30, f.TimeUnitNanosecond),
 	})
 
 	s.Require().NoError(res.Get(&t))

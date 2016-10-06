@@ -220,7 +220,7 @@ func TestSerializeInsert(t *testing.T) {
 		Insert(
 			Ref("classes/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
-			CREATE,
+			ActionCreate,
 			Obj{"data": Obj{"name": "test"}},
 		),
 	)
@@ -234,7 +234,7 @@ func TestSerializeRemove(t *testing.T) {
 		Remove(
 			Ref("classes/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
-			DELETE,
+			ActionDelete,
 		),
 	)
 
@@ -530,10 +530,10 @@ func TestSerializeTime(t *testing.T) {
 
 func TestSerializeEpoch(t *testing.T) {
 	json, err := toJSON(Arr{
-		Epoch(0, SECOND),
-		Epoch(0, MILLISECOND),
-		Epoch(0, MICROSECOND),
-		Epoch(0, NANOSECOND),
+		Epoch(0, TimeUnitSecond),
+		Epoch(0, TimeUnitMillisecond),
+		Epoch(0, TimeUnitMicrosecond),
+		Epoch(0, TimeUnitNanosecond),
 	})
 
 	require.NoError(t, err)

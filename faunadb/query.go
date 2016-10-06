@@ -1,13 +1,15 @@
 package faunadb
 
 const (
-	CREATE = "create"
-	DELETE = "delete"
+	ActionCreate = "create"
+	ActionDelete = "delete"
+)
 
-	SECOND      = "second"
-	MILLISECOND = "millisecond"
-	MICROSECOND = "microsecond"
-	NANOSECOND  = "nanosecond"
+const (
+	TimeUnitSecond      = "second"
+	TimeUnitMillisecond = "millisecond"
+	TimeUnitMicrosecond = "microsecond"
+	TimeUnitNanosecond  = "nanosecond"
 )
 
 // Helper functions
