@@ -340,10 +340,8 @@ func TestSerializeDo(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
-}
 
-func TestSerializeDoWithVarargs(t *testing.T) {
-	json, err := toJSON(Do(
+	json, err = toJSON(Do(
 		Get(Ref("classes/spells/4")),
 		Get(Ref("classes/spells/2")),
 	))
@@ -572,6 +570,16 @@ func TestSerializeMatchWithTerms(t *testing.T) {
 
 func TestSerializeUnion(t *testing.T) {
 	json, err := toJSON(
+		Union(Arr{
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+
+	json, err = toJSON(
 		Union(
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
