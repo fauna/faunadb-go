@@ -527,6 +527,43 @@ func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 	s.Require().NotNil(before)
 }
 
+func (s *ClientTestSuite) TestEvalConcatExpression() {
+	var str string
+
+	res := s.query(
+		f.Concat(f.Arr{
+			"Hello",
+			"World",
+		}),
+	)
+
+	s.Require().NoError(res.Get(&str))
+	s.Require().Equal("HelloWorld", str)
+
+	res = s.query(
+		f.Concat(
+			f.Arr{
+				"Hello",
+				"World",
+			},
+			f.Separator(" ")),
+	)
+
+	s.Require().NoError(res.Get(&str))
+	s.Require().Equal("Hello World", str)
+}
+
+func (s *ClientTestSuite) TestEvalCasefoldExpression() {
+	var str string
+
+	res := s.query(
+		f.Casefold("GET DOWN"),
+	)
+
+	s.Require().NoError(res.Get(&str))
+	s.Require().Equal("get down", str)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

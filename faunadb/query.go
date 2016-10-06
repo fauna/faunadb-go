@@ -43,6 +43,7 @@ func After(ref interface{}) OptionalParameter       { return params{"after": ref
 func Before(ref interface{}) OptionalParameter      { return params{"before": ref} }
 func Sources(sources interface{}) OptionalParameter { return params{"sources": sources} }
 func Size(size interface{}) OptionalParameter       { return params{"size": size} }
+func Separator(sep interface{}) OptionalParameter   { return params{"separator": sep} }
 
 // Basic forms
 
@@ -97,6 +98,16 @@ func Insert(ref, ts, action, params interface{}) Expr {
 
 func Remove(ref, ts, action interface{}) Expr {
 	return fn{"remove": ref, "ts": ts, "action": action}
+}
+
+// String
+
+func Concat(terms interface{}, options ...OptionalParameter) Expr {
+	return withOptions(fn{"concat": terms}, options)
+}
+
+func Casefold(str interface{}) Expr {
+	return fn{"casefold": str}
 }
 
 // Others
