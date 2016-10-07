@@ -25,19 +25,27 @@ var (
 
 var randomClass,
 	spells,
+	spellbook,
 	characters,
 	allSpells,
 	spellsByElement,
 	elementsOfSpells,
+	spellbookByOwner,
+	spellBySpellbook,
 	magicMissile,
 	fireball,
 	faerieFire,
 	thor f.RefV
 
+type Spellbook struct {
+	Owner f.RefV `fauna:"owner"`
+}
+
 type Spell struct {
 	Name     string   `fauna:"name"`
 	Elements []string `fauna:"elements"`
 	Cost     int      `fauna:"cost"`
+	Book     *f.RefV  `fauna:"book"`
 }
 
 type Character struct {
@@ -70,6 +78,10 @@ func (s *ClientTestSuite) setupSchema() {
 		f.CreateClass(f.Obj{"name": "characters"}),
 	)
 
+	spellbook = s.queryForRef(
+		f.CreateClass(f.Obj{"name": "spellbook"}),
+	)
+
 	allSpells = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "all_spells",
@@ -97,6 +109,38 @@ func (s *ClientTestSuite) setupSchema() {
 		}),
 	)
 
+	spellbookByOwner = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "spellbook_by_owner",
+			"source": spellbook,
+			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "owner"},
+			}},
+		}),
+	)
+
+	spellBySpellbook = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "spell_by_spellbook",
+			"source": spells,
+			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "book"},
+			}},
+		}),
+	)
+
+	thor = s.queryForRef(
+		f.Create(characters, f.Obj{"data": Character{"Thor"}}),
+	)
+
+	thorsSpellbook := s.queryForRef(
+		f.Create(spellbook,
+			f.Obj{"data": Spellbook{
+				Owner: thor,
+			}},
+		),
+	)
+
 	magicMissile = s.queryForRef(
 		f.Create(spells,
 			f.Obj{"data": Spell{
@@ -113,6 +157,7 @@ func (s *ClientTestSuite) setupSchema() {
 				Name:     "Fireball",
 				Elements: []string{"fire"},
 				Cost:     10,
+				Book:     &thorsSpellbook,
 			}}),
 	)
 
@@ -123,10 +168,6 @@ func (s *ClientTestSuite) setupSchema() {
 				Elements: []string{"arcane", "nature"},
 				Cost:     10,
 			}}),
-	)
-
-	thor = s.queryForRef(
-		f.Create(characters, f.Obj{"data": Character{"Thor"}}),
 	)
 }
 
@@ -628,6 +669,23 @@ func (s *ClientTestSuite) TestDistinct() {
 	s.Require().NoError(res.At(dataField).Get(&elements))
 	s.Require().Len(elements, 3)
 	s.Require().Equal([]string{"arcane", "fire", "nature"}, elements)
+}
+
+func (s *ClientTestSuite) TestJoin() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(
+			f.Join(
+				f.MatchTerm(spellbookByOwner, thor),
+				f.Lambda("book",
+					f.MatchTerm(spellBySpellbook, f.Var("book"))),
+			),
+		),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {

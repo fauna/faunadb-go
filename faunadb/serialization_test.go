@@ -643,6 +643,18 @@ func TestSerializeDistinct(t *testing.T) {
 	require.Equal(t, `{"distinct":{"@ref":"indexes/active_users"}}`, json)
 }
 
+func TestSerializeJoin(t *testing.T) {
+	json, err := toJSON(
+		Join(
+			MatchTerm(Ref("indexes/spellbooks_by_owner"), Ref("classes/characters/104979509695139637")),
+			Ref("indexes/spells_by_spellbook"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},"with":{"@ref":"indexes/spells_by_spellbook"}}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

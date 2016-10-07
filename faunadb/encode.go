@@ -25,6 +25,11 @@ func writeJSON(expr Expr) (bytes []byte, err error) {
 
 func escapeValue(any interface{}) (interface{}, error) {
 	value, valueType := indirectValue(any)
+	kind := value.Kind()
+
+	if kind == reflect.Ptr && value.IsNil() {
+		return nil, nil
+	}
 
 	if valueType.Implements(exprType) {
 		return value.Interface().(Expr).toJSON()
@@ -34,7 +39,7 @@ func escapeValue(any interface{}) (interface{}, error) {
 		return TimeV(value.Interface().(time.Time)).toJSON()
 	}
 
-	switch value.Kind() {
+	switch kind {
 	case reflect.Map:
 		if valueType.Key().Kind() == reflect.String {
 			return escapeMap(value)

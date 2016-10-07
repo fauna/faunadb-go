@@ -131,6 +131,7 @@ func Union(sets ...interface{}) Expr        { return fn{"union": varargs(sets...
 func Intersection(sets ...interface{}) Expr { return fn{"intersection": varargs(sets...)} }
 func Difference(sets ...interface{}) Expr   { return fn{"difference": varargs(sets...)} }
 func Distinct(set interface{}) Expr         { return fn{"distinct": set} }
+func Join(source, target interface{}) Expr  { return fn{"join": source, "with": target} }
 
 // Others
 
