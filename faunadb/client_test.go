@@ -836,6 +836,22 @@ func (s *ClientTestSuite) TestEvalEqualsExpression() {
 	s.Require().True(isEqual)
 }
 
+func (s *ClientTestSuite) TestEvalContainsExpression() {
+	var contains bool
+
+	res := s.query(
+		f.Contains(
+			f.Arr{"favorites", "foods"},
+			f.Obj{"favorites": f.Obj{
+				"foods": f.Arr{"crunchings", "munchings"},
+			}},
+		),
+	)
+
+	s.Require().NoError(res.Get(&contains))
+	s.Require().True(contains)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
