@@ -961,6 +961,14 @@ func (s *ClientTestSuite) TestEvalAndExpression() {
 	s.Require().True(b)
 }
 
+func (s *ClientTestSuite) TestEvalOrExpression() {
+	var b bool
+
+	res := s.query(f.Or(false, true))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
