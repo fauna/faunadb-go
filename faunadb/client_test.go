@@ -813,6 +813,17 @@ func (s *ClientTestSuite) TestEvalNextIdExpression() {
 	s.Require().NotEmpty(id)
 }
 
+func (s *ClientTestSuite) TestEvalRefFunctions() {
+	var ref f.RefV
+
+	res := s.query(
+		f.Index("all_spells"),
+	)
+
+	s.Require().NoError(res.Get(&ref))
+	s.Require().Equal(allSpells, ref)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
