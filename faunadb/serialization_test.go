@@ -176,6 +176,15 @@ func TestSerializeStructWithEmbeddedStructs(t *testing.T) {
 	require.Equal(t, `{"object":{"data":{"object":{"Embedded":{"object":{"Str":"a string"}},"Int":42}}}}`, json)
 }
 
+func TestSerializeRef(t *testing.T) {
+	json, err := toJSON(
+		RefClass(Ref("classes/spells"), "42"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"id":"42","ref":{"@ref":"classes/spells"}}`, json)
+}
+
 func TestSerializeCreate(t *testing.T) {
 	json, err := toJSON(
 		Create(Ref("classes/spells"), Obj{

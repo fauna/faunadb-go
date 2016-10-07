@@ -55,8 +55,9 @@ func Default(value interface{}) OptionalParameter   { return params{"default": v
 
 // Values
 
-func Ref(id string) Expr { return RefV{id} }
-func Null() Expr         { return NullV{} }
+func Ref(id string) Expr                     { return RefV{id} }
+func RefClass(classRef, id interface{}) Expr { return fn{"ref": classRef, "id": id} }
+func Null() Expr                             { return NullV{} }
 
 // Basic forms
 
