@@ -51,6 +51,13 @@ func Before(ref interface{}) OptionalParameter      { return params{"before": re
 func Sources(sources interface{}) OptionalParameter { return params{"sources": sources} }
 func Size(size interface{}) OptionalParameter       { return params{"size": size} }
 func Separator(sep interface{}) OptionalParameter   { return params{"separator": sep} }
+func Default(value interface{}) OptionalParameter   { return params{"default": value} }
+
+// Values
+
+func Ref(id string) Expr                     { return RefV{id} }
+func RefClass(classRef, id interface{}) Expr { return fn{"ref": classRef, "id": id} }
+func Null() Expr                             { return NullV{} }
 
 // Basic forms
 
@@ -139,10 +146,27 @@ func Login(ref, params interface{}) Expr      { return fn{"login": ref, "params"
 func Logout(invalidateAll interface{}) Expr   { return fn{"logout": invalidateAll} }
 func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "password": password} }
 
-// Others
+// Miscellaneous
 
-func Ref(id string) Expr              { return RefV{id} }
-func Null() Expr                      { return NullV{} }
-func Add(args ...interface{}) Expr    { return fn{"add": varargs(args...)} }
-func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
-func Equals(args ...interface{}) Expr { return fn{"equals": varargs(args...)} }
+func NextId() Expr                          { return fn{"next_id": NullV{}} }
+func Database(name interface{}) Expr        { return fn{"database": name} }
+func Index(name interface{}) Expr           { return fn{"index": name} }
+func Class(name interface{}) Expr           { return fn{"class": name} }
+func Equals(args ...interface{}) Expr       { return fn{"equals": varargs(args...)} }
+func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": value} }
+func Add(args ...interface{}) Expr          { return fn{"add": varargs(args...)} }
+func Multiply(args ...interface{}) Expr     { return fn{"multiply": varargs(args...)} }
+func Subtract(args ...interface{}) Expr     { return fn{"subtract": varargs(args...)} }
+func Divide(args ...interface{}) Expr       { return fn{"divide": varargs(args...)} }
+func Modulo(args ...interface{}) Expr       { return fn{"modulo": varargs(args...)} }
+func LT(args ...interface{}) Expr           { return fn{"lt": varargs(args...)} }
+func LTE(args ...interface{}) Expr          { return fn{"lte": varargs(args...)} }
+func GT(args ...interface{}) Expr           { return fn{"gt": varargs(args...)} }
+func GTE(args ...interface{}) Expr          { return fn{"gte": varargs(args...)} }
+func And(args ...interface{}) Expr          { return fn{"and": varargs(args...)} }
+func Or(args ...interface{}) Expr           { return fn{"or": varargs(args...)} }
+func Not(boolean interface{}) Expr          { return fn{"not": boolean} }
+
+func Select(path, value interface{}, options ...OptionalParameter) Expr {
+	return withOptions(fn{"select": path, "from": value}, options)
+}

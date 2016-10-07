@@ -136,9 +136,12 @@ func TestSerializeStructWithPointers(t *testing.T) {
 	age := 42
 
 	json, err := toJSON(Obj{"data": &user{"Jhon", &age}})
-
 	require.NoError(t, err)
 	require.Equal(t, `{"object":{"data":{"object":{"Age":42,"Name":"Jhon"}}}}`, json)
+
+	json, err = toJSON(Obj{"data": &user{Name: "Jhon"}})
+	require.NoError(t, err)
+	require.Equal(t, `{"object":{"data":{"object":{"Age":null,"Name":"Jhon"}}}}`, json)
 }
 
 func TestSerializeStructWithNestedExpressions(t *testing.T) {
@@ -171,6 +174,15 @@ func TestSerializeStructWithEmbeddedStructs(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"object":{"data":{"object":{"Embedded":{"object":{"Str":"a string"}},"Int":42}}}}`, json)
+}
+
+func TestSerializeRef(t *testing.T) {
+	json, err := toJSON(
+		RefClass(Ref("classes/spells"), "42"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"id":"42","ref":{"@ref":"classes/spells"}}`, json)
 }
 
 func TestSerializeCreate(t *testing.T) {
@@ -683,6 +695,209 @@ func TestSerializeIndentify(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"identify":{"@ref":"classes/characters/104979509695139637"},"password":"abracadabra"}`, json)
+}
+
+func TestSerializeNextId(t *testing.T) {
+	json, err := toJSON(
+		NextId(),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"next_id":null}`, json)
+}
+
+func TestSerializeDatabase(t *testing.T) {
+	json, err := toJSON(
+		Database("test-db"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"database":"test-db"}`, json)
+}
+
+func TestSerializeIndex(t *testing.T) {
+	json, err := toJSON(
+		Index("test-index"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"index":"test-index"}`, json)
+}
+
+func TestSerializeClass(t *testing.T) {
+	json, err := toJSON(
+		Class("test-class"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"class":"test-class"}`, json)
+}
+
+func TestSerializeEquals(t *testing.T) {
+	json, err := toJSON(Equals(Arr{"fire", "fire"}))
+	require.NoError(t, err)
+	require.Equal(t, `{"equals":["fire","fire"]}`, json)
+
+	json, err = toJSON(Equals("fire", "air"))
+	require.NoError(t, err)
+	require.Equal(t, `{"equals":["fire","air"]}`, json)
+}
+
+func TestSerializeContains(t *testing.T) {
+	json, err := toJSON(
+		Contains(
+			Arr{"favorites", "foods"},
+			Obj{"favorites": Obj{
+				"foods": Arr{"stake"},
+			}},
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"contains":["favorites","foods"],"in":{"object":{"favorites":{"object":{"foods":["stake"]}}}}}`, json)
+}
+
+func TestSerializeSelect(t *testing.T) {
+	json, err := toJSON(
+		Select(
+			Arr{"favorites", "foods", 0},
+			Obj{"favorites": Obj{
+				"foods": Arr{"stake"},
+			}},
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
+
+	json, err = toJSON(
+		Select(
+			Arr{"favorites", "foods", 0},
+			Obj{"favorites": Obj{
+				"foods": Arr{"stake"},
+			}},
+			Default("no food"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"default":"no food","from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
+}
+
+func TestSerializeAdd(t *testing.T) {
+	json, err := toJSON(Add(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"add":[1,2]}`, json)
+
+	json, err = toJSON(Add(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"add":[3,4]}`, json)
+}
+
+func TestSerializeMultiply(t *testing.T) {
+	json, err := toJSON(Multiply(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"multiply":[1,2]}`, json)
+
+	json, err = toJSON(Multiply(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"multiply":[3,4]}`, json)
+}
+
+func TestSerializeSubtract(t *testing.T) {
+	json, err := toJSON(Subtract(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"subtract":[1,2]}`, json)
+
+	json, err = toJSON(Subtract(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"subtract":[3,4]}`, json)
+}
+
+func TestSerializeDivide(t *testing.T) {
+	json, err := toJSON(Divide(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"divide":[1,2]}`, json)
+
+	json, err = toJSON(Divide(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"divide":[3,4]}`, json)
+}
+
+func TestSerializeModulo(t *testing.T) {
+	json, err := toJSON(Modulo(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"modulo":[1,2]}`, json)
+
+	json, err = toJSON(Modulo(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"modulo":[3,4]}`, json)
+}
+
+func TestSerializeLT(t *testing.T) {
+	json, err := toJSON(LT(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"lt":[1,2]}`, json)
+
+	json, err = toJSON(LT(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"lt":[3,4]}`, json)
+}
+
+func TestSerializeLTE(t *testing.T) {
+	json, err := toJSON(LTE(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"lte":[1,2]}`, json)
+
+	json, err = toJSON(LTE(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"lte":[3,4]}`, json)
+}
+
+func TestSerializeGT(t *testing.T) {
+	json, err := toJSON(GT(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"gt":[1,2]}`, json)
+
+	json, err = toJSON(GT(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"gt":[3,4]}`, json)
+}
+
+func TestSerializeGTE(t *testing.T) {
+	json, err := toJSON(GTE(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"gte":[1,2]}`, json)
+
+	json, err = toJSON(GTE(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"gte":[3,4]}`, json)
+}
+
+func TestSerializeAnd(t *testing.T) {
+	json, err := toJSON(And(Arr{true, false}))
+	require.NoError(t, err)
+	require.Equal(t, `{"and":[true,false]}`, json)
+
+	json, err = toJSON(And(true, false))
+	require.NoError(t, err)
+	require.Equal(t, `{"and":[true,false]}`, json)
+}
+
+func TestSerializeOr(t *testing.T) {
+	json, err := toJSON(Or(Arr{true, false}))
+	require.NoError(t, err)
+	require.Equal(t, `{"or":[true,false]}`, json)
+
+	json, err = toJSON(Or(true, false))
+	require.NoError(t, err)
+	require.Equal(t, `{"or":[true,false]}`, json)
+}
+
+func TestSerializeNot(t *testing.T) {
+	json, err := toJSON(Not(false))
+	require.NoError(t, err)
+	require.Equal(t, `{"not":false}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {

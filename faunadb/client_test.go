@@ -805,6 +805,178 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	s.Require().False(identified)
 }
 
+func (s *ClientTestSuite) TestEvalNextIdExpression() {
+	var id string
+
+	res := s.query(f.NextId())
+	s.Require().NoError(res.Get(&id))
+	s.Require().NotEmpty(id)
+}
+
+func (s *ClientTestSuite) TestEvalRefFunctions() {
+	var refs []f.RefV
+
+	res := s.query(f.Arr{
+		f.Index("all_spells"),
+		f.Class("spells"),
+	})
+
+	s.Require().NoError(res.Get(&refs))
+	s.Require().Equal([]f.RefV{allSpells, spells}, refs)
+}
+
+func (s *ClientTestSuite) TestEvalEqualsExpression() {
+	var isEqual bool
+
+	res := s.query(
+		f.Equals("fire", "fire"),
+	)
+
+	s.Require().NoError(res.Get(&isEqual))
+	s.Require().True(isEqual)
+}
+
+func (s *ClientTestSuite) TestEvalContainsExpression() {
+	var contains bool
+
+	res := s.query(
+		f.Contains(
+			f.Arr{"favorites", "foods"},
+			f.Obj{"favorites": f.Obj{
+				"foods": f.Arr{"crunchings", "munchings"},
+			}},
+		),
+	)
+
+	s.Require().NoError(res.Get(&contains))
+	s.Require().True(contains)
+}
+
+func (s *ClientTestSuite) TestEvalSelectExpression() {
+	var food string
+
+	res := s.query(
+		f.Select(
+			f.Arr{"favorites", "foods", 1},
+			f.Obj{"favorites": f.Obj{
+				"foods": f.Arr{"crunchings", "munchings"},
+			}},
+		),
+	)
+
+	s.Require().NoError(res.Get(&food))
+	s.Require().Equal("munchings", food)
+
+	res = s.query(
+		f.Select(
+			f.Arr{"favorites", "foods", 2},
+			f.Obj{"favorites": f.Obj{
+				"foods": f.Arr{"crunchings", "munchings"},
+			}},
+			f.Default("no food"),
+		),
+	)
+
+	s.Require().NoError(res.Get(&food))
+	s.Require().Equal("no food", food)
+}
+
+func (s *ClientTestSuite) TestEvalAddExpression() {
+	var num int
+
+	res := s.query(f.Add(2, 3))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(5, num)
+}
+
+func (s *ClientTestSuite) TestEvalMultiplyExpression() {
+	var num int
+
+	res := s.query(f.Multiply(2, 3))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(6, num)
+}
+
+func (s *ClientTestSuite) TestEvalSubtractExpression() {
+	var num int
+
+	res := s.query(f.Subtract(2, 3))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(-1, num)
+}
+
+func (s *ClientTestSuite) TestEvalDivideExpression() {
+	var num int
+
+	res := s.query(f.Divide(10, 2))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(5, num)
+}
+
+func (s *ClientTestSuite) TestEvalModuloExpression() {
+	var num int
+
+	res := s.query(f.Modulo(10, 2))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(0, num)
+}
+
+func (s *ClientTestSuite) TestEvalLTExpression() {
+	var b bool
+
+	res := s.query(f.LT(2, 3))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
+func (s *ClientTestSuite) TestEvalLTEExpression() {
+	var b bool
+
+	res := s.query(f.LTE(2, 2))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
+func (s *ClientTestSuite) TestEvalGTExpression() {
+	var b bool
+
+	res := s.query(f.GT(3, 2))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
+func (s *ClientTestSuite) TestEvalGTEExpression() {
+	var b bool
+
+	res := s.query(f.GTE(2, 2))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
+func (s *ClientTestSuite) TestEvalAndExpression() {
+	var b bool
+
+	res := s.query(f.And(true, true))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
+func (s *ClientTestSuite) TestEvalOrExpression() {
+	var b bool
+
+	res := s.query(f.Or(false, true))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
+func (s *ClientTestSuite) TestEvalNotExpression() {
+	var b bool
+
+	res := s.query(f.Not(false))
+	s.Require().NoError(res.Get(&b))
+	s.Require().True(b)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
