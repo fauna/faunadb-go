@@ -152,6 +152,7 @@ func Add(args ...interface{}) Expr          { return fn{"add": varargs(args...)}
 func Multiply(args ...interface{}) Expr     { return fn{"multiply": varargs(args...)} }
 func Subtract(args ...interface{}) Expr     { return fn{"subtract": varargs(args...)} }
 func Divide(args ...interface{}) Expr       { return fn{"divide": varargs(args...)} }
+func Modulo(args ...interface{}) Expr       { return fn{"modulo": varargs(args...)} }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)
@@ -159,6 +160,5 @@ func Select(path, value interface{}, options ...OptionalParameter) Expr {
 
 // Others
 
-func Ref(id string) Expr              { return RefV{id} }
-func Null() Expr                      { return NullV{} }
-func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
+func Ref(id string) Expr { return RefV{id} }
+func Null() Expr         { return NullV{} }

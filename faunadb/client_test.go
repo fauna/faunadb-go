@@ -913,6 +913,14 @@ func (s *ClientTestSuite) TestEvalDivideExpression() {
 	s.Require().Equal(5, num)
 }
 
+func (s *ClientTestSuite) TestEvalModuloExpression() {
+	var num int
+
+	res := s.query(f.Modulo(10, 2))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(0, num)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

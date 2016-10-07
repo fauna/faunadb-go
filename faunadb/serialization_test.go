@@ -812,6 +812,16 @@ func TestSerializeDivide(t *testing.T) {
 	require.Equal(t, `{"divide":[3,4]}`, json)
 }
 
+func TestSerializeModulo(t *testing.T) {
+	json, err := toJSON(Modulo(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"modulo":[1,2]}`, json)
+
+	json, err = toJSON(Modulo(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"modulo":[3,4]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
