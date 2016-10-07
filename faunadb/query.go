@@ -51,6 +51,7 @@ func Before(ref interface{}) OptionalParameter      { return params{"before": re
 func Sources(sources interface{}) OptionalParameter { return params{"sources": sources} }
 func Size(size interface{}) OptionalParameter       { return params{"size": size} }
 func Separator(sep interface{}) OptionalParameter   { return params{"separator": sep} }
+func Default(value interface{}) OptionalParameter   { return params{"default": value} }
 
 // Basic forms
 
@@ -147,7 +148,10 @@ func Index(name interface{}) Expr           { return fn{"index": name} }
 func Class(name interface{}) Expr           { return fn{"class": name} }
 func Equals(args ...interface{}) Expr       { return fn{"equals": varargs(args...)} }
 func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": value} }
-func Select(path, value interface{}) Expr   { return fn{"select": path, "from": value} }
+
+func Select(path, value interface{}, options ...OptionalParameter) Expr {
+	return withOptions(fn{"select": path, "from": value}, options)
+}
 
 // Others
 

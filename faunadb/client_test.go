@@ -866,6 +866,19 @@ func (s *ClientTestSuite) TestEvalSelectExpression() {
 
 	s.Require().NoError(res.Get(&food))
 	s.Require().Equal("munchings", food)
+
+	res = s.query(
+		f.Select(
+			f.Arr{"favorites", "foods", 2},
+			f.Obj{"favorites": f.Obj{
+				"foods": f.Arr{"crunchings", "munchings"},
+			}},
+			f.Default("no food"),
+		),
+	)
+
+	s.Require().NoError(res.Get(&food))
+	s.Require().Equal("no food", food)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

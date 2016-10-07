@@ -757,6 +757,19 @@ func TestSerializeSelect(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
+
+	json, err = toJSON(
+		Select(
+			Arr{"favorites", "foods", 0},
+			Obj{"favorites": Obj{
+				"foods": Arr{"stake"},
+			}},
+			Default("no food"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"default":"no food","from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {
