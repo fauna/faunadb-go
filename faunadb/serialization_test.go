@@ -655,6 +655,18 @@ func TestSerializeJoin(t *testing.T) {
 	require.Equal(t, `{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},"with":{"@ref":"indexes/spells_by_spellbook"}}`, json)
 }
 
+func TestSerializeLogin(t *testing.T) {
+	json, err := toJSON(
+		Login(
+			Ref("classes/characters/104979509695139637"),
+			Obj{"password": "abracadabra"},
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"login":{"@ref":"classes/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
