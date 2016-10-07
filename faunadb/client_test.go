@@ -852,6 +852,22 @@ func (s *ClientTestSuite) TestEvalContainsExpression() {
 	s.Require().True(contains)
 }
 
+func (s *ClientTestSuite) TestEvalSelectExpression() {
+	var food string
+
+	res := s.query(
+		f.Select(
+			f.Arr{"favorites", "foods", 1},
+			f.Obj{"favorites": f.Obj{
+				"foods": f.Arr{"crunchings", "munchings"},
+			}},
+		),
+	)
+
+	s.Require().NoError(res.Get(&food))
+	s.Require().Equal("munchings", food)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

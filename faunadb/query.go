@@ -147,6 +147,7 @@ func Index(name interface{}) Expr           { return fn{"index": name} }
 func Class(name interface{}) Expr           { return fn{"class": name} }
 func Equals(args ...interface{}) Expr       { return fn{"equals": varargs(args...)} }
 func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": value} }
+func Select(path, value interface{}) Expr   { return fn{"select": path, "from": value} }
 
 // Others
 

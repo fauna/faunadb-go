@@ -745,6 +745,20 @@ func TestSerializeContains(t *testing.T) {
 	require.Equal(t, `{"contains":["favorites","foods"],"in":{"object":{"favorites":{"object":{"foods":["stake"]}}}}}`, json)
 }
 
+func TestSerializeSelect(t *testing.T) {
+	json, err := toJSON(
+		Select(
+			Arr{"favorites", "foods", 0},
+			Obj{"favorites": Obj{
+				"foods": Arr{"stake"},
+			}},
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
