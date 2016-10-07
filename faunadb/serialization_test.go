@@ -832,6 +832,16 @@ func TestSerializeLT(t *testing.T) {
 	require.Equal(t, `{"lt":[3,4]}`, json)
 }
 
+func TestSerializeLTE(t *testing.T) {
+	json, err := toJSON(LTE(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"lte":[1,2]}`, json)
+
+	json, err = toJSON(LTE(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"lte":[3,4]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
