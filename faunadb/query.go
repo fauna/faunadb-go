@@ -151,6 +151,7 @@ func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": 
 func Add(args ...interface{}) Expr          { return fn{"add": varargs(args...)} }
 func Multiply(args ...interface{}) Expr     { return fn{"multiply": varargs(args...)} }
 func Subtract(args ...interface{}) Expr     { return fn{"subtract": varargs(args...)} }
+func Divide(args ...interface{}) Expr       { return fn{"divide": varargs(args...)} }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)

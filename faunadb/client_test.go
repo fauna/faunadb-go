@@ -905,6 +905,14 @@ func (s *ClientTestSuite) TestEvalSubtractExpression() {
 	s.Require().Equal(-1, num)
 }
 
+func (s *ClientTestSuite) TestEvalDivideExpression() {
+	var num int
+
+	res := s.query(f.Divide(10, 2))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(5, num)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
