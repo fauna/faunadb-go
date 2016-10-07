@@ -159,6 +159,7 @@ func GT(args ...interface{}) Expr           { return fn{"gt": varargs(args...)} 
 func GTE(args ...interface{}) Expr          { return fn{"gte": varargs(args...)} }
 func And(args ...interface{}) Expr          { return fn{"and": varargs(args...)} }
 func Or(args ...interface{}) Expr           { return fn{"or": varargs(args...)} }
+func Not(boolean interface{}) Expr          { return fn{"not": boolean} }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)

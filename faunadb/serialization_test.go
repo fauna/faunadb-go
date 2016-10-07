@@ -882,6 +882,12 @@ func TestSerializeOr(t *testing.T) {
 	require.Equal(t, `{"or":[true,false]}`, json)
 }
 
+func TestSerializeNot(t *testing.T) {
+	json, err := toJSON(Not(false))
+	require.NoError(t, err)
+	require.Equal(t, `{"not":false}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
