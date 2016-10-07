@@ -20,6 +20,7 @@ var (
 	refField      = f.ObjKey("ref")
 	beforeField   = f.ObjKey("before")
 	afterField    = f.ObjKey("after")
+	secretField   = f.ObjKey("secret")
 	resourceField = f.ObjKey("resource")
 )
 
@@ -771,6 +772,37 @@ func (s *ClientTestSuite) TestEvalDateExpression() {
 		time.Unix(0, 0).UTC().
 			Add(time.Duration(24)*time.Hour),
 	)
+}
+
+func (s *ClientTestSuite) TestAuthenticateSession() {
+	var secret string
+	var loggedOut, identified bool
+
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{
+			"credentials": f.Obj{
+				"password": "abcdefg",
+			},
+		}),
+	)
+
+	auth := s.query(
+		f.Login(ref, f.Obj{
+			"password": "abcdefg",
+		}),
+	)
+	s.Require().NoError(auth.At(secretField).Get(&secret))
+
+	sessionClient := s.client.NewSessionClient(secret)
+	res, err := sessionClient.Query(f.Logout(true))
+
+	s.Require().NoError(err)
+	s.Require().NoError(res.Get(&loggedOut))
+	s.Require().True(loggedOut)
+
+	res = s.query(f.Identify(ref, "wrong-password"))
+	s.Require().NoError(res.Get(&identified))
+	s.Require().False(identified)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

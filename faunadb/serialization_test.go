@@ -655,6 +655,36 @@ func TestSerializeJoin(t *testing.T) {
 	require.Equal(t, `{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},"with":{"@ref":"indexes/spells_by_spellbook"}}`, json)
 }
 
+func TestSerializeLogin(t *testing.T) {
+	json, err := toJSON(
+		Login(
+			Ref("classes/characters/104979509695139637"),
+			Obj{"password": "abracadabra"},
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"login":{"@ref":"classes/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`, json)
+}
+
+func TestSerializeLogout(t *testing.T) {
+	json, err := toJSON(
+		Logout(true),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"logout":true}`, json)
+}
+
+func TestSerializeIndentify(t *testing.T) {
+	json, err := toJSON(
+		Identify(Ref("classes/characters/104979509695139637"), "abracadabra"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"identify":{"@ref":"classes/characters/104979509695139637"},"password":"abracadabra"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

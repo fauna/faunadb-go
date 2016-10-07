@@ -133,6 +133,12 @@ func Difference(sets ...interface{}) Expr   { return fn{"difference": varargs(se
 func Distinct(set interface{}) Expr         { return fn{"distinct": set} }
 func Join(source, target interface{}) Expr  { return fn{"join": source, "with": target} }
 
+// Authentication
+
+func Login(ref, params interface{}) Expr      { return fn{"login": ref, "params": params} }
+func Logout(invalidateAll interface{}) Expr   { return fn{"logout": invalidateAll} }
+func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "password": password} }
+
 // Others
 
 func Ref(id string) Expr              { return RefV{id} }
