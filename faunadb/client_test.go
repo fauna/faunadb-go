@@ -814,14 +814,15 @@ func (s *ClientTestSuite) TestEvalNextIdExpression() {
 }
 
 func (s *ClientTestSuite) TestEvalRefFunctions() {
-	var ref f.RefV
+	var refs []f.RefV
 
-	res := s.query(
+	res := s.query(f.Arr{
 		f.Index("all_spells"),
-	)
+		f.Class("spells"),
+	})
 
-	s.Require().NoError(res.Get(&ref))
-	s.Require().Equal(allSpells, ref)
+	s.Require().NoError(res.Get(&refs))
+	s.Require().Equal([]f.RefV{allSpells, spells}, refs)
 }
 
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {

@@ -712,6 +712,15 @@ func TestSerializeIndex(t *testing.T) {
 	require.Equal(t, `{"index":"test-index"}`, json)
 }
 
+func TestSerializeClass(t *testing.T) {
+	json, err := toJSON(
+		Class("test-class"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"class":"test-class"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

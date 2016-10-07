@@ -144,6 +144,7 @@ func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "pass
 func NextId() Expr                   { return fn{"next_id": NullV{}} }
 func Database(name interface{}) Expr { return fn{"database": name} }
 func Index(name interface{}) Expr    { return fn{"index": name} }
+func Class(name interface{}) Expr    { return fn{"class": name} }
 
 // Others
 
