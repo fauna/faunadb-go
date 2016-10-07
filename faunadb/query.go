@@ -150,6 +150,7 @@ func Equals(args ...interface{}) Expr       { return fn{"equals": varargs(args..
 func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": value} }
 func Add(args ...interface{}) Expr          { return fn{"add": varargs(args...)} }
 func Multiply(args ...interface{}) Expr     { return fn{"multiply": varargs(args...)} }
+func Subtract(args ...interface{}) Expr     { return fn{"subtract": varargs(args...)} }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)

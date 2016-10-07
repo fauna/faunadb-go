@@ -897,6 +897,14 @@ func (s *ClientTestSuite) TestEvalMultiplyExpression() {
 	s.Require().Equal(6, num)
 }
 
+func (s *ClientTestSuite) TestEvalSubtractExpression() {
+	var num int
+
+	res := s.query(f.Subtract(2, 3))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(-1, num)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
