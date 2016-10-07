@@ -50,6 +50,14 @@ func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) 
 	return
 }
 
+func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
+	return &FaunaClient{
+		Secret:   secret,
+		Endpoint: client.Endpoint,
+		HTTP:     client.HTTP,
+	}
+}
+
 func (client *FaunaClient) performRequest(expr Expr) (response *http.Response, err error) {
 	var request *http.Request
 
