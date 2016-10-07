@@ -889,6 +889,14 @@ func (s *ClientTestSuite) TestEvalAddExpression() {
 	s.Require().Equal(5, num)
 }
 
+func (s *ClientTestSuite) TestEvalMultiplyExpression() {
+	var num int
+
+	res := s.query(f.Multiply(2, 3))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(6, num)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

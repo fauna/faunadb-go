@@ -782,6 +782,16 @@ func TestSerializeAdd(t *testing.T) {
 	require.Equal(t, `{"add":[3,4]}`, json)
 }
 
+func TestSerializeMultiply(t *testing.T) {
+	json, err := toJSON(Multiply(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"multiply":[1,2]}`, json)
+
+	json, err = toJSON(Multiply(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"multiply":[3,4]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
