@@ -862,6 +862,16 @@ func TestSerializeGTE(t *testing.T) {
 	require.Equal(t, `{"gte":[3,4]}`, json)
 }
 
+func TestSerializeAnd(t *testing.T) {
+	json, err := toJSON(And(Arr{true, false}))
+	require.NoError(t, err)
+	require.Equal(t, `{"and":[true,false]}`, json)
+
+	json, err = toJSON(And(true, false))
+	require.NoError(t, err)
+	require.Equal(t, `{"and":[true,false]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
