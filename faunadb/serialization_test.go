@@ -667,6 +667,15 @@ func TestSerializeLogin(t *testing.T) {
 	require.Equal(t, `{"login":{"@ref":"classes/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`, json)
 }
 
+func TestSerializeLogout(t *testing.T) {
+	json, err := toJSON(
+		Logout(true),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"logout":true}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
