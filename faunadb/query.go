@@ -141,7 +141,8 @@ func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "pass
 
 // Miscellaneous
 
-func NextId() Expr { return fn{"next_id": NullV{}} }
+func NextId() Expr                   { return fn{"next_id": NullV{}} }
+func Database(name interface{}) Expr { return fn{"database": name} }
 
 // Others
 

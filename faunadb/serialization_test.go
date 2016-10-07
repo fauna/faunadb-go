@@ -694,6 +694,15 @@ func TestSerializeNextId(t *testing.T) {
 	require.Equal(t, `{"next_id":null}`, json)
 }
 
+func TestSerializeDatabase(t *testing.T) {
+	json, err := toJSON(
+		Database("test-db"),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"database":"test-db"}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

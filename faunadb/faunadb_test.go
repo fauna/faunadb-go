@@ -8,7 +8,7 @@ const (
 
 var (
 	adminClient *FaunaClient
-	dbRef       = Ref("databases/" + dbName)
+	dbRef       = Database(dbName)
 )
 
 func SetupTestDB() (client *FaunaClient, err error) {
