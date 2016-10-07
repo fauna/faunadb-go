@@ -153,6 +153,7 @@ func Multiply(args ...interface{}) Expr     { return fn{"multiply": varargs(args
 func Subtract(args ...interface{}) Expr     { return fn{"subtract": varargs(args...)} }
 func Divide(args ...interface{}) Expr       { return fn{"divide": varargs(args...)} }
 func Modulo(args ...interface{}) Expr       { return fn{"modulo": varargs(args...)} }
+func LT(args ...interface{}) Expr           { return fn{"lt": varargs(args...)} }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)

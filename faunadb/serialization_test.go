@@ -822,6 +822,16 @@ func TestSerializeModulo(t *testing.T) {
 	require.Equal(t, `{"modulo":[3,4]}`, json)
 }
 
+func TestSerializeLT(t *testing.T) {
+	json, err := toJSON(LT(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"lt":[1,2]}`, json)
+
+	json, err = toJSON(LT(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"lt":[3,4]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err
