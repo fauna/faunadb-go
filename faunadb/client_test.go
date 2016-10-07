@@ -881,6 +881,14 @@ func (s *ClientTestSuite) TestEvalSelectExpression() {
 	s.Require().Equal("no food", food)
 }
 
+func (s *ClientTestSuite) TestEvalAddExpression() {
+	var num int
+
+	res := s.query(f.Add(2, 3))
+	s.Require().NoError(res.Get(&num))
+	s.Require().Equal(5, num)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

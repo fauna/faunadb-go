@@ -772,6 +772,16 @@ func TestSerializeSelect(t *testing.T) {
 	require.Equal(t, `{"default":"no food","from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
 }
 
+func TestSerializeAdd(t *testing.T) {
+	json, err := toJSON(Add(Arr{1, 2}))
+	require.NoError(t, err)
+	require.Equal(t, `{"add":[1,2]}`, json)
+
+	json, err = toJSON(Add(3, 4))
+	require.NoError(t, err)
+	require.Equal(t, `{"add":[3,4]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

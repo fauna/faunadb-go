@@ -148,6 +148,7 @@ func Index(name interface{}) Expr           { return fn{"index": name} }
 func Class(name interface{}) Expr           { return fn{"class": name} }
 func Equals(args ...interface{}) Expr       { return fn{"equals": varargs(args...)} }
 func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": value} }
+func Add(args ...interface{}) Expr          { return fn{"add": varargs(args...)} }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)
@@ -157,5 +158,4 @@ func Select(path, value interface{}, options ...OptionalParameter) Expr {
 
 func Ref(id string) Expr              { return RefV{id} }
 func Null() Expr                      { return NullV{} }
-func Add(args ...interface{}) Expr    { return fn{"add": varargs(args...)} }
 func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
