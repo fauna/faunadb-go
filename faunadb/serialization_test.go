@@ -136,9 +136,12 @@ func TestSerializeStructWithPointers(t *testing.T) {
 	age := 42
 
 	json, err := toJSON(Obj{"data": &user{"Jhon", &age}})
-
 	require.NoError(t, err)
 	require.Equal(t, `{"object":{"data":{"object":{"Age":42,"Name":"Jhon"}}}}`, json)
+
+	json, err = toJSON(Obj{"data": &user{Name: "Jhon"}})
+	require.NoError(t, err)
+	require.Equal(t, `{"object":{"data":{"object":{"Age":null,"Name":"Jhon"}}}}`, json)
 }
 
 func TestSerializeStructWithNestedExpressions(t *testing.T) {

@@ -53,6 +53,11 @@ func Size(size interface{}) OptionalParameter       { return params{"size": size
 func Separator(sep interface{}) OptionalParameter   { return params{"separator": sep} }
 func Default(value interface{}) OptionalParameter   { return params{"default": value} }
 
+// Values
+
+func Ref(id string) Expr { return RefV{id} }
+func Null() Expr         { return NullV{} }
+
 // Basic forms
 
 func Do(exprs ...interface{}) Expr          { return fn{"do": varargs(exprs...)} }
@@ -164,8 +169,3 @@ func Not(boolean interface{}) Expr          { return fn{"not": boolean} }
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return withOptions(fn{"select": path, "from": value}, options)
 }
-
-// Others
-
-func Ref(id string) Expr { return RefV{id} }
-func Null() Expr         { return NullV{} }
