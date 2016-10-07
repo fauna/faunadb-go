@@ -685,6 +685,15 @@ func TestSerializeIndentify(t *testing.T) {
 	require.Equal(t, `{"identify":{"@ref":"classes/characters/104979509695139637"},"password":"abracadabra"}`, json)
 }
 
+func TestSerializeNextId(t *testing.T) {
+	json, err := toJSON(
+		NextId(),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"next_id":null}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

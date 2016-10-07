@@ -139,6 +139,10 @@ func Login(ref, params interface{}) Expr      { return fn{"login": ref, "params"
 func Logout(invalidateAll interface{}) Expr   { return fn{"logout": invalidateAll} }
 func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "password": password} }
 
+// Miscellaneous
+
+func NextId() Expr { return fn{"next_id": NullV{}} }
+
 // Others
 
 func Ref(id string) Expr              { return RefV{id} }

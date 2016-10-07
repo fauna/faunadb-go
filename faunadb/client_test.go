@@ -805,6 +805,14 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	s.Require().False(identified)
 }
 
+func (s *ClientTestSuite) TestEvalNextIdExpression() {
+	var id string
+
+	res := s.query(f.NextId())
+	s.Require().NoError(res.Get(&id))
+	s.Require().NotEmpty(id)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
