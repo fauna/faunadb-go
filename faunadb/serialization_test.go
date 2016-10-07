@@ -721,6 +721,16 @@ func TestSerializeClass(t *testing.T) {
 	require.Equal(t, `{"class":"test-class"}`, json)
 }
 
+func TestSerializeEquals(t *testing.T) {
+	json, err := toJSON(Equals(Arr{"fire", "fire"}))
+	require.NoError(t, err)
+	require.Equal(t, `{"equals":["fire","fire"]}`, json)
+
+	json, err = toJSON(Equals("fire", "air"))
+	require.NoError(t, err)
+	require.Equal(t, `{"equals":["fire","air"]}`, json)
+}
+
 func toJSON(expr Expr) (string, error) {
 	bytes, err := writeJSON(expr)
 	return string(bytes), err

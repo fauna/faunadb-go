@@ -825,6 +825,17 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 	s.Require().Equal([]f.RefV{allSpells, spells}, refs)
 }
 
+func (s *ClientTestSuite) TestEvalEqualsExpression() {
+	var isEqual bool
+
+	res := s.query(
+		f.Equals("fire", "fire"),
+	)
+
+	s.Require().NoError(res.Get(&isEqual))
+	s.Require().True(isEqual)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

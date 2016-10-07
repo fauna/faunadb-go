@@ -141,10 +141,11 @@ func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "pass
 
 // Miscellaneous
 
-func NextId() Expr                   { return fn{"next_id": NullV{}} }
-func Database(name interface{}) Expr { return fn{"database": name} }
-func Index(name interface{}) Expr    { return fn{"index": name} }
-func Class(name interface{}) Expr    { return fn{"class": name} }
+func NextId() Expr                    { return fn{"next_id": NullV{}} }
+func Database(name interface{}) Expr  { return fn{"database": name} }
+func Index(name interface{}) Expr     { return fn{"index": name} }
+func Class(name interface{}) Expr     { return fn{"class": name} }
+func Equals(args ...interface{}) Expr { return fn{"equals": varargs(args...)} }
 
 // Others
 
@@ -152,4 +153,3 @@ func Ref(id string) Expr              { return RefV{id} }
 func Null() Expr                      { return NullV{} }
 func Add(args ...interface{}) Expr    { return fn{"add": varargs(args...)} }
 func Modulo(args ...interface{}) Expr { return fn{"modulo": varargs(args...)} }
-func Equals(args ...interface{}) Expr { return fn{"equals": varargs(args...)} }
