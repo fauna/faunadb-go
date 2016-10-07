@@ -135,8 +135,9 @@ func Join(source, target interface{}) Expr  { return fn{"join": source, "with": 
 
 // Authentication
 
-func Login(ref, params interface{}) Expr    { return fn{"login": ref, "params": params} }
-func Logout(invalidateAll interface{}) Expr { return fn{"logout": invalidateAll} }
+func Login(ref, params interface{}) Expr      { return fn{"login": ref, "params": params} }
+func Logout(invalidateAll interface{}) Expr   { return fn{"logout": invalidateAll} }
+func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "password": password} }
 
 // Others
 
