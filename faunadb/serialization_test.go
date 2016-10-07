@@ -340,10 +340,8 @@ func TestSerializeDo(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
-}
 
-func TestSerializeDoWithVarargs(t *testing.T) {
-	json, err := toJSON(Do(
+	json, err = toJSON(Do(
 		Get(Ref("classes/spells/4")),
 		Get(Ref("classes/spells/2")),
 	))
@@ -547,6 +545,114 @@ func TestSerializeDate(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, `{"date":"1970-01-01"}`, json)
+}
+
+func TestSerializeMatch(t *testing.T) {
+	json, err := toJSON(
+		Match(Ref("databases")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"match":{"@ref":"databases"}}`, json)
+}
+
+func TestSerializeMatchWithTerms(t *testing.T) {
+	json, err := toJSON(
+		MatchTerm(
+			Ref("indexes/spells_by_name"),
+			"magic missile",
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"match":{"@ref":"indexes/spells_by_name"},"terms":"magic missile"}`, json)
+}
+
+func TestSerializeUnion(t *testing.T) {
+	json, err := toJSON(
+		Union(Arr{
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+
+	json, err = toJSON(
+		Union(
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+}
+
+func TestSerializeIntersection(t *testing.T) {
+	json, err := toJSON(
+		Intersection(Arr{
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+
+	json, err = toJSON(
+		Intersection(
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+}
+
+func TestSerializeDifference(t *testing.T) {
+	json, err := toJSON(
+		Difference(Arr{
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+
+	json, err = toJSON(
+		Difference(
+			Ref("indexes/active_users"),
+			Ref("indexes/vip_users"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
+}
+
+func TestSerializeDistinct(t *testing.T) {
+	json, err := toJSON(
+		Distinct(Ref("indexes/active_users")),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"distinct":{"@ref":"indexes/active_users"}}`, json)
+}
+
+func TestSerializeJoin(t *testing.T) {
+	json, err := toJSON(
+		Join(
+			MatchTerm(Ref("indexes/spellbooks_by_owner"), Ref("classes/characters/104979509695139637")),
+			Ref("indexes/spells_by_spellbook"),
+		),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, `{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},"with":{"@ref":"indexes/spells_by_spellbook"}}`, json)
 }
 
 func toJSON(expr Expr) (string, error) {

@@ -25,16 +25,27 @@ var (
 
 var randomClass,
 	spells,
+	spellbook,
 	characters,
 	allSpells,
+	spellsByElement,
+	elementsOfSpells,
+	spellbookByOwner,
+	spellBySpellbook,
 	magicMissile,
 	fireball,
+	faerieFire,
 	thor f.RefV
+
+type Spellbook struct {
+	Owner f.RefV `fauna:"owner"`
+}
 
 type Spell struct {
 	Name     string   `fauna:"name"`
 	Elements []string `fauna:"elements"`
 	Cost     int      `fauna:"cost"`
+	Book     *f.RefV  `fauna:"book"`
 }
 
 type Character struct {
@@ -67,11 +78,67 @@ func (s *ClientTestSuite) setupSchema() {
 		f.CreateClass(f.Obj{"name": "characters"}),
 	)
 
+	spellbook = s.queryForRef(
+		f.CreateClass(f.Obj{"name": "spellbook"}),
+	)
+
 	allSpells = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "all_spells",
 			"source": spells,
 		}),
+	)
+
+	spellsByElement = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "spells_by_name",
+			"source": spells,
+			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "elements"},
+			}},
+		}),
+	)
+
+	elementsOfSpells = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "elements_of_spells",
+			"source": spells,
+			"values": f.Arr{f.Obj{
+				"field": f.Arr{"data", "elements"},
+			}},
+		}),
+	)
+
+	spellbookByOwner = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "spellbook_by_owner",
+			"source": spellbook,
+			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "owner"},
+			}},
+		}),
+	)
+
+	spellBySpellbook = s.queryForRef(
+		f.CreateIndex(f.Obj{
+			"name":   "spell_by_spellbook",
+			"source": spells,
+			"terms": f.Arr{f.Obj{
+				"field": f.Arr{"data", "book"},
+			}},
+		}),
+	)
+
+	thor = s.queryForRef(
+		f.Create(characters, f.Obj{"data": Character{"Thor"}}),
+	)
+
+	thorsSpellbook := s.queryForRef(
+		f.Create(spellbook,
+			f.Obj{"data": Spellbook{
+				Owner: thor,
+			}},
+		),
 	)
 
 	magicMissile = s.queryForRef(
@@ -90,11 +157,17 @@ func (s *ClientTestSuite) setupSchema() {
 				Name:     "Fireball",
 				Elements: []string{"fire"},
 				Cost:     10,
+				Book:     &thorsSpellbook,
 			}}),
 	)
 
-	thor = s.queryForRef(
-		f.Create(characters, f.Obj{"data": Character{"Thor"}}),
+	faerieFire = s.queryForRef(
+		f.Create(spells,
+			f.Obj{"data": Spell{
+				Name:     "Faerie Fire",
+				Elements: []string{"arcane", "nature"},
+				Cost:     10,
+			}}),
 	)
 }
 
@@ -474,7 +547,7 @@ func (s *ClientTestSuite) TestCountElementsOnAIndex() {
 	res := s.query(f.Count(f.Match(allSpells)))
 
 	s.Require().NoError(res.Get(&num))
-	s.Require().Equal(2, num)
+	s.Require().Equal(3, num)
 }
 
 func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
@@ -493,7 +566,7 @@ func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
 	)
 
 	s.Require().NoError(res.Get(&allEvents))
-	s.Require().Equal(events{2, 0}, allEvents)
+	s.Require().Equal(events{3, 0}, allEvents)
 }
 
 func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
@@ -526,6 +599,93 @@ func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 
 	s.Require().Len(spells, 1)
 	s.Require().NotNil(before)
+}
+
+func (s *ClientTestSuite) TestFindASingleInstanceOnAIndex() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.MatchTerm(
+			spellsByElement,
+			"fire",
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{fireball}, spells)
+}
+
+func (s *ClientTestSuite) TestUnion() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.Union(
+			f.MatchTerm(spellsByElement, "arcane"),
+			f.MatchTerm(spellsByElement, "fire"),
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{magicMissile, fireball, faerieFire}, spells)
+}
+
+func (s *ClientTestSuite) TestIntersection() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.Intersection(
+			f.MatchTerm(spellsByElement, "arcane"),
+			f.MatchTerm(spellsByElement, "nature"),
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{faerieFire}, spells)
+}
+
+func (s *ClientTestSuite) TestDifference() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(f.Difference(
+			f.MatchTerm(spellsByElement, "arcane"),
+			f.MatchTerm(spellsByElement, "nature"),
+		)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{magicMissile}, spells)
+}
+
+func (s *ClientTestSuite) TestDistinct() {
+	var elements []string
+
+	res := s.query(
+		f.Paginate(
+			f.Distinct(f.Match(elementsOfSpells)),
+		),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&elements))
+	s.Require().Len(elements, 3)
+	s.Require().Equal([]string{"arcane", "fire", "nature"}, elements)
+}
+
+func (s *ClientTestSuite) TestJoin() {
+	var spells []f.RefV
+
+	res := s.query(
+		f.Paginate(
+			f.Join(
+				f.MatchTerm(spellbookByOwner, thor),
+				f.Lambda("book",
+					f.MatchTerm(spellBySpellbook, f.Var("book"))),
+			),
+		),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {
