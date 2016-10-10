@@ -8,87 +8,87 @@ import (
 )
 
 func TestSerializeObjectV(t *testing.T) {
-	json, err := toJSON(ObjectV{
-		"data": ObjectV{
-			"name": StringV("test"),
+	assertJSON(t,
+		ObjectV{
+			"data": ObjectV{
+				"name": StringV("test"),
+			},
 		},
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"name":"test"}}}}`, json)
+		`{"object":{"data":{"object":{"name":"test"}}}}`,
+	)
 }
 
 func TestSerializeArrayV(t *testing.T) {
-	json, err := toJSON(ArrayV{
-		ObjectV{"name": StringV("a")},
-		ObjectV{"name": StringV("b")},
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, `[{"object":{"name":"a"}},{"object":{"name":"b"}}]`, json)
+	assertJSON(t,
+		ArrayV{
+			ObjectV{"name": StringV("a")},
+			ObjectV{"name": StringV("b")},
+		},
+		`[{"object":{"name":"a"}},{"object":{"name":"b"}}]`,
+	)
 }
 
 func TestSerializeSetRefV(t *testing.T) {
-	json, err := toJSON(SetRefV{
-		ObjectV{"name": StringV("a")},
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"@set":{"object":{"name":"a"}}}`, json)
+	assertJSON(t,
+		SetRefV{
+			ObjectV{"name": StringV("a")},
+		},
+		`{"@set":{"object":{"name":"a"}}}`,
+	)
 }
 
 func TestSerializeDateV(t *testing.T) {
-	json, err := toJSON(DateV(time.Unix(0, 0).UTC()))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"@date":"1970-01-01"}`, json)
+	assertJSON(t,
+		DateV(time.Unix(0, 0).UTC()),
+		`{"@date":"1970-01-01"}`,
+	)
 }
 
 func TestSerializeTimeV(t *testing.T) {
-	json, err := toJSON(TimeV(time.Unix(1, 2).UTC()))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"@ts":"1970-01-01T00:00:01.000000002Z"}`, json)
+	assertJSON(t,
+		TimeV(time.Unix(1, 2).UTC()),
+		`{"@ts":"1970-01-01T00:00:01.000000002Z"}`,
+	)
 }
 
 func TestSerializeObject(t *testing.T) {
-	json, err := toJSON(Obj{"key": "value"})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"key":"value"}}`, json)
+	assertJSON(t,
+		Obj{"key": "value"},
+		`{"object":{"key":"value"}}`,
+	)
 }
 
 func TestSerializeNestedObjects(t *testing.T) {
-	json, err := toJSON(Obj{"key": Obj{"nested": "value"}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"key":{"object":{"nested":"value"}}}}`, json)
+	assertJSON(t,
+		Obj{"key": Obj{"nested": "value"}},
+		`{"object":{"key":{"object":{"nested":"value"}}}}`,
+	)
 }
 
 func TestSerializeNestedMaps(t *testing.T) {
-	json, err := toJSON(Obj{"key": map[string]string{"nested": "value"}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"key":{"object":{"nested":"value"}}}}`, json)
+	assertJSON(t,
+		Obj{"key": map[string]string{"nested": "value"}},
+		`{"object":{"key":{"object":{"nested":"value"}}}}`,
+	)
 }
 
 func TestSerializeInvalidMaps(t *testing.T) {
-	_, err := toJSON(Obj{"key": map[int]string{1: "value"}})
+	_, err := writeJSON(Obj{"key": map[int]string{1: "value"}})
 	require.EqualError(t, err, "Error while encoding map to json: All map keys must be of type string")
 }
 
 func TestSerializeArray(t *testing.T) {
-	json, err := toJSON(Arr{1, 2, 3})
-
-	require.NoError(t, err)
-	require.Equal(t, `[1,2,3]`, json)
+	assertJSON(t,
+		Arr{1, 2, 3},
+		`[1,2,3]`,
+	)
 }
 
 func TestSerializeWithNestedArrays(t *testing.T) {
-	json, err := toJSON(Arr{Arr{1, 2, 3}})
-
-	require.NoError(t, err)
-	require.Equal(t, `[[1,2,3]]`, json)
+	assertJSON(t,
+		Arr{Arr{1, 2, 3}},
+		`[[1,2,3]]`,
+	)
 }
 
 func TestSerializeStruct(t *testing.T) {
@@ -97,10 +97,10 @@ func TestSerializeStruct(t *testing.T) {
 		Age  int
 	}
 
-	json, err := toJSON(Obj{"data": user{"Jhon", 42}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Age":42,"Name":"Jhon"}}}}`, json)
+	assertJSON(t,
+		Obj{"data": user{"Jhon", 42}},
+		`{"object":{"data":{"object":{"Age":42,"Name":"Jhon"}}}}`,
+	)
 }
 
 func TestSerializeWithNonExportedFields(t *testing.T) {
@@ -109,10 +109,10 @@ func TestSerializeWithNonExportedFields(t *testing.T) {
 		age  int
 	}
 
-	json, err := toJSON(Obj{"data": user{"Jhon", 42}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Name":"Jhon"}}}}`, json)
+	assertJSON(t,
+		Obj{"data": user{"Jhon", 42}},
+		`{"object":{"data":{"object":{"Name":"Jhon"}}}}`,
+	)
 }
 
 func TestSerializeStructWithTags(t *testing.T) {
@@ -121,10 +121,10 @@ func TestSerializeStructWithTags(t *testing.T) {
 		Age  int    `fauna:"age"`
 	}
 
-	json, err := toJSON(Obj{"data": user{"Jhon", 42}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"age":42,"name":"Jhon"}}}}`, json)
+	assertJSON(t,
+		Obj{"data": user{"Jhon", 42}},
+		`{"object":{"data":{"object":{"age":42,"name":"Jhon"}}}}`,
+	)
 }
 
 func TestSerializeStructWithPointers(t *testing.T) {
@@ -135,13 +135,15 @@ func TestSerializeStructWithPointers(t *testing.T) {
 
 	age := 42
 
-	json, err := toJSON(Obj{"data": &user{"Jhon", &age}})
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Age":42,"Name":"Jhon"}}}}`, json)
+	assertJSON(t,
+		Obj{"data": &user{"Jhon", &age}},
+		`{"object":{"data":{"object":{"Age":42,"Name":"Jhon"}}}}`,
+	)
 
-	json, err = toJSON(Obj{"data": &user{Name: "Jhon"}})
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Age":null,"Name":"Jhon"}}}}`, json)
+	assertJSON(t,
+		Obj{"data": &user{Name: "Jhon"}},
+		`{"object":{"data":{"object":{"Age":null,"Name":"Jhon"}}}}`,
+	)
 }
 
 func TestSerializeStructWithNestedExpressions(t *testing.T) {
@@ -154,10 +156,10 @@ func TestSerializeStructWithNestedExpressions(t *testing.T) {
 		Credentials map[string]string
 	}
 
-	json, err := toJSON(Obj{"data": userInfo{user{"Jhon"}, map[string]string{"password": "1234"}}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Credentials":{"object":{"password":"1234"}},"User":{"object":{"Name":"Jhon"}}}}}}`, json)
+	assertJSON(t,
+		Obj{"data": userInfo{user{"Jhon"}, map[string]string{"password": "1234"}}},
+		`{"object":{"data":{"object":{"Credentials":{"object":{"password":"1234"}},"User":{"object":{"Name":"Jhon"}}}}}}`,
+	)
 }
 
 func TestSerializeStructWithEmbeddedStructs(t *testing.T) {
@@ -170,148 +172,121 @@ func TestSerializeStructWithEmbeddedStructs(t *testing.T) {
 		Embedded
 	}
 
-	json, err := toJSON(Obj{"data": Data{42, Embedded{"a string"}}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Embedded":{"object":{"Str":"a string"}},"Int":42}}}}`, json)
+	assertJSON(t,
+		Obj{"data": Data{42, Embedded{"a string"}}},
+		`{"object":{"data":{"object":{"Embedded":{"object":{"Str":"a string"}},"Int":42}}}}`,
+	)
 }
 
 func TestSerializeRef(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		RefClass(Ref("classes/spells"), "42"),
+		`{"id":"42","ref":{"@ref":"classes/spells"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"id":"42","ref":{"@ref":"classes/spells"}}`, json)
 }
 
 func TestSerializeCreate(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Create(Ref("classes/spells"), Obj{
 			"name": "fire",
 		}),
+		`{"create":{"@ref":"classes/spells"},"params":{"object":{"name":"fire"}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"create":{"@ref":"classes/spells"},"params":{"object":{"name":"fire"}}}`, json)
 }
 
 func TestSerializeUpdate(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Update(Ref("classes/spells/123"), Obj{
 			"name": "fire",
 		}),
+		`{"params":{"object":{"name":"fire"}},"update":{"@ref":"classes/spells/123"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"params":{"object":{"name":"fire"}},"update":{"@ref":"classes/spells/123"}}`, json)
 }
 
 func TestSerializeReplace(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Replace(Ref("classes/spells/123"), Obj{
 			"name": "fire",
 		}),
+		`{"params":{"object":{"name":"fire"}},"replace":{"@ref":"classes/spells/123"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"params":{"object":{"name":"fire"}},"replace":{"@ref":"classes/spells/123"}}`, json)
 }
 
 func TestSerializeDelete(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Delete(Ref("classes/spells/123")),
+		`{"delete":{"@ref":"classes/spells/123"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"delete":{"@ref":"classes/spells/123"}}`, json)
 }
 
 func TestSerializeInsert(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Insert(
 			Ref("classes/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
 			ActionCreate,
 			Obj{"data": Obj{"name": "test"}},
 		),
+		`{"action":"create","insert":{"@ref":"classes/spells/104979509696660483"},`+
+			`"params":{"object":{"data":{"object":{"name":"test"}}}},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"action":"create","insert":{"@ref":"classes/spells/104979509696660483"},"params":{"object":{"data":{"object":{"name":"test"}}}},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
 }
 
 func TestSerializeRemove(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Remove(
 			Ref("classes/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
 			ActionDelete,
 		),
+		`{"action":"delete","remove":{"@ref":"classes/spells/104979509696660483"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"action":"delete","remove":{"@ref":"classes/spells/104979509696660483"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
 }
 
 func TestSerializeCreateClass(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		CreateClass(Obj{
 			"name": "boons",
 		}),
+		`{"create_class":{"object":{"name":"boons"}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"create_class":{"object":{"name":"boons"}}}`, json)
 }
 
 func TestSerializeCreateDatabase(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		CreateDatabase(Obj{
 			"name": "db-next",
 		}),
+		`{"create_database":{"object":{"name":"db-next"}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"create_database":{"object":{"name":"db-next"}}}`, json)
 }
 
 func TestSerializeCreateIndex(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		CreateIndex(Obj{
 			"name":   "new-index",
 			"source": Ref("classes/spells"),
 		}),
+		`{"create_index":{"object":{"name":"new-index","source":{"@ref":"classes/spells"}}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"create_index":{"object":{"name":"new-index","source":{"@ref":"classes/spells"}}}}`, json)
 }
 
 func TestSerializeCreateKey(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		CreateKey(Obj{
 			"database": Ref("databases/prydain"),
 			"role":     "server",
 		}),
+		`{"create_key":{"object":{"database":{"@ref":"databases/prydain"},"role":"server"}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"create_key":{"object":{"database":{"@ref":"databases/prydain"},"role":"server"}}}`, json)
 }
 
 func TestSerializeNull(t *testing.T) {
-	json, err := toJSON(Null())
-
-	require.NoError(t, err)
-	require.Equal(t, `null`, json)
+	assertJSON(t, Null(), `null`)
 }
 
 func TestSerializeNullOnObject(t *testing.T) {
-	json, err := toJSON(Obj{"data": Null()})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":null}}`, json)
+	assertJSON(t, Obj{"data": Null()}, `{"object":{"data":null}}`)
 }
 
 func TestSerializeNullOnStruct(t *testing.T) {
@@ -319,174 +294,160 @@ func TestSerializeNullOnStruct(t *testing.T) {
 		Null *string
 	}
 
-	json, err := toJSON(Obj{"data": structWithNull{nil}})
-
-	require.NoError(t, err)
-	require.Equal(t, `{"object":{"data":{"object":{"Null":null}}}}`, json)
+	assertJSON(t,
+		Obj{"data": structWithNull{nil}},
+		`{"object":{"data":{"object":{"Null":null}}}}`,
+	)
 }
 
 func TestSerializeLet(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Let(
 			Obj{"v1": Ref("classes/spells/42")},
 			Exists(Var("v1")),
 		),
+		`{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`, json)
 }
 
 func TestSerializeIf(t *testing.T) {
-	json, err := toJSON(If(true, "exists", "does not exists"))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"else":"does not exists","if":true,"then":"exists"}`, json)
+	assertJSON(t,
+		If(true, "exists", "does not exists"),
+		`{"else":"does not exists","if":true,"then":"exists"}`,
+	)
 }
 
 func TestSerializeDo(t *testing.T) {
-	json, err := toJSON(Do(Arr{
-		Get(Ref("classes/spells/4")),
-		Get(Ref("classes/spells/2")),
-	}))
+	assertJSON(t,
+		Do(Arr{
+			Get(Ref("classes/spells/4")),
+			Get(Ref("classes/spells/2")),
+		}),
+		`{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`,
+	)
 
-	require.NoError(t, err)
-	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
-
-	json, err = toJSON(Do(
-		Get(Ref("classes/spells/4")),
-		Get(Ref("classes/spells/2")),
-	))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`, json)
+	assertJSON(t,
+		Do(
+			Get(Ref("classes/spells/4")),
+			Get(Ref("classes/spells/2")),
+		),
+		`{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`,
+	)
 }
 
 func TestSerializeLambda(t *testing.T) {
-	json, err := toJSON(Lambda("x", Var("x")))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"expr":{"var":"x"},"lambda":"x"}`, json)
+	assertJSON(t,
+		Lambda("x", Var("x")),
+		`{"expr":{"var":"x"},"lambda":"x"}`,
+	)
 }
 
 func TestSerializeMap(t *testing.T) {
-	json, err := toJSON(Map(Arr{1, 2, 3}, Lambda("x", Var("x"))))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"collection":[1,2,3],"map":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+	assertJSON(t,
+		Map(Arr{1, 2, 3}, Lambda("x", Var("x"))),
+		`{"collection":[1,2,3],"map":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
 }
 
 func TestSerializeForeach(t *testing.T) {
-	json, err := toJSON(Foreach(Arr{1, 2, 3}, Lambda("x", Var("x"))))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"collection":[1,2,3],"foreach":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+	assertJSON(t,
+		Foreach(Arr{1, 2, 3}, Lambda("x", Var("x"))),
+		`{"collection":[1,2,3],"foreach":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
 }
 
 func TestSerializeFilter(t *testing.T) {
-	json, err := toJSON(Filter(Arr{true, false}, Lambda("x", Var("x"))))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"collection":[true,false],"filter":{"expr":{"var":"x"},"lambda":"x"}}`, json)
+	assertJSON(t,
+		Filter(Arr{true, false}, Lambda("x", Var("x"))),
+		`{"collection":[true,false],"filter":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
 }
 
 func TestSerializeTake(t *testing.T) {
-	json, err := toJSON(Take(2, Arr{1, 2, 3}))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"collection":[1,2,3],"take":2}`, json)
+	assertJSON(t,
+		Take(2, Arr{1, 2, 3}),
+		`{"collection":[1,2,3],"take":2}`,
+	)
 }
 
 func TestSerializeDrop(t *testing.T) {
-	json, err := toJSON(Drop(2, Arr{1, 2, 3}))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"collection":[1,2,3],"drop":2}`, json)
+	assertJSON(t,
+		Drop(2, Arr{1, 2, 3}),
+		`{"collection":[1,2,3],"drop":2}`,
+	)
 }
 
 func TestSerializePrepend(t *testing.T) {
-	json, err := toJSON(Prepend(Arr{1, 2, 3}, Arr{4, 5, 6}))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"collection":[4,5,6],"prepend":[1,2,3]}`, json)
+	assertJSON(t,
+		Prepend(Arr{1, 2, 3}, Arr{4, 5, 6}),
+		`{"collection":[4,5,6],"prepend":[1,2,3]}`,
+	)
 }
 
 func TestSerializeAppend(t *testing.T) {
-	json, err := toJSON(Append(Arr{4, 5, 6}, Arr{1, 2, 3}))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"append":[4,5,6],"collection":[1,2,3]}`, json)
+	assertJSON(t,
+		Append(Arr{4, 5, 6}, Arr{1, 2, 3}),
+		`{"append":[4,5,6],"collection":[1,2,3]}`,
+	)
 }
 
 func TestSerializeGet(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Get(Ref("classes/spells/42")),
+		`{"get":{"@ref":"classes/spells/42"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"get":{"@ref":"classes/spells/42"}}`, json)
 }
 
 func TestSerializeGetWithTimestamp(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Get(
 			Ref("classes/spells/42"),
 			TS(time.Unix(0, 0).UTC()),
 		),
+		`{"get":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"get":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`, json)
 }
 
 func TestSerializeExists(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Exists(Ref("classes/spells/42")),
+		`{"exists":{"@ref":"classes/spells/42"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"}}`, json)
 }
 
 func TestSerializeExistsWithTimestamp(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Exists(
 			Ref("classes/spells/42"),
 			TS(time.Unix(1, 1).UTC()),
 		),
+		`{"exists":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:01.000000001Z"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"exists":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:01.000000001Z"}}`, json)
 }
 
 func TestSerializeCount(t *testing.T) {
-	json, err := toJSON(Count(Ref("databases")))
-
-	require.NoError(t, err)
-	require.Equal(t, `{"count":{"@ref":"databases"}}`, json)
+	assertJSON(t,
+		Count(Ref("databases")),
+		`{"count":{"@ref":"databases"}}`,
+	)
 }
 
 func TestSerializeCountEvents(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Count(Ref("databases"), Events(true)),
+		`{"count":{"@ref":"databases"},"events":true}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"count":{"@ref":"databases"},"events":true}`, json)
 }
 
 func TestSerializePaginate(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Paginate(Ref("databases")),
+		`{"paginate":{"@ref":"databases"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"paginate":{"@ref":"databases"}}`, json)
 }
 
 func TestSerializePaginateWithParameters(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Paginate(
 			Ref("databases"),
 			Before(Ref("databases/test10")),
@@ -496,281 +457,236 @@ func TestSerializePaginateWithParameters(t *testing.T) {
 			TS(10),
 			Size(2),
 		),
+		`{"after":{"@ref":"databases/test"},"before":{"@ref":"databases/test10"},"events":true,`+
+			`"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"after":{"@ref":"databases/test"},"before":{"@ref":"databases/test10"},"events":true,"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10}`, json)
 }
 
 func TestSerializeConcat(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Concat(Arr{"a", "b"}),
+		`{"concat":["a","b"]}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"concat":["a","b"]}`, json)
 }
 
 func TestSerializeConcatWithSeparator(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Concat(Arr{"a", "b"}, Separator("/")),
+		`{"concat":["a","b"],"separator":"/"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"concat":["a","b"],"separator":"/"}`, json)
 }
 
 func TestSerializeCasefold(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Casefold("GET DOWN"),
+		`{"casefold":"GET DOWN"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"casefold":"GET DOWN"}`, json)
 }
 
 func TestSerializeTime(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Time("1970-01-01T00:00:00+00:00"),
+		`{"time":"1970-01-01T00:00:00+00:00"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"time":"1970-01-01T00:00:00+00:00"}`, json)
 }
 
 func TestSerializeEpoch(t *testing.T) {
-	json, err := toJSON(Arr{
-		Epoch(0, TimeUnitSecond),
-		Epoch(0, TimeUnitMillisecond),
-		Epoch(0, TimeUnitMicrosecond),
-		Epoch(0, TimeUnitNanosecond),
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, `[{"epoch":0,"unit":"second"},{"epoch":0,"unit":"millisecond"},{"epoch":0,"unit":"microsecond"},{"epoch":0,"unit":"nanosecond"}]`, json)
+	assertJSON(t,
+		Arr{
+			Epoch(0, TimeUnitSecond),
+			Epoch(0, TimeUnitMillisecond),
+			Epoch(0, TimeUnitMicrosecond),
+			Epoch(0, TimeUnitNanosecond),
+		},
+		`[{"epoch":0,"unit":"second"},{"epoch":0,"unit":"millisecond"},`+
+			`{"epoch":0,"unit":"microsecond"},{"epoch":0,"unit":"nanosecond"}]`,
+	)
 }
 
 func TestSerializeDate(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Date("1970-01-01"),
+		`{"date":"1970-01-01"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"date":"1970-01-01"}`, json)
 }
 
 func TestSerializeMatch(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Match(Ref("databases")),
+		`{"match":{"@ref":"databases"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"match":{"@ref":"databases"}}`, json)
 }
 
 func TestSerializeMatchWithTerms(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		MatchTerm(
 			Ref("indexes/spells_by_name"),
 			"magic missile",
 		),
+		`{"match":{"@ref":"indexes/spells_by_name"},"terms":"magic missile"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"match":{"@ref":"indexes/spells_by_name"},"terms":"magic missile"}`, json)
 }
 
 func TestSerializeUnion(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Union(Arr{
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
 		}),
+		`{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`,
 	)
 
-	require.NoError(t, err)
-	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
-
-	json, err = toJSON(
+	assertJSON(t,
 		Union(
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
 		),
+		`{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"union":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
 }
 
 func TestSerializeIntersection(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Intersection(Arr{
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
 		}),
+		`{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`,
 	)
 
-	require.NoError(t, err)
-	require.Equal(t, `{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
-
-	json, err = toJSON(
+	assertJSON(t,
 		Intersection(
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
 		),
+		`{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"intersection":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
 }
 
 func TestSerializeDifference(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Difference(Arr{
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
 		}),
+		`{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`,
 	)
 
-	require.NoError(t, err)
-	require.Equal(t, `{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
-
-	json, err = toJSON(
+	assertJSON(t,
 		Difference(
 			Ref("indexes/active_users"),
 			Ref("indexes/vip_users"),
 		),
+		`{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"difference":[{"@ref":"indexes/active_users"},{"@ref":"indexes/vip_users"}]}`, json)
 }
 
 func TestSerializeDistinct(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Distinct(Ref("indexes/active_users")),
+		`{"distinct":{"@ref":"indexes/active_users"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"distinct":{"@ref":"indexes/active_users"}}`, json)
 }
 
 func TestSerializeJoin(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Join(
 			MatchTerm(Ref("indexes/spellbooks_by_owner"), Ref("classes/characters/104979509695139637")),
 			Ref("indexes/spells_by_spellbook"),
 		),
+		`{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},`+
+			`"with":{"@ref":"indexes/spells_by_spellbook"}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},"with":{"@ref":"indexes/spells_by_spellbook"}}`, json)
 }
 
 func TestSerializeLogin(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Login(
 			Ref("classes/characters/104979509695139637"),
 			Obj{"password": "abracadabra"},
 		),
+		`{"login":{"@ref":"classes/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"login":{"@ref":"classes/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`, json)
 }
 
 func TestSerializeLogout(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Logout(true),
+		`{"logout":true}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"logout":true}`, json)
 }
 
 func TestSerializeIndentify(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Identify(Ref("classes/characters/104979509695139637"), "abracadabra"),
+		`{"identify":{"@ref":"classes/characters/104979509695139637"},"password":"abracadabra"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"identify":{"@ref":"classes/characters/104979509695139637"},"password":"abracadabra"}`, json)
 }
 
 func TestSerializeNextId(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		NextId(),
+		`{"next_id":null}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"next_id":null}`, json)
 }
 
 func TestSerializeDatabase(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Database("test-db"),
+		`{"database":"test-db"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"database":"test-db"}`, json)
 }
 
 func TestSerializeIndex(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Index("test-index"),
+		`{"index":"test-index"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"index":"test-index"}`, json)
 }
 
 func TestSerializeClass(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Class("test-class"),
+		`{"class":"test-class"}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"class":"test-class"}`, json)
 }
 
 func TestSerializeEquals(t *testing.T) {
-	json, err := toJSON(Equals(Arr{"fire", "fire"}))
-	require.NoError(t, err)
-	require.Equal(t, `{"equals":["fire","fire"]}`, json)
+	assertJSON(t,
+		Equals(Arr{"fire", "fire"}),
+		`{"equals":["fire","fire"]}`,
+	)
 
-	json, err = toJSON(Equals("fire", "air"))
-	require.NoError(t, err)
-	require.Equal(t, `{"equals":["fire","air"]}`, json)
+	assertJSON(t,
+		Equals("fire", "air"),
+		`{"equals":["fire","air"]}`,
+	)
 }
 
 func TestSerializeContains(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Contains(
 			Arr{"favorites", "foods"},
 			Obj{"favorites": Obj{
 				"foods": Arr{"stake"},
 			}},
 		),
+		`{"contains":["favorites","foods"],"in":{"object":{"favorites":{"object":{"foods":["stake"]}}}}}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"contains":["favorites","foods"],"in":{"object":{"favorites":{"object":{"foods":["stake"]}}}}}`, json)
 }
 
 func TestSerializeSelect(t *testing.T) {
-	json, err := toJSON(
+	assertJSON(t,
 		Select(
 			Arr{"favorites", "foods", 0},
 			Obj{"favorites": Obj{
 				"foods": Arr{"stake"},
 			}},
 		),
+		`{"from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`,
 	)
 
-	require.NoError(t, err)
-	require.Equal(t, `{"from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
-
-	json, err = toJSON(
+	assertJSON(t,
 		Select(
 			Arr{"favorites", "foods", 0},
 			Obj{"favorites": Obj{
@@ -778,129 +694,152 @@ func TestSerializeSelect(t *testing.T) {
 			}},
 			Default("no food"),
 		),
+		`{"default":"no food","from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`,
 	)
-
-	require.NoError(t, err)
-	require.Equal(t, `{"default":"no food","from":{"object":{"favorites":{"object":{"foods":["stake"]}}}},"select":["favorites","foods",0]}`, json)
 }
 
 func TestSerializeAdd(t *testing.T) {
-	json, err := toJSON(Add(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"add":[1,2]}`, json)
+	assertJSON(t,
+		Add(Arr{1, 2}),
+		`{"add":[1,2]}`,
+	)
 
-	json, err = toJSON(Add(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"add":[3,4]}`, json)
+	assertJSON(t,
+		Add(3, 4),
+		`{"add":[3,4]}`,
+	)
 }
 
 func TestSerializeMultiply(t *testing.T) {
-	json, err := toJSON(Multiply(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"multiply":[1,2]}`, json)
+	assertJSON(t,
+		Multiply(Arr{1, 2}),
+		`{"multiply":[1,2]}`,
+	)
 
-	json, err = toJSON(Multiply(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"multiply":[3,4]}`, json)
+	assertJSON(t,
+		Multiply(3, 4),
+		`{"multiply":[3,4]}`,
+	)
 }
 
 func TestSerializeSubtract(t *testing.T) {
-	json, err := toJSON(Subtract(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"subtract":[1,2]}`, json)
+	assertJSON(t,
+		Subtract(Arr{1, 2}),
+		`{"subtract":[1,2]}`,
+	)
 
-	json, err = toJSON(Subtract(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"subtract":[3,4]}`, json)
+	assertJSON(t,
+		Subtract(3, 4),
+		`{"subtract":[3,4]}`,
+	)
 }
 
 func TestSerializeDivide(t *testing.T) {
-	json, err := toJSON(Divide(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"divide":[1,2]}`, json)
+	assertJSON(t,
+		Divide(Arr{1, 2}),
+		`{"divide":[1,2]}`,
+	)
 
-	json, err = toJSON(Divide(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"divide":[3,4]}`, json)
+	assertJSON(t,
+		Divide(3, 4),
+		`{"divide":[3,4]}`,
+	)
 }
 
 func TestSerializeModulo(t *testing.T) {
-	json, err := toJSON(Modulo(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"modulo":[1,2]}`, json)
+	assertJSON(t,
+		Modulo(Arr{1, 2}),
+		`{"modulo":[1,2]}`,
+	)
 
-	json, err = toJSON(Modulo(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"modulo":[3,4]}`, json)
+	assertJSON(t,
+		Modulo(3, 4),
+		`{"modulo":[3,4]}`,
+	)
 }
 
 func TestSerializeLT(t *testing.T) {
-	json, err := toJSON(LT(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"lt":[1,2]}`, json)
+	assertJSON(t,
+		LT(Arr{1, 2}),
+		`{"lt":[1,2]}`,
+	)
 
-	json, err = toJSON(LT(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"lt":[3,4]}`, json)
+	assertJSON(t,
+		LT(3, 4),
+		`{"lt":[3,4]}`,
+	)
 }
 
 func TestSerializeLTE(t *testing.T) {
-	json, err := toJSON(LTE(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"lte":[1,2]}`, json)
+	assertJSON(t,
+		LTE(Arr{1, 2}),
+		`{"lte":[1,2]}`,
+	)
 
-	json, err = toJSON(LTE(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"lte":[3,4]}`, json)
+	assertJSON(t,
+		LTE(3, 4),
+		`{"lte":[3,4]}`,
+	)
 }
 
 func TestSerializeGT(t *testing.T) {
-	json, err := toJSON(GT(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"gt":[1,2]}`, json)
+	assertJSON(t,
+		GT(Arr{1, 2}),
+		`{"gt":[1,2]}`,
+	)
 
-	json, err = toJSON(GT(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"gt":[3,4]}`, json)
+	assertJSON(t,
+		GT(3, 4),
+		`{"gt":[3,4]}`,
+	)
 }
 
 func TestSerializeGTE(t *testing.T) {
-	json, err := toJSON(GTE(Arr{1, 2}))
-	require.NoError(t, err)
-	require.Equal(t, `{"gte":[1,2]}`, json)
+	assertJSON(t,
+		GTE(Arr{1, 2}),
+		`{"gte":[1,2]}`,
+	)
 
-	json, err = toJSON(GTE(3, 4))
-	require.NoError(t, err)
-	require.Equal(t, `{"gte":[3,4]}`, json)
+	assertJSON(t,
+		GTE(3, 4),
+		`{"gte":[3,4]}`,
+	)
 }
 
 func TestSerializeAnd(t *testing.T) {
-	json, err := toJSON(And(Arr{true, false}))
-	require.NoError(t, err)
-	require.Equal(t, `{"and":[true,false]}`, json)
+	assertJSON(t,
+		And(Arr{true, false}),
+		`{"and":[true,false]}`,
+	)
 
-	json, err = toJSON(And(true, false))
-	require.NoError(t, err)
-	require.Equal(t, `{"and":[true,false]}`, json)
+	assertJSON(t,
+		And(true, false),
+		`{"and":[true,false]}`,
+	)
 }
 
 func TestSerializeOr(t *testing.T) {
-	json, err := toJSON(Or(Arr{true, false}))
-	require.NoError(t, err)
-	require.Equal(t, `{"or":[true,false]}`, json)
+	assertJSON(t,
+		Or(Arr{true, false}),
+		`{"or":[true,false]}`,
+	)
 
-	json, err = toJSON(Or(true, false))
-	require.NoError(t, err)
-	require.Equal(t, `{"or":[true,false]}`, json)
+	assertJSON(t,
+		Or(true, false),
+		`{"or":[true,false]}`,
+	)
 }
 
 func TestSerializeNot(t *testing.T) {
-	json, err := toJSON(Not(false))
-	require.NoError(t, err)
-	require.Equal(t, `{"not":false}`, json)
+	assertJSON(t,
+		Not(false),
+		`{"not":false}`,
+	)
 }
 
-func toJSON(expr Expr) (string, error) {
+func assertJSON(t *testing.T, expr Expr, json string) {
 	bytes, err := writeJSON(expr)
-	return string(bytes), err
+
+	require.NoError(t, err)
+	require.Equal(t, json, string(bytes))
 }

@@ -23,10 +23,7 @@ func SetupTestDB() (client *FaunaClient, err error) {
 
 	if err = createTestDatabase(); err == nil {
 		if key, err = createServerKey(); err == nil {
-			client = &FaunaClient{
-				Secret:   key,
-				Endpoint: faunaEndpoint,
-			}
+			client = adminClient.NewSessionClient(key)
 		}
 	}
 
