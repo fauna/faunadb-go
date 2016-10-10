@@ -949,6 +949,26 @@ func (s *ClientTestSuite) TestEvalNotExpression() {
 	s.Require().True(b)
 }
 
+func (s *ClientTestSuite) TestSetRef() {
+	var set f.SetRefV
+	var match f.RefV
+	var terms string
+
+	s.queryAndDecode(
+		f.MatchTerm(
+			spellsByElement,
+			"arcane",
+		),
+		&set,
+	)
+
+	s.Require().NoError(set.Parameters.At(f.ObjKey("match")).Get(&match))
+	s.Require().NoError(set.Parameters.At(f.ObjKey("terms")).Get(&terms))
+
+	s.Require().Equal(spellsByElement, match)
+	s.Require().Equal("arcane", terms)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
