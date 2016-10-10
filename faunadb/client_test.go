@@ -969,6 +969,13 @@ func (s *ClientTestSuite) TestSetRef() {
 	s.Require().Equal("arcane", terms)
 }
 
+func (s *ClientTestSuite) TestEchoAnObjectBack() {
+	var obj map[string]string
+
+	s.queryAndDecode(f.Obj{"key": "value"}, &obj)
+	s.Require().Equal(map[string]string{"key": "value"}, obj)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
