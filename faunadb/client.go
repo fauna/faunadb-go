@@ -10,6 +10,10 @@ import (
 	"net/http"
 )
 
+const DefaultEndpoint = "https://cloud.faunadb.com"
+
+var resource = ObjKey("resource")
+
 type FaunaClient struct {
 	Secret   string
 	Endpoint string
@@ -73,13 +77,21 @@ func (client *FaunaClient) prepareRequest(expr Expr) (request *http.Request, err
 	var body []byte
 
 	if body, err = json.Marshal(expr); err == nil {
-		if request, err = http.NewRequest("POST", client.Endpoint, bytes.NewReader(body)); err == nil {
+		if request, err = http.NewRequest("POST", client.customOrDefaultEndpoint(), bytes.NewReader(body)); err == nil {
 			request.Header.Add("Authorization", client.basicAuth())
 			request.Header.Add("Content-Type", "application/json; charset=utf-8")
 		}
 	}
 
 	return
+}
+
+func (client *FaunaClient) customOrDefaultEndpoint() string {
+	if client.Endpoint == "" {
+		return DefaultEndpoint
+	}
+
+	return client.Endpoint
 }
 
 func (client *FaunaClient) basicAuth() string {
@@ -94,5 +106,5 @@ func (client *FaunaClient) parseResponse(response *http.Response) (Value, error)
 		return nil, err
 	}
 
-	return value.At(ObjKey("resource")).GetValue()
+	return value.At(resource).GetValue()
 }
