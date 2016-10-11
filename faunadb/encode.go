@@ -8,10 +8,13 @@ import (
 )
 
 var (
-	exprType              = reflect.TypeOf((*Expr)(nil)).Elem()
-	timeType              = reflect.TypeOf((*time.Time)(nil)).Elem()
-	intType               = reflect.TypeOf((*int64)(nil)).Elem()
-	floatType             = reflect.TypeOf((*float64)(nil)).Elem()
+	exprType  = reflect.TypeOf((*Expr)(nil)).Elem()
+	objType   = reflect.TypeOf((*Obj)(nil)).Elem()
+	arrType   = reflect.TypeOf((*Arr)(nil)).Elem()
+	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
+	intType   = reflect.TypeOf((*int64)(nil)).Elem()
+	floatType = reflect.TypeOf((*float64)(nil)).Elem()
+
 	errMapKeyMustBeString = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
 )
 
@@ -23,7 +26,8 @@ func wrap(i interface{}) Expr {
 		return NullV{}
 	}
 
-	if valueType.Implements(exprType) {
+	// Is an expression but not a syntax sugar
+	if valueType.Implements(exprType) && valueType != objType && valueType != arrType {
 		return value.Interface().(Expr)
 	}
 

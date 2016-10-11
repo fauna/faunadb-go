@@ -24,15 +24,8 @@ type Arr []interface{}
 func (obj Obj) expr() {}
 func (arr Arr) expr() {}
 
-func (obj Obj) MarshalJSON() ([]byte, error) {
-	asMap := map[string]interface{}(obj)
-	return json.Marshal(wrap(asMap))
-}
-
-func (arr Arr) MarshalJSON() ([]byte, error) {
-	asArr := []interface{}(arr)
-	return json.Marshal(wrap(asArr))
-}
+func (obj Obj) MarshalJSON() ([]byte, error) { return json.Marshal(wrap(obj)) }
+func (arr Arr) MarshalJSON() ([]byte, error) { return json.Marshal(wrap(arr)) }
 
 type OptionalParameter func(unescapedObj)
 
