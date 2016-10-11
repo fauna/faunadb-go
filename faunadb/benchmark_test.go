@@ -2,15 +2,16 @@ package faunadb
 
 import (
 	"bytes"
+	"encoding/json"
 	"testing"
 	"time"
 )
 
 // Current results:
-// BenchmarkParseJSON-8               30000             42690 ns/op
-// BenchmarkDecodeValue-8             50000             24889 ns/op
-// BenchmarkEncodeValue-8             50000             24459 ns/op
-// BenchmarkWriteJSON-8               30000             52173 ns/op
+// BenchmarkParseJSON-8               30000             40449 ns/op
+// BenchmarkDecodeValue-8             50000             24919 ns/op
+// BenchmarkEncodeValue-8            100000             23359 ns/op
+// BenchmarkWriteJSON-8               50000             30474 ns/op
 // BenchmarkExtactValue-8          20000000               107 ns/op
 
 type benchmarkStruct struct {
@@ -39,7 +40,7 @@ type benchmarkNestedStruct struct {
 }
 
 var (
-	benckmarkJson = []byte(`
+	benckmarkJSON = []byte(`
 	{
 		"Ref": {
 			"@ref": "classes/spells/42"
@@ -95,14 +96,14 @@ var (
 
 func BenchmarkParseJSON(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		if _, err := parseJSON(bytes.NewReader(benckmarkJson)); err != nil {
+		if _, err := parseJSON(bytes.NewReader(benckmarkJSON)); err != nil {
 			panic(err)
 		}
 	}
 }
 
 func BenchmarkDecodeValue(b *testing.B) {
-	value, err := parseJSON(bytes.NewReader(benckmarkJson))
+	value, err := parseJSON(bytes.NewReader(benckmarkJSON))
 	if err != nil {
 		panic(err)
 	}
@@ -120,22 +121,16 @@ func BenchmarkEncodeValue(b *testing.B) {
 	expr := Obj{"data": benchmarkData}
 
 	for i := 0; i < b.N; i++ {
-		if _, err := escapeValue(expr); err != nil {
-			panic(err)
-		}
+		wrap(expr)
 	}
 }
 
 func BenchmarkWriteJSON(b *testing.B) {
-	escaped, err := escapeValue(benchmarkData)
-	if err != nil {
-		panic(err)
-	}
-
+	escaped := wrap(benchmarkData)
 	expr := Obj{"data": escaped}
 
 	for i := 0; i < b.N; i++ {
-		if _, err := writeJSON(expr); err != nil {
+		if _, err := json.Marshal(expr); err != nil {
 			panic(err)
 		}
 	}
@@ -144,7 +139,7 @@ func BenchmarkWriteJSON(b *testing.B) {
 func BenchmarkExtactValue(b *testing.B) {
 	field := ObjKey("ObjArr").AtIndex(1).AtKey("Nested")
 
-	value, err := parseJSON(bytes.NewReader(benckmarkJson))
+	value, err := parseJSON(bytes.NewReader(benckmarkJSON))
 	if err != nil {
 		panic(err)
 	}

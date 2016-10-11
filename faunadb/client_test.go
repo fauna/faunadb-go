@@ -792,10 +792,10 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	s.Require().False(identified)
 }
 
-func (s *ClientTestSuite) TestEvalNextIdExpression() {
+func (s *ClientTestSuite) TestEvalNextIDExpression() {
 	var id string
 
-	s.queryAndDecode(f.NextId(), &id)
+	s.queryAndDecode(f.NextID(), &id)
 	s.Require().NotEmpty(id)
 }
 
@@ -962,8 +962,8 @@ func (s *ClientTestSuite) TestSetRef() {
 		&set,
 	)
 
-	s.Require().NoError(set.Parameters.At(f.ObjKey("match")).Get(&match))
-	s.Require().NoError(set.Parameters.At(f.ObjKey("terms")).Get(&terms))
+	s.Require().NoError(set.Parameters["match"].Get(&match))
+	s.Require().NoError(set.Parameters["terms"].Get(&terms))
 
 	s.Require().Equal(spellsByElement, match)
 	s.Require().Equal("arcane", terms)
