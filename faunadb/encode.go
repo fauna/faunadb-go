@@ -1,8 +1,8 @@
 package faunadb
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"time"
 )
@@ -10,83 +10,76 @@ import (
 var (
 	exprType              = reflect.TypeOf((*Expr)(nil)).Elem()
 	timeType              = reflect.TypeOf((*time.Time)(nil)).Elem()
-	errMapKeyMustBeString = errors.New("Error while encoding map to json: All map keys must be of type string")
+	intType               = reflect.TypeOf((*int64)(nil)).Elem()
+	floatType             = reflect.TypeOf((*float64)(nil)).Elem()
+	errMapKeyMustBeString = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
 )
 
-func writeJSON(expr Expr) (bytes []byte, err error) {
-	var escaped interface{}
-
-	if escaped, err = expr.toJSON(); err == nil {
-		bytes, err = json.Marshal(escaped)
-	}
-
-	return
-}
-
-func escapeValue(any interface{}) (interface{}, error) {
-	value, valueType := indirectValue(any)
+func wrap(i interface{}) Expr {
+	value, valueType := indirectValue(i)
 	kind := value.Kind()
 
 	if kind == reflect.Ptr && value.IsNil() {
-		return nil, nil
+		return NullV{}
 	}
 
 	if valueType.Implements(exprType) {
-		return value.Interface().(Expr).toJSON()
-	}
-
-	if valueType == timeType {
-		return TimeV(value.Interface().(time.Time)).toJSON()
+		return value.Interface().(Expr)
 	}
 
 	switch kind {
+	case reflect.String:
+		return StringV(value.Interface().(string))
+
+	case reflect.Bool:
+		return BooleanV(value.Interface().(bool))
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return LongV(value.Convert(intType).Interface().(int64))
+
+	case reflect.Float32, reflect.Float64:
+		return DoubleV(value.Convert(floatType).Interface().(float64))
+
 	case reflect.Map:
-		if valueType.Key().Kind() == reflect.String {
-			return escapeMap(value)
+		if valueType.Key().Kind() != reflect.String {
+			return errMapKeyMustBeString
 		}
-		return nil, errMapKeyMustBeString
+
+		return wrapMap(value)
 
 	case reflect.Struct:
-		return escapeMap(structToMap(value))
+		if valueType == timeType {
+			return TimeV(value.Interface().(time.Time))
+		}
+
+		value, _ = indirectValue(structToMap(value))
+		return wrapMap(value)
+
 	case reflect.Slice:
-		return escapeArray(value)
+		return wrapArray(value)
+
 	default:
-		return value.Interface(), nil
+		return invalidExpr{fmt.Errorf("Error while converting Expr to JSON: Non supported type %v", kind)}
 	}
 }
 
-func escapeMap(obj interface{}) (interface{}, error) {
-	value, _ := indirectValue(obj)
-
-	res := make(map[string]interface{}, value.Len())
+func wrapMap(value reflect.Value) Expr {
+	obj := make(unescapedObj, value.Len())
 
 	for _, key := range value.MapKeys() {
-		escaped, err := escapeValue(value.MapIndex(key))
-
-		if err != nil {
-			return nil, err
-		}
-
-		res[key.String()] = escaped
+		obj[key.String()] = wrap(value.MapIndex(key))
 	}
 
-	return map[string]interface{}{"object": res}, nil
+	return unescapedObj{"object": obj}
 }
 
-func escapeArray(arr interface{}) (interface{}, error) {
-	value, _ := indirectValue(arr)
-
-	res := make([]interface{}, value.Len())
+func wrapArray(value reflect.Value) Expr {
+	arr := make(unescapedArr, value.Len())
 
 	for i, size := 0, value.Len(); i < size; i++ {
-		escaped, err := escapeValue(value.Index(i))
-
-		if err != nil {
-			return nil, err
-		}
-
-		res[i] = escaped
+		arr[i] = wrap(value.Index(i))
 	}
 
-	return res, nil
+	return arr
 }

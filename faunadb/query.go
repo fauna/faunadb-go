@@ -22,151 +22,180 @@ func varargs(expr ...interface{}) interface{} {
 	return expr
 }
 
-// Optional parameters
+func unescapedBindings(obj Obj) unescapedObj {
+	res := make(unescapedObj, len(obj))
 
-type OptionalParameter interface {
-	params() map[string]interface{}
-}
-
-type params map[string]interface{}
-
-func (p params) params() map[string]interface{} {
-	return p
-}
-
-func withOptions(f fn, optionals []OptionalParameter) Expr {
-	for _, option := range optionals {
-		for k, v := range option.params() {
-			f[k] = v
-		}
+	for k, v := range obj {
+		res[k] = wrap(v)
 	}
 
-	return f
+	return res
 }
 
-func Events(events interface{}) OptionalParameter   { return params{"events": events} }
-func TS(timestamp interface{}) OptionalParameter    { return params{"ts": timestamp} }
-func After(ref interface{}) OptionalParameter       { return params{"after": ref} }
-func Before(ref interface{}) OptionalParameter      { return params{"before": ref} }
-func Sources(sources interface{}) OptionalParameter { return params{"sources": sources} }
-func Size(size interface{}) OptionalParameter       { return params{"size": size} }
-func Separator(sep interface{}) OptionalParameter   { return params{"separator": sep} }
-func Default(value interface{}) OptionalParameter   { return params{"default": value} }
+// Optional parameters
+
+func Events(events interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["events"] = wrap(events)
+	}
+}
+
+func TS(timestamp interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["ts"] = wrap(timestamp)
+	}
+}
+
+func After(ref interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["after"] = wrap(ref)
+	}
+}
+
+func Before(ref interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["before"] = wrap(ref)
+	}
+}
+
+func Size(size interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["size"] = wrap(size)
+	}
+}
+
+func Separator(sep interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["separator"] = wrap(sep)
+	}
+}
+
+func Default(value interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["default"] = wrap(value)
+	}
+}
+
+func Sources(sources interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["sources"] = wrap(sources)
+	}
+}
 
 // Values
 
 func Ref(id string) Expr                     { return RefV{id} }
-func RefClass(classRef, id interface{}) Expr { return fn{"ref": classRef, "id": id} }
+func RefClass(classRef, id interface{}) Expr { return fn2("ref", classRef, "id", id) }
 func Null() Expr                             { return NullV{} }
 
 // Basic forms
 
-func Do(exprs ...interface{}) Expr          { return fn{"do": varargs(exprs...)} }
-func If(cond, then, elze interface{}) Expr  { return fn{"if": cond, "then": then, "else": elze} }
-func Lambda(varName, expr interface{}) Expr { return fn{"lambda": varName, "expr": expr} }
-func Let(bindings Obj, in interface{}) Expr { return fn{"let": fn(bindings), "in": in} }
-func Var(name string) Expr                  { return fn{"var": name} }
+func Do(exprs ...interface{}) Expr          { return fn1("do", varargs(exprs...)) }
+func If(cond, then, elze interface{}) Expr  { return fn3("if", cond, "then", then, "else", elze) }
+func Lambda(varName, expr interface{}) Expr { return fn2("lambda", varName, "expr", expr) }
+func Let(bindings Obj, in interface{}) Expr { return fn2("let", unescapedBindings(bindings), "in", in) }
+func Var(name string) Expr                  { return fn1("var", name) }
 
 // Collections
 
-func Map(coll, lambda interface{}) Expr     { return fn{"map": lambda, "collection": coll} }
-func Foreach(coll, lambda interface{}) Expr { return fn{"foreach": lambda, "collection": coll} }
-func Filter(coll, lambda interface{}) Expr  { return fn{"filter": lambda, "collection": coll} }
-func Take(num, coll interface{}) Expr       { return fn{"take": num, "collection": coll} }
-func Drop(num, coll interface{}) Expr       { return fn{"drop": num, "collection": coll} }
-func Prepend(elems, coll interface{}) Expr  { return fn{"prepend": elems, "collection": coll} }
-func Append(elems, coll interface{}) Expr   { return fn{"append": elems, "collection": coll} }
+func Map(coll, lambda interface{}) Expr     { return fn2("map", lambda, "collection", coll) }
+func Foreach(coll, lambda interface{}) Expr { return fn2("foreach", lambda, "collection", coll) }
+func Filter(coll, lambda interface{}) Expr  { return fn2("filter", lambda, "collection", coll) }
+func Take(num, coll interface{}) Expr       { return fn2("take", num, "collection", coll) }
+func Drop(num, coll interface{}) Expr       { return fn2("drop", num, "collection", coll) }
+func Prepend(elems, coll interface{}) Expr  { return fn2("prepend", elems, "collection", coll) }
+func Append(elems, coll interface{}) Expr   { return fn2("append", elems, "collection", coll) }
 
 // Read
 
 func Get(ref interface{}, options ...OptionalParameter) Expr {
-	return withOptions(fn{"get": ref}, options)
+	return fn1("get", ref, options...)
 }
 
 func Exists(ref interface{}, options ...OptionalParameter) Expr {
-	return withOptions(fn{"exists": ref}, options)
+	return fn1("exists", ref, options...)
 }
 
 func Count(set interface{}, options ...OptionalParameter) Expr {
-	return withOptions(fn{"count": set}, options)
+	return fn1("count", set, options...)
 }
 
 func Paginate(set interface{}, options ...OptionalParameter) Expr {
-	return withOptions(fn{"paginate": set}, options)
+	return fn1("paginate", set, options...)
 }
 
 // Write
 
-func Create(ref, params interface{}) Expr    { return fn{"create": ref, "params": params} }
-func CreateClass(params interface{}) Expr    { return fn{"create_class": params} }
-func CreateDatabase(params interface{}) Expr { return fn{"create_database": params} }
-func CreateIndex(params interface{}) Expr    { return fn{"create_index": params} }
-func CreateKey(params interface{}) Expr      { return fn{"create_key": params} }
-func Update(ref, params interface{}) Expr    { return fn{"update": ref, "params": params} }
-func Replace(ref, params interface{}) Expr   { return fn{"replace": ref, "params": params} }
-func Delete(ref interface{}) Expr            { return fn{"delete": ref} }
+func Create(ref, params interface{}) Expr    { return fn2("create", ref, "params", params) }
+func CreateClass(params interface{}) Expr    { return fn1("create_class", params) }
+func CreateDatabase(params interface{}) Expr { return fn1("create_database", params) }
+func CreateIndex(params interface{}) Expr    { return fn1("create_index", params) }
+func CreateKey(params interface{}) Expr      { return fn1("create_key", params) }
+func Update(ref, params interface{}) Expr    { return fn2("update", ref, "params", params) }
+func Replace(ref, params interface{}) Expr   { return fn2("replace", ref, "params", params) }
+func Delete(ref interface{}) Expr            { return fn1("delete", ref) }
 
 func Insert(ref, ts, action, params interface{}) Expr {
-	return fn{"insert": ref, "ts": ts, "action": action, "params": params}
+	return fn4("insert", ref, "ts", ts, "action", action, "params", params)
 }
 
 func Remove(ref, ts, action interface{}) Expr {
-	return fn{"remove": ref, "ts": ts, "action": action}
+	return fn3("remove", ref, "ts", ts, "action", action)
 }
 
 // String
 
 func Concat(terms interface{}, options ...OptionalParameter) Expr {
-	return withOptions(fn{"concat": terms}, options)
+	return fn1("concat", terms, options...)
 }
 
 func Casefold(str interface{}) Expr {
-	return fn{"casefold": str}
+	return fn1("casefold", str)
 }
 
 // Time and Date
 
-func Time(str interface{}) Expr        { return fn{"time": str} }
-func Date(str interface{}) Expr        { return fn{"date": str} }
-func Epoch(num, unit interface{}) Expr { return fn{"epoch": num, "unit": unit} }
+func Time(str interface{}) Expr        { return fn1("time", str) }
+func Date(str interface{}) Expr        { return fn1("date", str) }
+func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) }
 
 // Set
 
-func Match(ref interface{}) Expr            { return fn{"match": ref} }
-func MatchTerm(ref, terms interface{}) Expr { return fn{"match": ref, "terms": terms} }
-func Union(sets ...interface{}) Expr        { return fn{"union": varargs(sets...)} }
-func Intersection(sets ...interface{}) Expr { return fn{"intersection": varargs(sets...)} }
-func Difference(sets ...interface{}) Expr   { return fn{"difference": varargs(sets...)} }
-func Distinct(set interface{}) Expr         { return fn{"distinct": set} }
-func Join(source, target interface{}) Expr  { return fn{"join": source, "with": target} }
+func Match(ref interface{}) Expr            { return fn1("match", ref) }
+func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", terms) }
+func Union(sets ...interface{}) Expr        { return fn1("union", varargs(sets...)) }
+func Intersection(sets ...interface{}) Expr { return fn1("intersection", varargs(sets...)) }
+func Difference(sets ...interface{}) Expr   { return fn1("difference", varargs(sets...)) }
+func Distinct(set interface{}) Expr         { return fn1("distinct", set) }
+func Join(source, target interface{}) Expr  { return fn2("join", source, "with", target) }
 
 // Authentication
 
-func Login(ref, params interface{}) Expr      { return fn{"login": ref, "params": params} }
-func Logout(invalidateAll interface{}) Expr   { return fn{"logout": invalidateAll} }
-func Identify(ref, password interface{}) Expr { return fn{"identify": ref, "password": password} }
+func Login(ref, params interface{}) Expr      { return fn2("login", ref, "params", params) }
+func Logout(invalidateAll interface{}) Expr   { return fn1("logout", invalidateAll) }
+func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "password", password) }
 
 // Miscellaneous
 
-func NextId() Expr                          { return fn{"next_id": NullV{}} }
-func Database(name interface{}) Expr        { return fn{"database": name} }
-func Index(name interface{}) Expr           { return fn{"index": name} }
-func Class(name interface{}) Expr           { return fn{"class": name} }
-func Equals(args ...interface{}) Expr       { return fn{"equals": varargs(args...)} }
-func Contains(path, value interface{}) Expr { return fn{"contains": path, "in": value} }
-func Add(args ...interface{}) Expr          { return fn{"add": varargs(args...)} }
-func Multiply(args ...interface{}) Expr     { return fn{"multiply": varargs(args...)} }
-func Subtract(args ...interface{}) Expr     { return fn{"subtract": varargs(args...)} }
-func Divide(args ...interface{}) Expr       { return fn{"divide": varargs(args...)} }
-func Modulo(args ...interface{}) Expr       { return fn{"modulo": varargs(args...)} }
-func LT(args ...interface{}) Expr           { return fn{"lt": varargs(args...)} }
-func LTE(args ...interface{}) Expr          { return fn{"lte": varargs(args...)} }
-func GT(args ...interface{}) Expr           { return fn{"gt": varargs(args...)} }
-func GTE(args ...interface{}) Expr          { return fn{"gte": varargs(args...)} }
-func And(args ...interface{}) Expr          { return fn{"and": varargs(args...)} }
-func Or(args ...interface{}) Expr           { return fn{"or": varargs(args...)} }
-func Not(boolean interface{}) Expr          { return fn{"not": boolean} }
+func NextID() Expr                          { return fn1("next_id", NullV{}) }
+func Database(name interface{}) Expr        { return fn1("database", name) }
+func Index(name interface{}) Expr           { return fn1("index", name) }
+func Class(name interface{}) Expr           { return fn1("class", name) }
+func Equals(args ...interface{}) Expr       { return fn1("equals", varargs(args...)) }
+func Contains(path, value interface{}) Expr { return fn2("contains", path, "in", value) }
+func Add(args ...interface{}) Expr          { return fn1("add", varargs(args...)) }
+func Multiply(args ...interface{}) Expr     { return fn1("multiply", varargs(args...)) }
+func Subtract(args ...interface{}) Expr     { return fn1("subtract", varargs(args...)) }
+func Divide(args ...interface{}) Expr       { return fn1("divide", varargs(args...)) }
+func Modulo(args ...interface{}) Expr       { return fn1("modulo", varargs(args...)) }
+func LT(args ...interface{}) Expr           { return fn1("lt", varargs(args...)) }
+func LTE(args ...interface{}) Expr          { return fn1("lte", varargs(args...)) }
+func GT(args ...interface{}) Expr           { return fn1("gt", varargs(args...)) }
+func GTE(args ...interface{}) Expr          { return fn1("gte", varargs(args...)) }
+func And(args ...interface{}) Expr          { return fn1("and", varargs(args...)) }
+func Or(args ...interface{}) Expr           { return fn1("or", varargs(args...)) }
+func Not(boolean interface{}) Expr          { return fn1("not", boolean) }
 
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
-	return withOptions(fn{"select": path, "from": value}, options)
+	return fn2("select", path, "from", value, options...)
 }

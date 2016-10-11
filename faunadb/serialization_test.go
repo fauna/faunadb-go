@@ -1,6 +1,7 @@
 package faunadb
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -33,7 +34,7 @@ func TestSerializeSetRefV(t *testing.T) {
 		SetRefV{
 			ObjectV{"name": StringV("a")},
 		},
-		`{"@set":{"object":{"name":"a"}}}`,
+		`{"@set":{"name":"a"}}`,
 	)
 }
 
@@ -73,8 +74,8 @@ func TestSerializeNestedMaps(t *testing.T) {
 }
 
 func TestSerializeInvalidMaps(t *testing.T) {
-	_, err := writeJSON(Obj{"key": map[int]string{1: "value"}})
-	require.EqualError(t, err, "Error while encoding map to json: All map keys must be of type string")
+	_, err := json.Marshal(Obj{"key": map[int]string{1: "value"}})
+	require.Contains(t, err.Error(), "Error while encoding map to json: All map keys must be of type string")
 }
 
 func TestSerializeArray(t *testing.T) {
@@ -623,9 +624,9 @@ func TestSerializeIndentify(t *testing.T) {
 	)
 }
 
-func TestSerializeNextId(t *testing.T) {
+func TestSerializeNextID(t *testing.T) {
 	assertJSON(t,
-		NextId(),
+		NextID(),
 		`{"next_id":null}`,
 	)
 }
@@ -837,9 +838,9 @@ func TestSerializeNot(t *testing.T) {
 	)
 }
 
-func assertJSON(t *testing.T, expr Expr, json string) {
-	bytes, err := writeJSON(expr)
+func assertJSON(t *testing.T, expr Expr, expected string) {
+	bytes, err := json.Marshal(expr)
 
 	require.NoError(t, err)
-	require.Equal(t, json, string(bytes))
+	require.Equal(t, expected, string(bytes))
 }

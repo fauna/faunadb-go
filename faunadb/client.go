@@ -3,6 +3,7 @@ package faunadb
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -35,7 +36,7 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 }
 
 func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) {
-	arr := make(Arr, len(exprs))
+	arr := make(unescapedArr, len(exprs))
 
 	for i, expr := range exprs {
 		arr[i] = expr
@@ -71,7 +72,7 @@ func (client *FaunaClient) performRequest(expr Expr) (response *http.Response, e
 func (client *FaunaClient) prepareRequest(expr Expr) (request *http.Request, err error) {
 	var body []byte
 
-	if body, err = writeJSON(expr); err == nil {
+	if body, err = json.Marshal(expr); err == nil {
 		if request, err = http.NewRequest("POST", client.Endpoint, bytes.NewReader(body)); err == nil {
 			request.Header.Add("Authorization", client.basicAuth())
 			request.Header.Add("Content-Type", "application/json; charset=utf-8")
