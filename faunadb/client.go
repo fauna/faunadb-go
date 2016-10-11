@@ -12,6 +12,8 @@ import (
 
 const DefaultEndpoint = "https://cloud.faunadb.com"
 
+var resource = ObjKey("resource")
+
 type FaunaClient struct {
 	Secret   string
 	Endpoint string
@@ -104,5 +106,5 @@ func (client *FaunaClient) parseResponse(response *http.Response) (Value, error)
 		return nil, err
 	}
 
-	return value.At(ObjKey("resource")).GetValue()
+	return value.At(resource).GetValue()
 }
