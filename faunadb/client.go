@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DefaultEndpoint = "https://cloud.faunadb.com"
+	defaultEndpoint = "https://cloud.faunadb.com"
 	requestTimeout  = 60 * time.Second
 )
 
@@ -37,7 +37,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	}
 
 	if client.endpoint == "" {
-		client.endpoint = DefaultEndpoint
+		client.endpoint = defaultEndpoint
 	}
 
 	if client.http == nil {
