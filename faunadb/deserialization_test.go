@@ -2,6 +2,7 @@ package faunadb
 
 import (
 	"bytes"
+	"math"
 	"testing"
 	"time"
 
@@ -25,15 +26,15 @@ func TestDeserializeString(t *testing.T) {
 func TestDeserializeLongV(t *testing.T) {
 	var num LongV
 
-	require.NoError(t, decodeJSON("10", &num))
-	require.Equal(t, LongV(10), num)
+	require.NoError(t, decodeJSON("9223372036854775807", &num))
+	require.Equal(t, LongV(math.MaxInt64), num)
 }
 
 func TestDeserializeLong(t *testing.T) {
 	var num int64
 
-	require.NoError(t, decodeJSON("10", &num))
-	require.Equal(t, int64(10), num)
+	require.NoError(t, decodeJSON("9223372036854775807", &num))
+	require.Equal(t, int64(math.MaxInt64), num)
 }
 
 func TestDeserializeDoubleV(t *testing.T) {
