@@ -14,10 +14,10 @@ var (
 	arrType  = reflect.TypeOf((*Arr)(nil)).Elem()
 	timeType = reflect.TypeOf((*time.Time)(nil)).Elem()
 
-	errMapKeyMustBeString = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
-	errMaxUintExceeded    = invalidExpr{errors.New("Error while encoding number to json: Uint value exceeds maximum int64")}
+	maxSupportedUint = uint64(math.MaxInt64)
 
-	maxUint = uint64(math.MaxInt64)
+	errMapKeyMustBeString       = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
+	errMaxSupportedUintExceeded = invalidExpr{errors.New("Error while encoding number to json: Uint value exceeds maximum int64")}
 )
 
 func wrap(i interface{}) Expr {
@@ -46,8 +46,8 @@ func wrap(i interface{}) Expr {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		num := value.Uint()
 
-		if num > maxUint {
-			return errMaxUintExceeded
+		if num > maxSupportedUint {
+			return errMaxSupportedUintExceeded
 		}
 
 		return LongV(num)
