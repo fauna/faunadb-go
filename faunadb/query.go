@@ -1,10 +1,12 @@
 package faunadb
 
+// Event's action types. https://fauna.com/documentation/queries#values-events
 const (
 	ActionCreate = "create"
 	ActionDelete = "delete"
 )
 
+// Time unit. Usually used as a parameter for Epoch function. https://fauna.com/documentation/queries#time_functions-epoch_num_unit_unit
 const (
 	TimeUnitSecond      = "second"
 	TimeUnitMillisecond = "millisecond"
