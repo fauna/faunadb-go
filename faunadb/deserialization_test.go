@@ -37,6 +37,15 @@ func TestDeserializeLong(t *testing.T) {
 	require.Equal(t, int64(math.MaxInt64), num)
 }
 
+func TestNotDeserializeUint(t *testing.T) {
+	var num uint64
+
+	require.EqualError(t,
+		decodeJSON("18446744073709551615", &num),
+		`strconv.ParseInt: parsing "18446744073709551615": value out of range`,
+	)
+}
+
 func TestDeserializeDoubleV(t *testing.T) {
 	var num DoubleV
 
