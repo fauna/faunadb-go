@@ -28,7 +28,7 @@ func Endpoint(url string) ClientConfig { return func(cli *FaunaClient) { cli.end
 func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.http = http } }
 
 /*
-FaunaDB client interface. It provides methods for performing queries on a FaunaDB cluster.
+FaunaClient provides methods for performing queries on a FaunaDB cluster.
 
 The client should be reused as much as possible. Avoid copying this structure.
 If you need to create a new client but, with a different secret, check the NewSessionClient method.
@@ -64,7 +64,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	return client
 }
 
-// Send a query language expression to the server.
+// Query sends a query language expression to the server.
 func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	response, err := client.performRequest(expr)
 
@@ -84,7 +84,7 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	return
 }
 
-// Send multiple query language expressions to the server.
+// BatchQuery sends multiple query language expressions to the server.
 func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) {
 	arr := make(unescapedArr, len(exprs))
 
@@ -101,7 +101,7 @@ func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) 
 	return
 }
 
-// Creates a new FaunaClient with the secret informed. The new client reuses its parent internal http resources.
+// NewSessionClient creates a new FaunaClient with the secret informed. The new client reuses its parent internal http resources.
 func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
 	return &FaunaClient{
 		basicAuth: basicAuth(secret),
