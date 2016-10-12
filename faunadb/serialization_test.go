@@ -2,6 +2,7 @@ package faunadb
 
 import (
 	"encoding/json"
+	"math"
 	"testing"
 	"time"
 
@@ -50,6 +51,18 @@ func TestSerializeTimeV(t *testing.T) {
 		TimeV(time.Unix(1, 2).UTC()),
 		`{"@ts":"1970-01-01T00:00:01.000000002Z"}`,
 	)
+}
+
+func TestSerializeUint(t *testing.T) {
+	assertJSON(t,
+		Obj{"x": uint(10)},
+		`{"object":{"x":10}}`,
+	)
+}
+
+func TestNotSerializeUintBiggerThanMaxInt(t *testing.T) {
+	_, err := json.Marshal(Obj{"x": uint(math.MaxUint64)})
+	require.Contains(t, err.Error(), "Error while encoding number to json: Uint value exceeds maximum int64")
 }
 
 func TestSerializeObject(t *testing.T) {

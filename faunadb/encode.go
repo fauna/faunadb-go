@@ -3,6 +3,7 @@ package faunadb
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"time"
 )
@@ -16,6 +17,9 @@ var (
 	floatType = reflect.TypeOf((*float64)(nil)).Elem()
 
 	errMapKeyMustBeString = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
+	errMaxUintExceeded    = invalidExpr{errors.New("Error while encoding number to json: Uint value exceeds maximum int64")}
+
+	maxUint = uint64(math.MaxInt64)
 )
 
 func wrap(i interface{}) Expr {
@@ -38,9 +42,17 @@ func wrap(i interface{}) Expr {
 	case reflect.Bool:
 		return BooleanV(value.Interface().(bool))
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return LongV(value.Convert(intType).Interface().(int64))
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		num := value.Uint()
+
+		if num > maxUint {
+			return errMaxUintExceeded
+		}
+
+		return LongV(num)
 
 	case reflect.Float32, reflect.Float64:
 		return DoubleV(value.Convert(floatType).Interface().(float64))

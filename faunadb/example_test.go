@@ -28,7 +28,7 @@ func Example() {
 
 	new, _ := client.Query(
 		f.Create(
-			f.Ref("classes/profiles"),
+			f.Class("profiles"),
 			f.Obj{"data": profile},
 		),
 	)
