@@ -3,19 +3,21 @@ package faunadb
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"time"
 )
 
 var (
-	exprType  = reflect.TypeOf((*Expr)(nil)).Elem()
-	objType   = reflect.TypeOf((*Obj)(nil)).Elem()
-	arrType   = reflect.TypeOf((*Arr)(nil)).Elem()
-	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
-	intType   = reflect.TypeOf((*int64)(nil)).Elem()
-	floatType = reflect.TypeOf((*float64)(nil)).Elem()
+	exprType = reflect.TypeOf((*Expr)(nil)).Elem()
+	objType  = reflect.TypeOf((*Obj)(nil)).Elem()
+	arrType  = reflect.TypeOf((*Arr)(nil)).Elem()
+	timeType = reflect.TypeOf((*time.Time)(nil)).Elem()
 
-	errMapKeyMustBeString = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
+	maxSupportedUint = uint64(math.MaxInt64)
+
+	errMapKeyMustBeString       = invalidExpr{errors.New("Error while encoding map to json: All map keys must be of type string")}
+	errMaxSupportedUintExceeded = invalidExpr{errors.New("Error while encoding number to json: Uint value exceeds maximum int64")}
 )
 
 func wrap(i interface{}) Expr {
@@ -33,17 +35,25 @@ func wrap(i interface{}) Expr {
 
 	switch kind {
 	case reflect.String:
-		return StringV(value.Interface().(string))
+		return StringV(value.String())
 
 	case reflect.Bool:
-		return BooleanV(value.Interface().(bool))
+		return BooleanV(value.Bool())
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return LongV(value.Convert(intType).Interface().(int64))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return LongV(value.Int())
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		num := value.Uint()
+
+		if num > maxSupportedUint {
+			return errMaxSupportedUintExceeded
+		}
+
+		return LongV(num)
 
 	case reflect.Float32, reflect.Float64:
-		return DoubleV(value.Convert(floatType).Interface().(float64))
+		return DoubleV(value.Float())
 
 	case reflect.Map:
 		if valueType.Key().Kind() != reflect.String {
