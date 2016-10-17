@@ -2,7 +2,24 @@ package faunadb
 
 import "encoding/json"
 
-// Expr represents query language expressions.
+/*
+Expr represents query language expressions.
+
+Expressions are created by using one of the functions at query.go. Query functions are designed to compose with other
+query function as well as with custom data structures. For example:
+
+	type User struct {
+		Name string
+	}
+
+	_, _ := client.Query(
+		Create(
+			Ref("classes/users"),
+			Obj{"data": User{"Jhon"}},
+		),
+	)
+
+*/
 type Expr interface {
 	expr() // Make sure only internal structures can be marked as valid expressions
 }

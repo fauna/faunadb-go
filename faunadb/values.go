@@ -5,8 +5,26 @@ import (
 	"time"
 )
 
-// Value represents valid FaunaDB values. For more information,
-// check https://fauna.com/documentation/queries#values.
+/*
+Value represents valid FaunaDB values returned from the server. Values also implement Expr interface.
+They can go back and forth to the server with no extra escaping needed.
+
+Get method is used to decode a FaunaDB value into a Go type. For example:
+
+	var t time.Time
+
+	faunaTime, _ := client.Query(Time("now"))
+	_ := faunaTime.Get(&t)
+
+At method uses field extractors to transverse the data and reach to a more specific field.
+
+	var firstEmail string
+
+	profile, _ := client.Query(Ref("classes/profile/43"))
+	profile.At(ObjKey("emails").AtIndex(0)).Get(&firstEmail)
+
+For more information, check https://fauna.com/documentation/queries#values.
+*/
 type Value interface {
 	Expr
 	Get(interface{}) error // Decode a FaunaDB value into a native Go type
