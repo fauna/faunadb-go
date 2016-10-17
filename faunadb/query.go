@@ -218,7 +218,7 @@ func Get(ref interface{}, options ...OptionalParameter) Expr { return fn1("get",
 // See: https://fauna.com/documentation/queries#read_functions
 func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("exists", ref, options...) }
 
-// Count returns returns the approximate count of instances or events in the set informed.
+// Count returns the approximate count of instances or events in the set informed.
 // Optional parameters: TS.
 //
 // See: https://fauna.com/documentation/queries#read_functions
