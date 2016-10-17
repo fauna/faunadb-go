@@ -289,6 +289,7 @@ func Remove(ref, ts, action interface{}) Expr { return fn3("remove", ref, "ts", 
 // String
 
 // Concat joins a list of strings into a single string.
+// Optional parameters: Separator.
 //
 // See: https://fauna.com/documentation/queries#string_functions
 func Concat(terms interface{}, options ...OptionalParameter) Expr {
