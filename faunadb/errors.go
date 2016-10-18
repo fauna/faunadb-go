@@ -33,7 +33,7 @@ type Unavailable struct{ FaunaError }
 // A UnknownError wraps any unknown http error response.
 type UnknownError struct{ FaunaError }
 
-// QueryError describes errors returned by the server.
+// QueryError describes query errors returned by the server.
 type QueryError struct {
 	Position    []string            `fauna:"position"`
 	Code        string              `fauna:"code"`
