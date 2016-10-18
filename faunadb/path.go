@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// A InvalidFieldType describes an error when extracting a field on the following cases:
+// An InvalidFieldType describes an error that occurs when extracting a field in the following cases:
 // trying to extract a field key from a non-JSON object value, or
 // trying to extract a field index from a non-JSON array value.
 type InvalidFieldType struct {
@@ -26,7 +26,7 @@ func (i invalidSegmentType) Error() string {
 	return fmt.Sprintf("Expected value to be %s but was a %T", i.desired, i.actual)
 }
 
-// A ValueNotFound describes an error when trying to extract a field value but the value could not be found
+// A ValueNotFound describes an error that occurs when trying to extract a field value but the value could not be found
 type ValueNotFound struct {
 	path    path
 	segment segmentNotFound
