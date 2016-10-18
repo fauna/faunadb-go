@@ -4,8 +4,8 @@ Package faunadb implements FaunaDB query language support for Go lang applicatio
 FaunaClient is the main structure that implements methods from where we can interact with a FaunaDB cluster.
 The client is designed to be reused as much as possible. Avoid making copies of it.
 
-FaunaDB query language is composed by expressions that must implement the Expr interface.
-Expressions are created using the query language functions located at the query.go file.
+FaunaDB's query language is composed by expressions that must implement the Expr interface.
+Expressions are created using the query language functions located in the query.go file.
 
 Values returned by the server are wrapped into types that implements the Value interface. This interface provides
 methods for transversing and decoding FaunaDB values into native Go types.
