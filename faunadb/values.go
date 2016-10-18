@@ -7,7 +7,7 @@ import (
 
 /*
 Value represents valid FaunaDB values returned from the server. Values also implement Expr interface.
-They can go back and forth to the server with no extra escaping needed.
+They can go back and forth to FaunaDB with no extra escaping needed.
 
 Get method is used to decode a FaunaDB value into a Go type. For example:
 
