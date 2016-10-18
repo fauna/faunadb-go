@@ -3,10 +3,10 @@ package faunadb
 import "encoding/json"
 
 /*
-Expr represents query language expressions.
+Expr represents FaunaDB query language expressions.
 
-Expressions are created by using one of the functions at query.go. Query functions are designed to compose with other
-query function as well as with custom data structures. For example:
+Expressions are created by using one of the functions in query.go. Query functions are designed to compose with other
+query functions as well as with custom data structures. For example:
 
 	type User struct {
 		Name string
