@@ -16,8 +16,8 @@ go get github.com/faunadb/faunadb-go
 
 ## Importing
 
-For better usage, we recommend to import this driver with a alias import such
-as:
+For better usage, we recommend that you import this driver with an alias import
+such as:
 
 ```go
 import f "github.com/faunadb/faunadb-go/faunadb"
