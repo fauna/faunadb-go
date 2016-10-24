@@ -30,7 +30,7 @@ func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.
 /*
 FaunaClient provides methods for performing queries on a FaunaDB cluster.
 
-The client should be reused as much as possible. Avoid copying this structure.
+This structure should be reused as much as possible. Avoid copying this structure.
 If you need to create a client with a different secret, use the NewSessionClient method.
 */
 type FaunaClient struct {
@@ -101,7 +101,7 @@ func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) 
 	return
 }
 
-// NewSessionClient creates a new child FaunaClient with the specified secret. The new client reuses its parent internal http resources.
+// NewSessionClient creates a new child FaunaClient with the specified secret. The new client reuses its parents internal http resources.
 func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
 	return &FaunaClient{
 		basicAuth: basicAuth(secret),
