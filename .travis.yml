@@ -1,0 +1,17 @@
+sudo: false
+language: go
+go:
+- 1.5
+- 1.6
+- 1.7
+- tip
+env:
+  global:
+  - FAUNA_DOMAIN=cloud.faunadb.com
+  - FAUNA_SCHEME=https
+  - FAUNA_PORT=443
+notifications:
+  email: false
+branches:
+  only:
+    - master
