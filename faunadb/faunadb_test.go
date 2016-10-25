@@ -1,15 +1,35 @@
 package faunadb
 
-const (
-	dbName        = "faunadb-go-test"
-	faunaSecret   = "secret"
-	faunaEndpoint = "http://localhost:8443/"
-)
+import "os"
+
+const dbName = "faunadb-go-test"
 
 var (
+	defaultConfig = map[string]string{
+		"FAUNA_ROOT_KEY": "secret",
+		"FAUNA_DOMAIN":   "localhost",
+		"FAUNA_SCHEME":   "http",
+		"FAUNA_PORT":     "8443",
+	}
+
+	faunaSecret, faunaEndpoint string
+
 	adminClient *FaunaClient
 	dbRef       = Database(dbName)
 )
+
+func init() {
+	faunaSecret = getConfig("FAUNA_ROOT_KEY")
+	faunaEndpoint = os.Expand("${FAUNA_SCHEME}://${FAUNA_DOMAIN}:${FAUNA_PORT}", getConfig)
+}
+
+func getConfig(key string) (value string) {
+	if value = os.Getenv(key); value == "" {
+		value = defaultConfig[key]
+	}
+
+	return
+}
 
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key string
