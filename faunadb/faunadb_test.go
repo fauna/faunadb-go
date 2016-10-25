@@ -1,8 +1,12 @@
 package faunadb
 
-import "os"
-
-const dbName = "faunadb-go-test"
+import (
+	"fmt"
+	"math/rand"
+	"os"
+	"strings"
+	"time"
+)
 
 var (
 	defaultConfig = map[string]string{
@@ -12,15 +16,20 @@ var (
 		"FAUNA_PORT":     "8443",
 	}
 
-	faunaSecret, faunaEndpoint string
+	faunaSecret   = getConfig("FAUNA_ROOT_KEY")
+	faunaEndpoint = os.Expand("${FAUNA_SCHEME}://${FAUNA_DOMAIN}:${FAUNA_PORT}", getConfig)
+
+	dbName string
+	dbRef  Expr
 
 	adminClient *FaunaClient
-	dbRef       = Database(dbName)
 )
 
 func init() {
-	faunaSecret = getConfig("FAUNA_ROOT_KEY")
-	faunaEndpoint = os.Expand("${FAUNA_SCHEME}://${FAUNA_DOMAIN}:${FAUNA_PORT}", getConfig)
+	rand.Seed(time.Now().UTC().UnixNano()) // By default, the seed is always 1
+
+	dbName = RandomStartingWith("faunadb-go-test-")
+	dbRef = Database(dbName)
 }
 
 func getConfig(key string) (value string) {
@@ -29,6 +38,10 @@ func getConfig(key string) (value string) {
 	}
 
 	return
+}
+
+func RandomStartingWith(parts ...string) string {
+	return fmt.Sprintf("%s%v", strings.Join(parts, ""), rand.Uint32())
 }
 
 func SetupTestDB() (client *FaunaClient, err error) {

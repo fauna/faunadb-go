@@ -1,9 +1,6 @@
 package faunadb_test
 
 import (
-	"fmt"
-	"math/rand"
-	"strings"
 	"testing"
 	"time"
 
@@ -437,7 +434,7 @@ func (s *ClientTestSuite) TestEvalIfExpression() {
 func (s *ClientTestSuite) TestEvalDoExpression() {
 	var ref f.RefV
 
-	refToCreate := f.Ref(s.randomStartingWith(randomClass.ID, "/"))
+	refToCreate := f.Ref(f.RandomStartingWith(randomClass.ID, "/"))
 
 	res := s.queryForRef(
 		f.Do(
@@ -996,8 +993,4 @@ func (s *ClientTestSuite) queryForRef(expr f.Expr) (ref f.RefV) {
 func (s *ClientTestSuite) queryAndDecode(expr f.Expr, i interface{}) {
 	value := s.query(expr)
 	s.Require().NoError(value.Get(i))
-}
-
-func (s *ClientTestSuite) randomStartingWith(parts ...string) string {
-	return fmt.Sprintf("%s%v", strings.Join(parts, ""), rand.Uint32())
 }
