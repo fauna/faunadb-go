@@ -14,10 +14,7 @@ var (
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key string
 
-	adminClient = &FaunaClient{
-		Secret:   faunaSecret,
-		Endpoint: faunaEndpoint,
-	}
+	adminClient = NewFaunaClient(faunaSecret, Endpoint(faunaEndpoint))
 
 	DeleteTestDB()
 
