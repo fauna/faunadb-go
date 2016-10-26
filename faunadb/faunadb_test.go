@@ -1,15 +1,48 @@
 package faunadb
 
-const (
-	dbName        = "faunadb-go-test"
-	faunaSecret   = "secret"
-	faunaEndpoint = "http://localhost:8443/"
+import (
+	"fmt"
+	"math/rand"
+	"os"
+	"strings"
+	"time"
 )
 
 var (
+	defaultConfig = map[string]string{
+		"FAUNA_ROOT_KEY": "secret",
+		"FAUNA_DOMAIN":   "localhost",
+		"FAUNA_SCHEME":   "http",
+		"FAUNA_PORT":     "8443",
+	}
+
+	faunaSecret   = getConfig("FAUNA_ROOT_KEY")
+	faunaEndpoint = os.Expand("${FAUNA_SCHEME}://${FAUNA_DOMAIN}:${FAUNA_PORT}", getConfig)
+
+	dbName string
+	dbRef  Expr
+
 	adminClient *FaunaClient
-	dbRef       = Database(dbName)
 )
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano()) // By default, the seed is always 1
+
+	dbName = RandomStartingWith("faunadb-go-test-")
+	dbRef = Database(dbName)
+}
+
+func getConfig(key string) (value string) {
+	if value = os.Getenv(key); value == "" {
+		value = defaultConfig[key]
+	}
+
+	return
+}
+
+func RandomStartingWith(parts ...string) string {
+	return fmt.Sprintf("%s%v", strings.Join(parts, ""), rand.Uint32())
+}
 
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key string
