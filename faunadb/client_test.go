@@ -537,32 +537,6 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 	s.Require().Equal([]int{1, 2, 3, 4}, arr)
 }
 
-func (s *ClientTestSuite) TestCountElementsOnAIndex() {
-	var num int
-
-	s.queryAndDecode(f.Count(f.Match(allSpells)), &num)
-	s.Require().Equal(3, num)
-}
-
-func (s *ClientTestSuite) TestCountElementsOnAIndexWithEvents() {
-	type events struct {
-		Creates int `fauna:"creates"`
-		Deletes int `fauna:"deletes"`
-	}
-
-	var allEvents events
-
-	s.queryAndDecode(
-		f.Count(
-			f.Match(allSpells),
-			f.Events(true),
-		),
-		&allEvents,
-	)
-
-	s.Require().Equal(events{3, 0}, allEvents)
-}
-
 func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 	var spells []f.RefV
 	var before, after f.Value
