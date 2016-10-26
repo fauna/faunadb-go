@@ -116,10 +116,6 @@ func Exists(ref interface{}, options ...OptionalParameter) Expr {
 	return fn1("exists", ref, options...)
 }
 
-func Count(set interface{}, options ...OptionalParameter) Expr {
-	return fn1("count", set, options...)
-}
-
 func Paginate(set interface{}, options ...OptionalParameter) Expr {
 	return fn1("paginate", set, options...)
 }

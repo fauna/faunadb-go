@@ -439,20 +439,6 @@ func TestSerializeExistsWithTimestamp(t *testing.T) {
 	)
 }
 
-func TestSerializeCount(t *testing.T) {
-	assertJSON(t,
-		Count(Ref("databases")),
-		`{"count":{"@ref":"databases"}}`,
-	)
-}
-
-func TestSerializeCountEvents(t *testing.T) {
-	assertJSON(t,
-		Count(Ref("databases"), Events(true)),
-		`{"count":{"@ref":"databases"},"events":true}`,
-	)
-}
-
 func TestSerializePaginate(t *testing.T) {
 	assertJSON(t,
 		Paginate(Ref("databases")),
