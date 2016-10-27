@@ -42,7 +42,7 @@ type FaunaClient struct {
 /*
 NewFaunaClient creates a new FaunaClient structure. Possible configurations are:
 	Endpoint: sets a specific FaunaDB url. Default: https://cloud.faunadb.com
-	    HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
+		HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
 */
 func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	client := &FaunaClient{basicAuth: basicAuth(secret)}

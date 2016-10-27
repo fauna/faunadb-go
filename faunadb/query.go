@@ -43,7 +43,7 @@ func unescapedBindings(obj Obj) unescapedObj {
 // Events is an boolean optional parameter that describes if the query should include historical events.
 // For more information about events, check https://fauna.com/documentation/queries#values-events.
 //
-// Functions that accept this optional parameter are: Paginate, and Count.
+// Functions that accept this optional parameter are: Paginate.
 func Events(events interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["events"] = wrap(events)
@@ -217,12 +217,6 @@ func Get(ref interface{}, options ...OptionalParameter) Expr { return fn1("get",
 //
 // See: https://fauna.com/documentation/queries#read_functions
 func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("exists", ref, options...) }
-
-// Count returns the approximate count of instances or events in the set informed.
-// Optional parameters: TS.
-//
-// See: https://fauna.com/documentation/queries#read_functions
-func Count(set interface{}, options ...OptionalParameter) Expr { return fn1("count", set, options...) }
 
 // Paginate retrieves a page from the set informed.
 // Optional parameters: TS, After, Before, Size, Events, and Sources.
