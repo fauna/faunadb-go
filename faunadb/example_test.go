@@ -13,10 +13,7 @@ type Profile struct {
 }
 
 func Example() {
-	client := &f.FaunaClient{
-		Secret:   "your-secret-here",
-		Endpoint: "http://localhost:8443",
-	}
+	client := f.NewFaunaClient("your-secret-here", f.Endpoint("http://localhost:8443"))
 
 	var profileId f.RefV
 
