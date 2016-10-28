@@ -2,6 +2,24 @@ package faunadb
 
 import "encoding/json"
 
+/*
+Expr represents FaunaDB query language expressions.
+
+Expressions are created by using one of the functions in query.go. Query functions are designed to compose with other
+query functions as well as with custom data structures. For example:
+
+	type User struct {
+		Name string
+	}
+
+	_, _ := client.Query(
+		Create(
+			Ref("classes/users"),
+			Obj{"data": User{"Jhon"}},
+		),
+	)
+
+*/
 type Expr interface {
 	expr() // Make sure only internal structures can be marked as valid expressions
 }
@@ -18,15 +36,22 @@ func (inv invalidExpr) MarshalJSON() ([]byte, error) {
 	return nil, inv.err
 }
 
+// Obj is a expression shortcut to represent any valid JSON object
 type Obj map[string]interface{}
+
+// Arr is a expression shortcut to represent any valid JSON array
 type Arr []interface{}
 
 func (obj Obj) expr() {}
 func (arr Arr) expr() {}
 
+// MarshalJSON implements json.Marshaler for Obj expression
 func (obj Obj) MarshalJSON() ([]byte, error) { return json.Marshal(wrap(obj)) }
+
+// MarshalJSON implements json.Marshaler for Arr expression
 func (arr Arr) MarshalJSON() ([]byte, error) { return json.Marshal(wrap(arr)) }
 
+// OptionalParameter describes optional parameters for query language functions
 type OptionalParameter func(unescapedObj)
 
 func applyOptionals(options []OptionalParameter, fn unescapedObj) Expr {

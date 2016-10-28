@@ -13,42 +13,45 @@ type Profile struct {
 }
 
 func Example() {
-	client := f.NewFaunaClient("your-secret-here", f.Endpoint("http://localhost:8443"))
-
 	var profileId f.RefV
 
-	// Create
+	// Crate a new client
+	client := f.NewFaunaClient("your-secret-here", f.Endpoint("http://localhost:8443"))
+
+	// Create a class to store profiles
+	_, _ = client.Query(f.CreateClass(f.Obj{"name": "profiles"}))
+
+	// Create a new profile entry
 	profile := Profile{
 		Name:     "Jhon",
 		Verified: false,
 	}
 
-	new, _ := client.Query(
+	// Save profile at FaunaDB
+	newProfile, _ := client.Query(
 		f.Create(
 			f.Class("profiles"),
 			f.Obj{"data": profile},
 		),
 	)
 
-	_ = new.At(ref).Get(&profileId)
+	// Get generated profile ID
+	_ = newProfile.At(ref).Get(&profileId)
 
-	// Update
+	// Update existing profile entry
 	_, _ = client.Query(
 		f.Update(
 			profileId,
-			f.Obj{"data": f.Obj{"verified": true}},
+			f.Obj{"data": f.Obj{
+				"verified": true,
+			}},
 		),
 	)
 
-	// Retrieve
-	value, _ := client.Query(
-		f.Get(profileId),
-	)
-
+	// Retrieve profile by its ID
+	value, _ := client.Query(f.Get(profileId))
 	_ = value.At(data).Get(&profile)
 
-	// Delete
-	_, _ = client.Query(
-		f.Delete(profileId),
-	)
+	// Delete profile using its ID
+	_, _ = client.Query(f.Delete(profileId))
 }

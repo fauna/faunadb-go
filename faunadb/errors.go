@@ -8,19 +8,32 @@ import (
 
 var errorsField = ObjKey("errors")
 
+// A FaunaError wraps HTTP errors when sending queries to a FaunaDB cluster.
 type FaunaError interface {
 	error
-	Status() int
-	Errors() []QueryError
+	Status() int          // HTTP status code
+	Errors() []QueryError // Errors returned by the server
 }
 
+// A BadRequest wraps an HTTP 400 error response.
 type BadRequest struct{ FaunaError }
+
+// A Unauthorized wraps an HTTP 401 error response.
 type Unauthorized struct{ FaunaError }
+
+// A NotFound wraps an HTTP 404 error response.
 type NotFound struct{ FaunaError }
+
+// A InternalError wraps an HTTP 500 error response.
 type InternalError struct{ FaunaError }
+
+// A Unavailable wraps an HTTP 503 error response.
 type Unavailable struct{ FaunaError }
+
+// A UnknownError wraps any unknown http error response.
 type UnknownError struct{ FaunaError }
 
+// QueryError describes query errors returned by the server.
 type QueryError struct {
 	Position    []string            `fauna:"position"`
 	Code        string              `fauna:"code"`
@@ -28,6 +41,7 @@ type QueryError struct {
 	Failures    []ValidationFailure `fauna:"failures"`
 }
 
+// ValidationFailure describes validation errors on a submitted query.
 type ValidationFailure struct {
 	Field       []string `fauna:"field"`
 	Code        string   `fauna:"code"`
