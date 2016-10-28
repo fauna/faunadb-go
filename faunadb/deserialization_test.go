@@ -389,8 +389,8 @@ func TestDeserializeComplexStruct(t *testing.T) {
 			1, 2, 3,
 		},
 		ObjArr: []nestedStruct{
-			nestedStruct{"object1"},
-			nestedStruct{"object2"},
+			{"object1"},
+			{"object2"},
 		},
 		Matrix: [][]int{
 			{1, 2},

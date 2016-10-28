@@ -82,8 +82,8 @@ var (
 			1, 2, 3,
 		},
 		ObjArr: []benchmarkNestedStruct{
-			benchmarkNestedStruct{"object1"},
-			benchmarkNestedStruct{"object2"},
+			{"object1"},
+			{"object2"},
 		},
 		Matrix: [][]int{
 			{1, 2},
