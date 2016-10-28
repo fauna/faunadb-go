@@ -80,11 +80,9 @@ GitHub pull requests are very welcome.
 
 ### Driver Development
 
-Run `go get -t ./...` in order to install project's dependencies. Run tests with
-`go test ./...`.
+Run `go get -t ./...` in order to install project's dependencies.
 
-Tests will attempt to connect to `localhost` by default. Check the default test
-parameters at `faunadb_test.go`.
+Run tests with `FAUNA_SECRET="your-could-secret" go test ./...`.
 
 ## LICENSE
 
