@@ -69,12 +69,12 @@ func TestParseErrorResponse(t *testing.T) {
 	expectedError := Unauthorized{
 		errorResponseWith(401,
 			[]QueryError{
-				QueryError{
+				{
 					Position:    []string{"data", "token"},
 					Code:        "invalid token",
 					Description: "Invalid token.",
 					Failures: []ValidationFailure{
-						ValidationFailure{
+						{
 							Field:       []string{"data", "token"},
 							Code:        "invalid token",
 							Description: "invalid token",
