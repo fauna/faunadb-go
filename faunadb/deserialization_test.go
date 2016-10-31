@@ -297,10 +297,16 @@ func TestIgnoresPrivateMembersOfStruct(t *testing.T) {
 
 func TestReportErrorPath(t *testing.T) {
 	var obj struct{ Arr []int }
+	var aMap map[string]int
 
 	require.EqualError(t,
 		decodeJSON(`{ "Arr": [1, "right"] }`, &obj),
 		"Error while decoding fauna value at: Arr / 1. Can not assign value of type \"faunadb.StringV\" to a value of type \"int\"",
+	)
+
+	require.EqualError(t,
+		decodeJSON(`{ "One": 1, "Two": "2" }`, &aMap),
+		"Error while decoding fauna value at: Two. Can not assign value of type \"faunadb.StringV\" to a value of type \"int\"",
 	)
 }
 
