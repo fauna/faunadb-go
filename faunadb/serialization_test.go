@@ -65,6 +65,12 @@ func TestNotSerializeUintBiggerThanMaxInt(t *testing.T) {
 	require.Contains(t, err.Error(), "Error while encoding number to json: Uint value exceeds maximum int64")
 }
 
+func TestFailtToSerializeUnsupportedTypes(t *testing.T) {
+	c := make(chan string)
+	_, err := json.Marshal(Obj{"x": c})
+	require.Contains(t, err.Error(), "Error while converting Expr to JSON: Non supported type chan")
+}
+
 func TestSerializeObject(t *testing.T) {
 	assertJSON(t,
 		Obj{"key": "value"},
