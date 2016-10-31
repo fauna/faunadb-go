@@ -44,10 +44,6 @@ func newValueDecoder(source interface{}) *valueDecoder {
 func (c *valueDecoder) assign(value interface{}) error {
 	source, sourceType := indirectValue(value)
 
-	if !c.target.CanSet() {
-		return nil // Don't attempt to set values on unexported variables/pointers
-	}
-
 	if sourceType.AssignableTo(c.targetType) {
 		c.target.Set(source)
 		return nil
