@@ -2,7 +2,9 @@ package faunadb
 
 import (
 	"testing"
+	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,6 +36,20 @@ func TestExtractValueFromArray(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, 3, num)
+}
+
+func TestFailToExtractFieldForNonTransversableValues(t *testing.T) {
+	assertFailToExtractAnyFieldFor(t,
+		StringV("test"),
+		LongV(0),
+		DoubleV(0),
+		BooleanV(false),
+		DateV(time.Now()),
+		TimeV(time.Now()),
+		RefV{"classes/spells"},
+		SetRefV{map[string]Value{"any": StringV("set")}},
+		NullV{},
+	)
 }
 
 func TestReportKeyNotFound(t *testing.T) {
@@ -68,4 +84,17 @@ func assertFailToExtractField(t *testing.T, value Value, field Field, message st
 
 	var res Value
 	require.EqualError(t, value.At(field).Get(&res), message)
+}
+
+func assertFailToExtractAnyFieldFor(t *testing.T, values ...Value) {
+	key := ObjKey("anyField")
+	index := ArrIndex(0)
+
+	for _, value := range values {
+		_, err := value.At(key).GetValue()
+		assert.Contains(t, err.Error(), "Error while extracting path: anyField. Expected value to be an object but was a")
+
+		_, err = value.At(index).GetValue()
+		assert.Contains(t, err.Error(), "Error while extracting path: 0. Expected value to be an array but was a")
+	}
 }
