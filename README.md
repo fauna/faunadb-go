@@ -82,7 +82,7 @@ GitHub pull requests are very welcome.
 
 Run `go get -t ./...` in order to install project's dependencies.
 
-Run tests with `FAUNA_SECRET="your-cloud-secret" go test ./...`.
+Run tests with `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
 
 ## LICENSE
 
