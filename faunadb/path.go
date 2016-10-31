@@ -14,7 +14,7 @@ type InvalidFieldType struct {
 }
 
 func (i InvalidFieldType) Error() string {
-	return fmt.Sprintf("Error while extrating path: %s. %s", i.path, i.segment)
+	return fmt.Sprintf("Error while extracting path: %s. %s", i.path, i.segment)
 }
 
 type invalidSegmentType struct {
@@ -33,7 +33,7 @@ type ValueNotFound struct {
 }
 
 func (v ValueNotFound) Error() string {
-	return fmt.Sprintf("Error while extrating path: %s. %s", v.path, v.segment)
+	return fmt.Sprintf("Error while extracting path: %s. %s", v.path, v.segment)
 }
 
 type segmentNotFound struct {
