@@ -9,15 +9,8 @@ import (
 )
 
 var (
-	defaultConfig = map[string]string{
-		"FAUNA_ROOT_KEY": "secret",
-		"FAUNA_DOMAIN":   "localhost",
-		"FAUNA_SCHEME":   "http",
-		"FAUNA_PORT":     "8443",
-	}
-
-	faunaSecret   = getConfig("FAUNA_ROOT_KEY")
-	faunaEndpoint = os.Expand("${FAUNA_SCHEME}://${FAUNA_DOMAIN}:${FAUNA_PORT}", getConfig)
+	faunaSecret   = os.Getenv("FAUNA_ROOT_KEY")
+	faunaEndpoint = os.Getenv("FAUNA_ENDPOINT")
 
 	dbName string
 	dbRef  Expr
@@ -28,16 +21,16 @@ var (
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano()) // By default, the seed is always 1
 
-	dbName = RandomStartingWith("faunadb-go-test-")
-	dbRef = Database(dbName)
-}
-
-func getConfig(key string) (value string) {
-	if value = os.Getenv(key); value == "" {
-		value = defaultConfig[key]
+	if faunaSecret == "" {
+		panic("FAUNA_ROOT_KEY environment variable must be specified")
 	}
 
-	return
+	if faunaEndpoint == "" {
+		faunaEndpoint = defaultEndpoint
+	}
+
+	dbName = RandomStartingWith("faunadb-go-test-")
+	dbRef = Database(dbName)
 }
 
 func RandomStartingWith(parts ...string) string {
