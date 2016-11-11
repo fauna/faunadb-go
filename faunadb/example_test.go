@@ -16,7 +16,7 @@ func Example() {
 	var profileId f.RefV
 
 	// Crate a new client
-	client := f.NewFaunaClient("your-secret-here", f.Endpoint("http://localhost:8443"))
+	client := f.NewFaunaClient("your-secret-here")
 
 	// Create a class to store profiles
 	_, _ = client.Query(f.CreateClass(f.Obj{"name": "profiles"}))
