@@ -45,7 +45,7 @@ func SetupTestDB() (client *FaunaClient, err error) {
 	DeleteTestDB()
 
 	if err = createTestDatabase(); err == nil {
-		if key, err = createServerKey(); err == nil {
+		if key, err = CreateKeyWithRole("server"); err == nil {
 			client = adminClient.NewSessionClient(key)
 		}
 	}
@@ -65,13 +65,13 @@ func createTestDatabase() (err error) {
 	return
 }
 
-func createServerKey() (secret string, err error) {
+func CreateKeyWithRole(role string) (secret string, err error) {
 	var key Value
 
 	key, err = adminClient.Query(
 		CreateKey(Obj{
 			"database": dbRef,
-			"role":     "server",
+			"role":     role,
 		}),
 	)
 

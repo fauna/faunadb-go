@@ -185,6 +185,19 @@ func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 	}
 }
 
+func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResource() {
+	secret, _ := f.CreateKeyWithRole("client")
+	client := s.client.NewSessionClient(secret)
+
+	_, err := client.Query(
+		f.Paginate(f.Ref("databases")),
+	)
+
+	if _, ok := err.(f.PermissionDenied); !ok {
+		s.Require().Fail("Should have returned PermissionDenied")
+	}
+}
+
 func (s *ClientTestSuite) TestReturnNotFoundForNonExistingInstance() {
 	_, err := s.client.Query(
 		f.Get(f.Ref("classes/spells/1234")),
