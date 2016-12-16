@@ -21,6 +21,9 @@ type BadRequest struct{ FaunaError }
 // A Unauthorized wraps an HTTP 401 error response.
 type Unauthorized struct{ FaunaError }
 
+// A Unauthorized wraps an HTTP 403 error response.
+type PermissionDenied struct{ FaunaError }
+
 // A NotFound wraps an HTTP 404 error response.
 type NotFound struct{ FaunaError }
 
@@ -87,6 +90,8 @@ func checkForResponseErrors(response *http.Response) error {
 		return BadRequest{err}
 	case 401:
 		return Unauthorized{err}
+	case 403:
+		return PermissionDenied{err}
 	case 404:
 		return NotFound{err}
 	case 500:

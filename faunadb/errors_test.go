@@ -24,6 +24,11 @@ func TestReturnUnauthorizedOn401(t *testing.T) {
 	require.Equal(t, Unauthorized{errorResponseWith(401, noErrors)}, err)
 }
 
+func TestReturnPermissionDeniedon403(t *testing.T) {
+	err := checkForResponseErrors(httpErrorResponseWith(403, emptyErrorBody))
+	require.Equal(t, PermissionDenied{errorResponseWith(403, noErrors)}, err)
+}
+
 func TestReturnNotFoundOn404(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(404, emptyErrorBody))
 	require.Equal(t, NotFound{errorResponseWith(404, noErrors)}, err)
