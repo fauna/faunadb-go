@@ -1,10 +1,10 @@
 # FaunaDB Go Driver
 
-[![Build Status](https://travis-ci.org/faunadb/faunadb-go.svg?branch=master)](https://travis-ci.org/faunadb/faunadb-go)
-[![Coverage Status](https://codecov.io/gh/faunadb/faunadb-go/branch/master/graph/badge.svg)](https://codecov.io/gh/faunadb/faunadb-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/faunadb/faunadb-go)](https://goreportcard.com/report/github.com/faunadb/faunadb-go)
-[![GoDoc](https://godoc.org/github.com/faunadb/faunadb-go/faunadb?status.svg)](https://godoc.org/github.com/faunadb/faunadb-go/faunadb)
-[![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/faunadb/faunadb-go/master/LICENSE)
+[![Build Status](https://travis-ci.org/fauna/faunadb-go.svg?branch=master)](https://travis-ci.org/fauna/faunadb-go)
+[![Coverage Status](https://codecov.io/gh/fauna/faunadb-go/branch/master/graph/badge.svg)](https://codecov.io/gh/fauna/faunadb-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
+[![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://godoc.org/github.com/fauna/faunadb-go/faunadb)
+[![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/master/LICENSE)
 
 A Go lang driver for [FaunaDB](https://fauna.com/).
 
@@ -20,7 +20,7 @@ Currently, the driver is tested on:
 ### Installing
 
 ```bash
-go get github.com/faunadb/faunadb-go
+go get github.com/fauna/faunadb-go
 ```
 
 ### Importing
@@ -29,7 +29,7 @@ For better usage, we recommend that you import this driver with an alias import
 such as:
 
 ```go
-import f "github.com/faunadb/faunadb-go/faunadb"
+import f "github.com/fauna/faunadb-go/faunadb"
 ```
 
 ### Basic Usage
@@ -40,7 +40,7 @@ package main
 import (
 	"fmt"
 
-	f "github.com/faunadb/faunadb-go/faunadb"
+	f "github.com/fauna/faunadb-go/faunadb"
 )
 
 type User struct {
@@ -72,7 +72,7 @@ For more information about FaunaDB query language, consult our query language
 [reference documentation](https://fauna.com/documentation/queries).
 
 Specific reference documentation for the driver is hosted at
-[GoDoc](https://godoc.org/github.com/faunadb/faunadb-go/faunadb).
+[GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb).
 
 ## Contributing
 
@@ -86,7 +86,7 @@ Run tests with `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
 
 ## LICENSE
 
-Copyright 2016 [Fauna, Inc.](https://fauna.com/)
+Copyright 2017 [Fauna, Inc.](https://fauna.com/)
 
 Licensed under the Mozilla Public License, Version 2.0 (the
 "License"); you may not use this software except in compliance with

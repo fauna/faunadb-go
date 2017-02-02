@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	f "github.com/faunadb/faunadb-go/faunadb"
+	f "github.com/fauna/faunadb-go/faunadb"
 	"github.com/stretchr/testify/suite"
 )
 
