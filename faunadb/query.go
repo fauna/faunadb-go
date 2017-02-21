@@ -153,6 +153,11 @@ func If(cond, then, elze interface{}) Expr { return fn3("if", cond, "then", then
 // See: https://fauna.com/documentation/queries#basic_forms
 func Lambda(varName, expr interface{}) Expr { return fn2("lambda", varName, "expr", expr) }
 
+// At execute an expression at a given timestamp.
+//
+// See: https://fauna.com/documentation/queries#basic_forms
+func At(timestamp, expr interface{}) Expr { return fn2("at", timestamp, "expr", expr) }
+
 // Let binds values to one or more variables.
 //
 // See: https://fauna.com/documentation/queries#basic_forms

@@ -320,6 +320,23 @@ func TestSerializeNullOnStruct(t *testing.T) {
 	)
 }
 
+func TestSerializeAt(t *testing.T) {
+	assertJSON(t,
+		At(1, Paginate(Match(Index("all_things")))),
+		`{"at":1,"expr":{"paginate":{"match":{"index":"all_things"}}}}`,
+	)
+
+	assertJSON(t,
+		At(Time("1970-01-01T00:00:00+00:00"), Paginate(Match(Index("all_things")))),
+		`{"at":{"time":"1970-01-01T00:00:00+00:00"},"expr":{"paginate":{"match":{"index":"all_things"}}}}`,
+	)
+
+	assertJSON(t,
+		At(TimeV(time.Unix(1, 2).UTC()), Paginate(Match(Index("all_things")))),
+		`{"at":{"@ts":"1970-01-01T00:00:01.000000002Z"},"expr":{"paginate":{"match":{"index":"all_things"}}}}`,
+	)
+}
+
 func TestSerializeLet(t *testing.T) {
 	assertJSON(t,
 		Let(
