@@ -15,6 +15,7 @@ func TestRunClientTests(t *testing.T) {
 var (
 	dataField     = f.ObjKey("data")
 	refField      = f.ObjKey("ref")
+	tsField       = f.ObjKey("ts")
 	beforeField   = f.ObjKey("before")
 	afterField    = f.ObjKey("after")
 	secretField   = f.ObjKey("secret")
@@ -421,6 +422,25 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 	res = s.query(f.Remove(created, 2, f.ActionDelete))
 	s.Require().NoError(res.Get(&removed))
 	s.Require().Nil(removed)
+}
+
+func (s *ClientTestSuite) TestEvalAtExpression() {
+	var spells []f.RefV
+	var fireballTs int
+
+	res := s.query(
+		f.Paginate(f.Match(allSpells)),
+	)
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{magicMissile, fireball, faerieFire}, spells)
+
+	s.query(f.Get(fireball)).At(tsField).Get(&fireballTs)
+
+	res = s.query(
+		f.At(fireballTs, f.Paginate(f.Match(allSpells))),
+	)
+	s.Require().NoError(res.At(dataField).Get(&spells))
+	s.Require().Equal([]f.RefV{magicMissile, fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestEvalLetExpression() {
