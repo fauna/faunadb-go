@@ -53,6 +53,13 @@ func TestSerializeTimeV(t *testing.T) {
 	)
 }
 
+func TestSerializeBytesV(t *testing.T) {
+	assertJSON(t,
+		BytesV{1, 2, 3, 4},
+		`{"@bytes":"AQIDBA=="}`,
+	)
+}
+
 func TestSerializeUint(t *testing.T) {
 	assertJSON(t,
 		Obj{"x": uint(10)},

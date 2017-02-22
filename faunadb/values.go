@@ -1,6 +1,7 @@
 package faunadb
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"time"
 )
@@ -156,6 +157,21 @@ func (null NullV) At(field Field) FieldValue { return field.get(null) }
 // MarshalJSON implements json.Marshaler by escaping its value according to JSON null representation.
 func (null NullV) MarshalJSON() ([]byte, error) { return []byte("null"), nil }
 
+// BytesV represents a FaunaDB binary blob type.
+type BytesV []byte
+
+// Get implements the Value interface by decoding the underlying value to either a ByteV or a []byte type.
+func (bytes BytesV) Get(i interface{}) error { return newValueDecoder(i).assign(bytes) }
+
+// At implements the Value interface by returning an invalid field since BytesV is not transversable.
+func (bytes BytesV) At(field Field) FieldValue { return field.get(bytes) }
+
+// MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB bytes representation.
+func (bytes BytesV) MarshalJSON() ([]byte, error) {
+	encoded := base64.StdEncoding.EncodeToString(bytes)
+	return escape("@bytes", encoded)
+}
+
 // Implement Expr for all values
 
 func (str StringV) expr()      {}
@@ -169,6 +185,7 @@ func (set SetRefV) expr()      {}
 func (obj ObjectV) expr()      {}
 func (arr ArrayV) expr()       {}
 func (null NullV) expr()       {}
+func (bytes BytesV) expr()     {}
 
 func escape(key string, value interface{}) ([]byte, error) {
 	return json.Marshal(map[string]interface{}{key: value})
