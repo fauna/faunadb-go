@@ -1,6 +1,7 @@
 package faunadb
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -82,6 +83,8 @@ func (p *jsonParser) parseSpecialObject() (value Value, err error) {
 			value, err = p.parseDate("2006-01-02T15:04:05.999999999Z", func(t time.Time) Value { return TimeV(t) })
 		case "@obj":
 			value, err = p.readSingleObject()
+		case "@bytes":
+			value, err = p.parseBytes()
 		default:
 			value, err = p.parseObject(firstKey)
 		}
@@ -105,6 +108,19 @@ func (p *jsonParser) parseSet() (value Value, err error) {
 
 	if obj, err = p.readSingleObject(); err == nil {
 		value = SetRefV{obj}
+	}
+
+	return
+}
+
+func (p *jsonParser) parseBytes() (value Value, err error) {
+	var encoded string
+
+	if encoded, err = p.readSingleString(); err == nil {
+		bytes, err := base64.StdEncoding.DecodeString(encoded)
+		if err == nil {
+			value = BytesV(bytes)
+		}
 	}
 
 	return

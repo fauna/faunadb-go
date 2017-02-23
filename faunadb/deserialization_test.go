@@ -127,6 +127,20 @@ func TestDeserializeTime(t *testing.T) {
 	require.Equal(t, time.Date(1970, time.January, 1, 0, 0, 0, 5, time.UTC), localTime)
 }
 
+func TestDeserializeBytesV(t *testing.T) {
+	var bytes BytesV
+
+	require.NoError(t, decodeJSON(`{"@bytes": "AQIDBA=="}`, &bytes))
+	require.Equal(t, BytesV{1, 2, 3, 4}, bytes)
+}
+
+func TestDeserializeBytes(t *testing.T) {
+	var bytes []byte
+
+	require.NoError(t, decodeJSON(`{"@bytes": "AQIDBA=="}`, &bytes))
+	require.Equal(t, []byte{1, 2, 3, 4}, bytes)
+}
+
 func TestDeserializeSetRefV(t *testing.T) {
 	var setRef SetRefV
 
