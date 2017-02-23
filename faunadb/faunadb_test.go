@@ -38,7 +38,7 @@ func RandomStartingWith(parts ...string) string {
 }
 
 func SetupTestDB() (client *FaunaClient, err error) {
-	var key string
+	var key Value
 
 	adminClient = NewFaunaClient(faunaSecret, Endpoint(faunaEndpoint))
 
@@ -46,7 +46,7 @@ func SetupTestDB() (client *FaunaClient, err error) {
 
 	if err = createTestDatabase(); err == nil {
 		if key, err = CreateKeyWithRole("server"); err == nil {
-			client = adminClient.NewSessionClient(key)
+			client = adminClient.NewSessionClient(GetSecret(key))
 		}
 	}
 
@@ -65,9 +65,11 @@ func createTestDatabase() (err error) {
 	return
 }
 
-func CreateKeyWithRole(role string) (secret string, err error) {
-	var key Value
+func AdminQuery(expr Expr) (Value, error) {
+	return adminClient.Query(expr)
+}
 
+func CreateKeyWithRole(role string) (key Value, err error) {
 	key, err = adminClient.Query(
 		CreateKey(Obj{
 			"database": dbRef,
@@ -75,10 +77,11 @@ func CreateKeyWithRole(role string) (secret string, err error) {
 		}),
 	)
 
-	if err != nil {
-		return
-	}
+	return
+}
 
-	err = key.At(ObjKey("secret")).Get(&secret)
+func GetSecret(key Value) (secret string) {
+	key.At(ObjKey("secret")).Get(&secret)
+
 	return
 }
