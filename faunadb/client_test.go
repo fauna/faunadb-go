@@ -187,8 +187,8 @@ func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 }
 
 func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResource() {
-	secret, _ := f.CreateKeyWithRole("client")
-	client := s.client.NewSessionClient(secret)
+	key, _ := f.CreateKeyWithRole("client")
+	client := s.client.NewSessionClient(f.GetSecret(key))
 
 	_, err := client.Query(
 		f.Paginate(f.Ref("databases")),
@@ -308,6 +308,21 @@ func (s *ClientTestSuite) TestBatchQuery() {
 
 	s.Require().NoError(err)
 	s.Require().Len(values, 2)
+}
+
+func (s *ClientTestSuite) TestKeyFromSecret() {
+	var ref f.RefV
+
+	key, err := f.CreateKeyWithRole("server")
+	s.Require().NoError(err)
+
+	secret := f.GetSecret(key)
+	key.At(refField).Get(&ref)
+
+	s.Require().Equal(
+		s.adminQuery(f.KeyFromSecret(secret)),
+		s.adminQuery(f.Get(ref)),
+	)
 }
 
 func (s *ClientTestSuite) TestUpdateAnInstaceData() {
@@ -1000,4 +1015,11 @@ func (s *ClientTestSuite) queryForRef(expr f.Expr) (ref f.RefV) {
 func (s *ClientTestSuite) queryAndDecode(expr f.Expr, i interface{}) {
 	value := s.query(expr)
 	s.Require().NoError(value.Get(i))
+}
+
+func (s *ClientTestSuite) adminQuery(expr f.Expr) (value f.Value) {
+	value, err := f.AdminQuery(expr)
+	s.Require().NoError(err)
+
+	return
 }

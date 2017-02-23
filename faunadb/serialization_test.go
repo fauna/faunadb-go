@@ -452,6 +452,13 @@ func TestSerializeGetWithTimestamp(t *testing.T) {
 	)
 }
 
+func TestSerializeKeyFromSecret(t *testing.T) {
+	assertJSON(t,
+		KeyFromSecret("s3cr3t"),
+		`{"key_from_secret":"s3cr3t"}`,
+	)
+}
+
 func TestSerializeExists(t *testing.T) {
 	assertJSON(t,
 		Exists(Ref("classes/spells/42")),

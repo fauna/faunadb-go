@@ -217,6 +217,11 @@ func Append(elems, coll interface{}) Expr { return fn2("append", elems, "collect
 // See: https://fauna.com/documentation/queries#read_functions
 func Get(ref interface{}, options ...OptionalParameter) Expr { return fn1("get", ref, options...) }
 
+// KeyFromSecret retrieves the key object from the given secret.
+//
+// See: https://fauna.com/documentation/queries#read_functions
+func KeyFromSecret(secret interface{}) Expr { return fn1("key_from_secret", secret) }
+
 // Exists returns boolean true if the provided ref exists (in the case of an instance),
 // or is non-empty (in the case of a set), and false otherwise. Optional parameters: TS.
 //
