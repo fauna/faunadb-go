@@ -8,11 +8,11 @@ import (
 )
 
 // Current results:
-// BenchmarkParseJSON-8               30000             40449 ns/op
-// BenchmarkDecodeValue-8             50000             24919 ns/op
-// BenchmarkEncodeValue-8            100000             23359 ns/op
-// BenchmarkWriteJSON-8               50000             30474 ns/op
-// BenchmarkExtactValue-8          20000000               107 ns/op
+// BenchmarkParseJSON-8               50000             38307 ns/op
+// BenchmarkDecodeValue-8             50000             24235 ns/op
+// BenchmarkEncodeValue-8            100000             22126 ns/op
+// BenchmarkWriteJSON-8               50000             28964 ns/op
+// BenchmarkExtactValue-8          20000000                97.4 ns/op
 
 type benchmarkStruct struct {
 	NonExistingField int
