@@ -258,6 +258,18 @@ func TestDeserializeStructWithTags(t *testing.T) {
 	require.Equal(t, object{"Jhon", 10}, obj)
 }
 
+func TestDeserializeStructWithIgnoredFields(t *testing.T) {
+	type object struct {
+		Name string `fauna:"name"`
+		Age  int64  `fauna:"-"`
+	}
+
+	var obj object
+
+	require.NoError(t, decodeJSON(`{ "name": "Jhon", "age": 10 }`, &obj))
+	require.Equal(t, object{"Jhon", 0}, obj)
+}
+
 func TestDeserializeStructWithPointers(t *testing.T) {
 	type inner struct{ Name string }
 	type object struct{ Inner *inner }
