@@ -154,6 +154,18 @@ func TestSerializeStructWithTags(t *testing.T) {
 	)
 }
 
+func TestSerializeStructWithIgnoredFields(t *testing.T) {
+	type user struct {
+		Name string `fauna:"name"`
+		Age  int    `fauna:"-"`
+	}
+
+	assertJSON(t,
+		Obj{"data": user{"Jhon", 42}},
+		`{"object":{"data":{"object":{"name":"Jhon"}}}}`,
+	)
+}
+
 func TestSerializeStructWithPointers(t *testing.T) {
 	type user struct {
 		Name string

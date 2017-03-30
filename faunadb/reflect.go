@@ -23,7 +23,11 @@ func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
 			continue
 		}
 
-		fields[fieldName(aStructType.Field(i))] = field
+		fieldName := fieldName(aStructType.Field(i))
+
+		if fieldName != "-" {
+			fields[fieldName] = field
+		}
 	}
 
 	return fields
