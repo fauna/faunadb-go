@@ -21,7 +21,7 @@ Currently, the driver is tested on:
 ### Installing
 
 ```bash
-go get github.com/fauna/faunadb-go
+go get github.com/fauna/faunadb-go/faunadb
 ```
 
 ### Importing
