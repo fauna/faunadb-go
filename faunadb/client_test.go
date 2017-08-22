@@ -995,6 +995,53 @@ func (s *ClientTestSuite) TestEchoAnObjectBack() {
 	s.Require().Equal(map[string]string{"key": "value"}, obj)
 }
 
+func (s *ClientTestSuite) TestCreateFunction() {
+	body := f.Query(f.Lambda("x", f.Var("x")))
+
+	s.query(f.CreateFunction(f.Obj{"name": "a_function", "body": body}))
+
+	var exists bool
+
+	s.queryAndDecode(f.Exists(f.Ref("functions/a_function")), &exists)
+
+	s.Require().True(exists)
+}
+
+func (s *ClientTestSuite) TestCallFunction() {
+	body := f.Query(
+		f.Lambda(
+			f.Arr{"x", "y"},
+			f.Concat(
+				f.Arr{f.Var("x"), f.Var("y")},
+				f.Separator("/"),
+			),
+		),
+	)
+
+	s.query(f.CreateFunction(f.Obj{"name": "concat_with_slash", "body": body}))
+
+	var output string
+
+	s.queryAndDecode(
+		f.Call(
+			f.Ref("functions/concat_with_slash"),
+			"a",
+			"b",
+		),
+		&output,
+	)
+
+	s.Require().Equal("a/b", output)
+}
+
+func (s *ClientTestSuite) TestEchoQuery() {
+	body := s.query(f.Query(f.Lambda("x", f.Var("x"))))
+
+	bodyEchoed := s.query(body)
+
+	s.Require().Equal(body, bodyEchoed)
+}
+
 func (s *ClientTestSuite) query(expr f.Expr) f.Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)

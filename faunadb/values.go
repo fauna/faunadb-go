@@ -172,6 +172,20 @@ func (bytes BytesV) MarshalJSON() ([]byte, error) {
 	return escape("@bytes", encoded)
 }
 
+// QueryV represents a `@query` value in FaunaDB.
+type QueryV struct {
+	lambda json.RawMessage
+}
+
+// Get implements the Value interface by decoding the underlying value to a QueryV.
+func (query QueryV) Get(i interface{}) error { return newValueDecoder(i).assign(query) }
+
+// At implements the Value interface by returning an invalid field since QueryV is not transversable.
+func (query QueryV) At(field Field) FieldValue { return field.get(query) }
+
+// MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB query representation.
+func (query QueryV) MarshalJSON() ([]byte, error) { return escape("@query", &query.lambda) }
+
 // Implement Expr for all values
 
 func (str StringV) expr()      {}
@@ -186,6 +200,7 @@ func (obj ObjectV) expr()      {}
 func (arr ArrayV) expr()       {}
 func (null NullV) expr()       {}
 func (bytes BytesV) expr()     {}
+func (query QueryV) expr()     {}
 
 func escape(key string, value interface{}) ([]byte, error) {
 	return json.Marshal(map[string]interface{}{key: value})

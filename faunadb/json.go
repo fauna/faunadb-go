@@ -85,6 +85,8 @@ func (p *jsonParser) parseSpecialObject() (value Value, err error) {
 			value, err = p.readSingleObject()
 		case "@bytes":
 			value, err = p.parseBytes()
+		case "@query":
+			value, err = p.parseQuery()
 		default:
 			value, err = p.parseObject(firstKey)
 		}
@@ -121,6 +123,16 @@ func (p *jsonParser) parseBytes() (value Value, err error) {
 		if err == nil {
 			value = BytesV(bytes)
 		}
+	}
+
+	return
+}
+
+func (p *jsonParser) parseQuery() (value Value, err error) {
+	var lambda json.RawMessage
+
+	if err = p.decoder.Decode(&lambda); err == nil {
+		value = QueryV{lambda}
 	}
 
 	return
