@@ -2,6 +2,7 @@ package faunadb
 
 import (
 	"bytes"
+	"encoding/json"
 	"math"
 	"testing"
 	"time"
@@ -139,6 +140,15 @@ func TestDeserializeBytes(t *testing.T) {
 
 	require.NoError(t, decodeJSON(`{"@bytes": "AQIDBA=="}`, &bytes))
 	require.Equal(t, []byte{1, 2, 3, 4}, bytes)
+}
+
+func TestDeserializeQueryV(t *testing.T) {
+	var query QueryV
+
+	lambda := json.RawMessage(`{"lambda": "x", "expr": {"var": "x"}}`)
+
+	require.NoError(t, decodeJSON(`{"@query": {"lambda": "x", "expr": {"var": "x"}}}`, &query))
+	require.Equal(t, QueryV{lambda}, query)
 }
 
 func TestDeserializeSetRefV(t *testing.T) {

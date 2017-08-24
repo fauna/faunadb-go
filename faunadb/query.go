@@ -168,6 +168,18 @@ func Let(bindings Obj, in interface{}) Expr { return fn2("let", unescapedBinding
 // See: https://fauna.com/documentation/queries#basic_forms
 func Var(name string) Expr { return fn1("var", name) }
 
+// Invoke the specified function passing in a variable number of arguments
+//
+// See: https://fauna.com/documentation/queries#basic_forms
+func Call(ref interface{}, args ...interface{}) Expr {
+	return fn2("call", ref, "arguments", varargs(args...))
+}
+
+// Creates an instance of `@query` type with the specified lambda
+//
+// See: https://fauna.com/documentation/queries#basic_forms
+func Query(lambda interface{}) Expr { return fn1("query", lambda) }
+
 // Collections
 
 // Map applies the lambda expression on each element of a collection or Page.
@@ -262,6 +274,11 @@ func CreateIndex(params interface{}) Expr { return fn1("create_index", params) }
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func CreateKey(params interface{}) Expr { return fn1("create_key", params) }
+
+// CreateFunction creates an new function.
+//
+// See: https://fauna.com/documentation/queries#write_functions
+func CreateFunction(params interface{}) Expr { return fn1("create_function", params) }
 
 // Update the instance informed.
 //
