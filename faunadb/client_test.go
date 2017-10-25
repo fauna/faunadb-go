@@ -19,7 +19,7 @@ var (
 	beforeField   = f.ObjKey("before")
 	afterField    = f.ObjKey("after")
 	secretField   = f.ObjKey("secret")
-	resourceField = f.ObjKey("resource")
+	instanceField = f.ObjKey("instance")
 )
 
 var randomClass,
@@ -192,7 +192,7 @@ func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResou
 	client := s.client.NewSessionClient(f.GetSecret(key))
 
 	_, err = client.Query(
-		f.Paginate(f.Ref("databases")),
+		f.Paginate(f.Databases()),
 	)
 
 	if _, ok := err.(f.PermissionDenied); !ok {
@@ -432,7 +432,8 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 			"data": f.Obj{"cooldown": 5},
 		}),
 	)
-	s.Require().NoError(res.At(resourceField).Get(&inserted))
+
+	s.Require().NoError(res.At(instanceField).Get(&inserted))
 	s.Require().Equal(inserted, created)
 
 	res = s.query(f.Remove(created, 2, f.ActionDelete))
@@ -493,7 +494,8 @@ func (s *ClientTestSuite) TestAbortExpression() {
 func (s *ClientTestSuite) TestEvalDoExpression() {
 	var ref f.RefV
 
-	refToCreate := f.Ref(f.RandomStartingWith(randomClass.ID, "/"))
+	randomID := f.RandomStartingWith()
+	refToCreate := f.RefClass(randomClass, randomID)
 
 	res := s.queryForRef(
 		f.Do(
@@ -503,7 +505,7 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	)
 
 	s.Require().NoError(res.Get(&ref))
-	s.Require().Equal(ref, refToCreate)
+	s.Require().Equal(ref, f.RefV{randomID, &randomClass, nil})
 }
 
 func (s *ClientTestSuite) TestMapOverACollection() {
@@ -889,13 +891,126 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 
 	s.queryAndDecode(
 		f.Arr{
-			f.Index("all_spells"),
-			f.Class("spells"),
+			f.Ref("classes/thing/123"),
+			f.RefClass(f.Class("thing"), "123"),
+			f.Index("idx"),
+			f.Class("cls"),
+			f.Database("db"),
+			f.Function("fn"),
 		},
 		&refs,
 	)
 
-	s.Require().Equal([]f.RefV{allSpells, spells}, refs)
+	s.Require().Equal([]f.RefV{
+		f.RefV{"123", &f.RefV{"thing", f.NativeClasses(), nil}, nil},
+		f.RefV{"123", &f.RefV{"thing", f.NativeClasses(), nil}, nil},
+		f.RefV{"idx", f.NativeIndexes(), nil},
+		f.RefV{"cls", f.NativeClasses(), nil},
+		f.RefV{"db", f.NativeDatabases(), nil},
+		f.RefV{"fn", f.NativeFunctions(), nil},
+	}, refs)
+}
+
+func (s *ClientTestSuite) TestEvalScopedRefFunctions() {
+	var refs []f.RefV
+
+	s.adminQuery(
+		f.Arr{
+			f.ScopedIndex("idx", f.DbRef()),
+			f.ScopedClass("cls", f.DbRef()),
+			f.ScopedDatabase("db", f.DbRef()),
+			f.ScopedFunction("fn", f.DbRef()),
+		},
+	).Get(&refs)
+
+	s.Require().Equal([]f.RefV{
+		f.RefV{"idx", f.NativeIndexes(), f.DbRef()},
+		f.RefV{"cls", f.NativeClasses(), f.DbRef()},
+		f.RefV{"db", f.NativeDatabases(), f.DbRef()},
+		f.RefV{"fn", f.NativeFunctions(), f.DbRef()},
+	}, refs)
+}
+
+func (s *ClientTestSuite) TestNestedClassRef() {
+	parentDb := f.RandomStartingWith("parent_")
+	childDb := f.RandomStartingWith("child_")
+	aClass := f.RandomStartingWith("class_")
+
+	key, err := f.CreateKeyWithRole("admin")
+	s.Require().NoError(err)
+
+	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+
+	client1 := s.createNewDatabase(adminClient, parentDb)
+	_ = s.createNewDatabase(client1, childDb)
+
+	key, err = client1.Query(f.CreateKey(f.Obj{"database": f.Database(childDb), "role": "server"}))
+	s.Require().NoError(err)
+
+	client2 := client1.NewSessionClient(f.GetSecret(key))
+
+	_, err = client2.Query(f.CreateClass(f.Obj{"name": aClass}))
+	s.Require().NoError(err)
+
+	var exists bool
+	s.queryAndDecode(f.Exists(f.ScopedClass(aClass, f.ScopedDatabase(childDb, f.Database(parentDb)))), &exists)
+	s.Require().True(exists)
+
+	var data map[string]f.Value
+	var classes []f.RefV
+
+	s.queryAndDecode(f.Paginate(f.ScopedClasses(f.ScopedDatabase(childDb, f.Database(parentDb)))), &data)
+	data["data"].Get(&classes)
+
+	s.Require().Equal(
+		classes,
+		[]f.RefV{f.RefV{aClass, f.NativeClasses(), &f.RefV{childDb, f.NativeDatabases(), &f.RefV{parentDb, f.NativeDatabases(), nil}}}},
+	)
+}
+
+func (s *ClientTestSuite) TestNestedKeyRef() {
+	parentDb := f.RandomStartingWith("parent_")
+	childDb := f.RandomStartingWith("child_")
+
+	key, err := f.CreateKeyWithRole("admin")
+	s.Require().NoError(err)
+
+	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+
+	client := s.createNewDatabase(adminClient, parentDb)
+
+	_, err = client.Query(f.CreateDatabase(f.Obj{"name": childDb}))
+	s.Require().NoError(err)
+
+	var serverKey, adminKey f.RefV
+
+	result, err := client.Query(f.CreateKey(f.Obj{"database": f.Database(childDb), "role": "server"}))
+	s.Require().NoError(err)
+	result.At(refField).Get(&serverKey)
+
+	result, err = client.Query(f.CreateKey(f.Obj{"database": f.Database(childDb), "role": "admin"}))
+	s.Require().NoError(err)
+	result.At(refField).Get(&adminKey)
+
+	var keys []f.RefV
+
+	result, err = client.Query(f.Paginate(f.Keys()))
+	s.Require().NoError(err)
+	result.At(dataField).Get(&keys)
+
+	s.Require().Equal(
+		keys,
+		[]f.RefV{serverKey, adminKey},
+	)
+
+	result, err = adminClient.Query(f.Paginate(f.ScopedKeys(f.Database(parentDb))))
+	s.Require().NoError(err)
+	result.At(dataField).Get(&keys)
+
+	s.Require().Equal(
+		keys,
+		[]f.RefV{serverKey, adminKey},
+	)
 }
 
 func (s *ClientTestSuite) TestEvalEqualsExpression() {
@@ -1068,7 +1183,7 @@ func (s *ClientTestSuite) TestCreateFunction() {
 
 	var exists bool
 
-	s.queryAndDecode(f.Exists(f.Ref("functions/a_function")), &exists)
+	s.queryAndDecode(f.Exists(f.Function("a_function")), &exists)
 
 	s.Require().True(exists)
 }
@@ -1090,7 +1205,7 @@ func (s *ClientTestSuite) TestCallFunction() {
 
 	s.queryAndDecode(
 		f.Call(
-			f.Ref("functions/concat_with_slash"),
+			f.Function("concat_with_slash"),
 			"a",
 			"b",
 		),
@@ -1146,4 +1261,17 @@ func (s *ClientTestSuite) adminQuery(expr f.Expr) (value f.Value) {
 	s.Require().NoError(err)
 
 	return
+}
+
+func (s *ClientTestSuite) createNewDatabase(client *f.FaunaClient, name string) *f.FaunaClient {
+	var err error
+
+	_, err = client.Query(f.CreateDatabase(f.Obj{"name": name}))
+	s.Require().NoError(err)
+
+	var key f.Value
+	key, err = client.Query(f.CreateKey(f.Obj{"database": f.Database(name), "role": "admin"}))
+	s.Require().NoError(err)
+
+	return client.NewSessionClient(f.GetSecret(key))
 }

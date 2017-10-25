@@ -89,3 +89,7 @@ func GetSecret(key Value) (secret string) {
 
 	return
 }
+
+func DbRef() *RefV {
+	return &RefV{dbName, NativeDatabases(), nil}
+}

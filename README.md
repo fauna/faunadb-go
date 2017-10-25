@@ -20,8 +20,16 @@ Currently, the driver is tested on:
 
 ### Installing
 
+#### Using `go get`:
+
 ```bash
 go get github.com/fauna/faunadb-go/faunadb
+```
+
+#### Using `dep`
+
+```bash
+dep ensure --add github.com/fauna/faunadb-go@master
 ```
 
 ### Importing
@@ -51,7 +59,7 @@ type User struct {
 func main() {
 	client := f.NewFaunaClient("your-secret-here")
 
-	res, err := client.Query(f.Get(f.Ref("classes/users/42")))
+	res, err := client.Query(f.Get(f.RefClass(f.Class("user"), "42")))
 	if err != nil {
 		panic(err)
 	}

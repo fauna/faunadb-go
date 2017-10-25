@@ -96,10 +96,35 @@ func (p *jsonParser) parseSpecialObject() (value Value, err error) {
 }
 
 func (p *jsonParser) parseRef() (value Value, err error) {
-	var id string
+	var obj ObjectV
 
-	if id, err = p.readSingleString(); err == nil {
-		value = RefV{id}
+	if obj, err = p.readSingleObject(); err == nil {
+		var id string
+		var cls, db *RefV
+
+		if v, ok := obj["id"]; ok {
+			if err = v.Get(&id); err != nil {
+				return
+			}
+		}
+
+		if v, ok := obj["class"]; ok {
+			if err = v.Get(&cls); err != nil {
+				return
+			}
+		}
+
+		if v, ok := obj["database"]; ok {
+			if err = v.Get(&db); err != nil {
+				return
+			}
+		}
+
+		if cls == nil && db == nil {
+			value = nativeFromName(id)
+		} else {
+			value = RefV{id, cls, db}
+		}
 	}
 
 	return

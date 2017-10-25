@@ -46,7 +46,7 @@ func TestFailToExtractFieldForNonTransversableValues(t *testing.T) {
 		BooleanV(false),
 		DateV(time.Now()),
 		TimeV(time.Now()),
-		RefV{"classes/spells"},
+		RefV{"classes/spells", nil, nil},
 		SetRefV{map[string]Value{"any": StringV("set")}},
 		NullV{},
 	)

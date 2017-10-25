@@ -98,7 +98,9 @@ func (localTime TimeV) MarshalJSON() ([]byte, error) {
 
 // RefV represents a FaunaDB ref type.
 type RefV struct {
-	ID string
+	ID       string
+	Class    *RefV
+	Database *RefV
 }
 
 // Get implements the Value interface by decoding the underlying ref to a RefV.
@@ -108,7 +110,58 @@ func (ref RefV) Get(i interface{}) error { return newValueDecoder(i).assign(ref)
 func (ref RefV) At(field Field) FieldValue { return field.get(ref) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB ref representation.
-func (ref RefV) MarshalJSON() ([]byte, error) { return escape("@ref", ref.ID) }
+func (ref RefV) MarshalJSON() ([]byte, error) {
+	values := map[string]interface{}{"id": ref.ID}
+
+	if ref.Class != nil {
+		values["class"] = ref.Class
+	}
+
+	if ref.Database != nil {
+		values["database"] = ref.Database
+	}
+
+	return escape("@ref", values)
+}
+
+var (
+	nativeClasses     = RefV{"classes", nil, nil}
+	nativeIndexes     = RefV{"indexes", nil, nil}
+	nativeDatabases   = RefV{"databases", nil, nil}
+	nativeFunctions   = RefV{"functions", nil, nil}
+	nativeKeys        = RefV{"keys", nil, nil}
+	nativeTokens      = RefV{"tokens", nil, nil}
+	nativeCredentials = RefV{"credentials", nil, nil}
+)
+
+func NativeClasses() *RefV     { return &nativeClasses }
+func NativeIndexes() *RefV     { return &nativeIndexes }
+func NativeDatabases() *RefV   { return &nativeDatabases }
+func NativeFunctions() *RefV   { return &nativeFunctions }
+func NativeKeys() *RefV        { return &nativeKeys }
+func NativeTokens() *RefV      { return &nativeTokens }
+func NativeCredentials() *RefV { return &nativeCredentials }
+
+func nativeFromName(id string) *RefV {
+	switch id {
+	case "classes":
+		return &nativeClasses
+	case "indexes":
+		return &nativeIndexes
+	case "databases":
+		return &nativeDatabases
+	case "functions":
+		return &nativeFunctions
+	case "keys":
+		return &nativeKeys
+	case "tokens":
+		return &nativeTokens
+	case "credentials":
+		return &nativeCredentials
+	}
+
+	return &RefV{id, nil, nil}
+}
 
 // SetRefV represents a FaunaDB setref type.
 type SetRefV struct {

@@ -131,7 +131,7 @@ func Normalizer(norm interface{}) OptionalParameter {
 // Ref creates a new RefV value with the ID informed.
 //
 // See: https://fauna.com/documentation/queries#values-special_types
-func Ref(id string) Expr { return RefV{id} }
+func Ref(id string) Expr { return fn1("@ref", id) }
 
 // RefClass creates a new Ref based on the class and ID informed.
 //
@@ -446,15 +446,114 @@ func NewId() Expr { return fn1("new_id", NullV{}) }
 // See: https://fauna.com/documentation/queries#misc_functions
 func Database(name interface{}) Expr { return fn1("database", name) }
 
+// ScopedDatabase creates a new database ref inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedDatabase(name interface{}, scope interface{}) Expr {
+	return fn2("database", name, "scope", scope)
+}
+
 // Index creates a new index ref.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func Index(name interface{}) Expr { return fn1("index", name) }
 
+// ScopedIndex creates a new index ref inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedIndex(name interface{}, scope interface{}) Expr { return fn2("index", name, "scope", scope) }
+
 // Class creates a new class ref.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func Class(name interface{}) Expr { return fn1("class", name) }
+
+// ScopedClass creates a new class ref inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedClass(name interface{}, scope interface{}) Expr { return fn2("class", name, "scope", scope) }
+
+// Function create a new function ref.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Function(name interface{}) Expr { return fn1("function", name) }
+
+// ScopedFunction creates a new function ref inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedFunction(name interface{}, scope interface{}) Expr {
+	return fn2("function", name, "scope", scope)
+}
+
+// Classes creates a native ref for classes.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Classes() Expr { return fn1("classes", NullV{}) }
+
+// ScopedClasses creates a native ref for classes inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedClasses(scope interface{}) Expr { return fn1("classes", scope) }
+
+// Indexes creates a native ref for indexes.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Indexes() Expr { return fn1("indexes", NullV{}) }
+
+// ScopedIndexes creates a native ref for indexes inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedIndexes(scope interface{}) Expr { return fn1("indexes", scope) }
+
+// Databases creates a native ref for databases.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Databases() Expr { return fn1("databases", NullV{}) }
+
+// ScopedDatabases creates a native ref for databases inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedDatabases(scope interface{}) Expr { return fn1("databases", scope) }
+
+// Functions creates a native ref for functions.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Functions() Expr { return fn1("functions", NullV{}) }
+
+// ScopedFunctions creates a native ref for functions inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedFunctions(scope interface{}) Expr { return fn1("functions", scope) }
+
+// Keys creates a native ref for keys.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Keys() Expr { return fn1("keys", NullV{}) }
+
+// ScopedKeys creates a native ref for keys inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedKeys(scope interface{}) Expr { return fn1("keys", scope) }
+
+// Tokens creates a native ref for tokens.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Tokens() Expr { return fn1("tokens", NullV{}) }
+
+// ScopedTokens creates a native ref for tokens inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedTokens(scope interface{}) Expr { return fn1("tokens", scope) }
+
+// Credentials creates a native ref for credentials.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func Credentials() Expr { return fn1("credentials", NullV{}) }
+
+// ScopedCredentials creates a native ref for credentials inside a database.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func ScopedCredentials(scope interface{}) Expr { return fn1("credentials", scope) }
 
 // Equals checks if all args are equivalents.
 //
