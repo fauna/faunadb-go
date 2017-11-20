@@ -58,7 +58,7 @@ func main() {
 
 	var user User
 
-	if err := res.Get(&user); err != nil {
+	if err := res.At(f.ObjKey("data")).Get(&user); err != nil {
 		panic(err)
 	}
 
