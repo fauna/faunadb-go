@@ -85,6 +85,38 @@ Run `go get -t ./...` in order to install project's dependencies.
 
 Run tests with `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
 
+Tests can also be run via a Docker container. The `Dockerfile.test` file
+creates an image that automatically runs the tests against a target FaunaDB
+cluster. You can run tests this way via the following steps:
+
+1. Build the image via
+   `docker build -f Dockerfile.test --build-arg RUNTIME_IMAGE=<image> .`, where
+   `<image>` is an Alpine-based image containing Go (for example,
+   `golang:1.8-alpine`).
+2. Run the image with a given endpoint (`FAUNA_ENDPOINT`) and secret
+   (`FAUNA_ROOT_KEY`). By default, the endpoint is `https://db.fauna.com` and
+   the secret is `secret`.
+   To run tests against cloud,
+   use `docker run -it -e FAUNA_ROOT_KEY=<your-cloud-secret> <built-image>`,
+   where `<your-cloud-secret>` is a valid admin key secret for cloud, and
+   `<built-image>` is the image id produced from building the Docker image.
+
+An example of this build and run process:
+
+```
+$ docker build -f Dockerfile.test --build-arg RUNTIME_IMAGE=golang:1.8-alpine .
+Sending build context to Docker daemon  146.4kB
+... docker image builds ...
+Successfully built 1438a4dc32b6
+$ docker run -it -e FAUNA_ROOT_KEY="a-cloud-secret" 1438a4dc32b6
+2017/11/27 18:44:10 Waiting for: https://db.fauna.com/ping
+2017/11/27 18:44:11 Received 200 from https://db.fauna.com/ping
+... go tests run ...
+PASS
+ok  	github.com/fauna/faunadb-go/faunadb	20.411s
+2017/11/27 18:44:32 Command finished successfully.
+```
+
 ## LICENSE
 
 Copyright 2017 [Fauna, Inc.](https://fauna.com/)
