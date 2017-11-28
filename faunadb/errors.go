@@ -21,7 +21,7 @@ type BadRequest struct{ FaunaError }
 // A Unauthorized wraps an HTTP 401 error response.
 type Unauthorized struct{ FaunaError }
 
-// A Unauthorized wraps an HTTP 403 error response.
+// A PermissionDenied wraps an HTTP 403 error response.
 type PermissionDenied struct{ FaunaError }
 
 // A NotFound wraps an HTTP 404 error response.
