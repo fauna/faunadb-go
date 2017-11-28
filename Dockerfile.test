@@ -13,11 +13,11 @@ ARG DOCKERIZE_VERSION=0.6.0
 RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-v$DOCKERIZE_VERSION.tar.gz | tar -xzC /usr/local/bin
 
 # Copy project into the image
-COPY . /src/github.com/fauna/faunadb-go
+COPY . /var/lib/go/src/github.com/fauna/faunadb-go
 
 # Shift over to the project, set GOPATH, and fetch dependencies
-WORKDIR /src/github.com/fauna/faunadb-go/faunadb
-ENV GOPATH=/
+WORKDIR /var/lib/go/src/github.com/fauna/faunadb-go/faunadb
+ENV GOPATH=/var/lib/go
 RUN go get -t -v
 
 # Define the default variables for the tests
