@@ -22,3 +22,7 @@ _testmain.go
 *.exe
 *.prof
 *.swp
+
+# Git
+.git/
+.gitignore
