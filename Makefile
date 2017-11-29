@@ -1,4 +1,4 @@
-override RUNTIME_IMAGE ?= golang:1.8-alpine
+RUNTIME_IMAGE ?= golang:1.8-alpine
 DOCKER_RUN_FLAGS = -it --rm
 
 ifdef FAUNA_ROOT_KEY
