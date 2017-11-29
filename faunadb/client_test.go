@@ -187,10 +187,11 @@ func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 }
 
 func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResource() {
-	key, _ := f.CreateKeyWithRole("client")
+	key, err := f.CreateKeyWithRole("client")
+	s.Require().NoError(err)
 	client := s.client.NewSessionClient(f.GetSecret(key))
 
-	_, err := client.Query(
+	_, err = client.Query(
 		f.Paginate(f.Ref("databases")),
 	)
 
