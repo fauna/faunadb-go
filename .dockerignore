@@ -26,3 +26,7 @@ _testmain.go
 # Git
 .git/
 .gitignore
+
+# Jenkins/Docker
+results/
+Dockerfile.test
