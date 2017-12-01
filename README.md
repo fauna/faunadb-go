@@ -1,6 +1,5 @@
 # FaunaDB Go Driver
 
-[![Build Status](https://travis-ci.org/fauna/faunadb-go.svg?branch=master)](https://travis-ci.org/fauna/faunadb-go)
 [![Coverage Status](https://codecov.io/gh/fauna/faunadb-go/branch/master/graph/badge.svg)](https://codecov.io/gh/fauna/faunadb-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://godoc.org/github.com/fauna/faunadb-go/faunadb)
