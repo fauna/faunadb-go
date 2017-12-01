@@ -9,6 +9,10 @@ ifdef FAUNA_ENDPOINT
 DOCKER_RUN_FLAGS += -e FAUNA_ENDPOINT=$(FAUNA_ENDPOINT)
 endif
 
+ifdef FAUNA_TIMEOUT
+DOCKER_RUN_FLAGS += -e FAUNA_TIMEOUT=$(FAUNA_TIMEOUT)
+endif
+
 test:
 	go test -v ./...
 
