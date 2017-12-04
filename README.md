@@ -86,7 +86,7 @@ Run tests with `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
 
 Alternatively, tests can be run via a Docker container with
 `FAUNA_ROOT_KEY="your-cloud-secret" make docker-test` (an alternate
-Alpine-based Go image can be provided via `RUNTIME_IMAGE`).
+Debian-based Go image can be provided via `RUNTIME_IMAGE`).
 
 ## LICENSE
 
