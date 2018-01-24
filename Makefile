@@ -1,4 +1,4 @@
-RUNTIME_IMAGE ?= golang:1.8
+RUNTIME_IMAGE ?= golang:1.9
 DOCKER_RUN_FLAGS = -it --rm
 
 ifdef FAUNA_ROOT_KEY
