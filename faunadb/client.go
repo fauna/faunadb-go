@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	defaultEndpoint = "https://db.fauna.com"
-	requestTimeout  = 60 * time.Second
+	defaultEndpoint   = "https://db.fauna.com"
+	requestTimeout    = 60 * time.Second
+	headerTxnTime     = "X-Txn-Time"
+	headerLastSeenTxn = "X-Last-Seen-Txn"
 )
 
 var resource = ObjKey("resource")
@@ -164,7 +166,7 @@ func (client *FaunaClient) parseResponse(response *http.Response) (value Value, 
 func (client *FaunaClient) addLastTxnTimeHeader(request *http.Request) {
 	if client.isTxnTimeEnabled {
 		if lastSeen := atomic.LoadInt64(&client.lastTxnTime); lastSeen != 0 {
-			request.Header.Add("X-Last-Seen-Txn", strconv.FormatInt(lastSeen, 10))
+			request.Header.Add(headerLastSeenTxn, strconv.FormatInt(lastSeen, 10))
 		}
 	}
 }
@@ -188,7 +190,7 @@ func (client *FaunaClient) storeLastTxnTime(header http.Header) (err error) {
 }
 
 func parseTxnTimeHeader(header http.Header) (txnTime int64, err error) {
-	if lastSeenHeader := header.Get("X-Txn-Time"); lastSeenHeader != "" {
+	if lastSeenHeader := header.Get(headerTxnTime); lastSeenHeader != "" {
 		txnTime, err = strconv.ParseInt(lastSeenHeader, 10, 64)
 	}
 	return
