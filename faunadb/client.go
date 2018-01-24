@@ -8,6 +8,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"sync/atomic"
 	"time"
 )
 
@@ -28,15 +30,26 @@ func Endpoint(url string) ClientConfig { return func(cli *FaunaClient) { cli.end
 func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.http = http } }
 
 /*
+EnableTxnTimePassthrough configures the FaunaClient to keep track of the last seen transaction time.
+The last seen transaction time is used to avoid reading stale data from outdated replicas when
+reading and writing from different nodes at the same time.
+*/
+func EnableTxnTimePassthrough() ClientConfig {
+	return func(cli *FaunaClient) { cli.isTxnTimeEnabled = true }
+}
+
+/*
 FaunaClient provides methods for performing queries on a FaunaDB cluster.
 
 This structure should be reused as much as possible. Avoid copying this structure.
 If you need to create a client with a different secret, use the NewSessionClient method.
 */
 type FaunaClient struct {
-	basicAuth string
-	endpoint  string
-	http      *http.Client
+	basicAuth        string
+	endpoint         string
+	http             *http.Client
+	isTxnTimeEnabled bool
+	lastTxnTime      int64
 }
 
 /*
@@ -104,9 +117,11 @@ func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) 
 // NewSessionClient creates a new child FaunaClient with the specified secret. The new client reuses its parents internal http resources.
 func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
 	return &FaunaClient{
-		basicAuth: basicAuth(secret),
-		endpoint:  client.endpoint,
-		http:      client.http,
+		basicAuth:        basicAuth(secret),
+		endpoint:         client.endpoint,
+		http:             client.http,
+		isTxnTimeEnabled: client.isTxnTimeEnabled,
+		lastTxnTime:      client.lastTxnTime,
 	}
 }
 
@@ -127,20 +142,58 @@ func (client *FaunaClient) prepareRequest(expr Expr) (request *http.Request, err
 		if request, err = http.NewRequest("POST", client.endpoint, bytes.NewReader(body)); err == nil {
 			request.Header.Add("Authorization", client.basicAuth)
 			request.Header.Add("Content-Type", "application/json; charset=utf-8")
+			client.addLastTxnTimeHeader(request)
 		}
 	}
 
 	return
 }
 
-func (client *FaunaClient) parseResponse(response *http.Response) (Value, error) {
-	value, err := parseJSON(response.Body)
+func (client *FaunaClient) parseResponse(response *http.Response) (value Value, err error) {
+	var parsedResponse Value
 
-	if err != nil {
-		return nil, err
+	if err = client.storeLastTxnTime(response.Header); err == nil {
+		if parsedResponse, err = parseJSON(response.Body); err == nil {
+			value, err = parsedResponse.At(resource).GetValue()
+		}
 	}
 
-	return value.At(resource).GetValue()
+	return
+}
+
+func (client *FaunaClient) addLastTxnTimeHeader(request *http.Request) {
+	if client.isTxnTimeEnabled {
+		if lastSeen := atomic.LoadInt64(&client.lastTxnTime); lastSeen != 0 {
+			request.Header.Add("X-Last-Seen-Txn", strconv.FormatInt(lastSeen, 10))
+		}
+	}
+}
+
+func (client *FaunaClient) storeLastTxnTime(header http.Header) (err error) {
+	if client.isTxnTimeEnabled {
+		var newTxnTime int64
+		var present bool
+
+		if newTxnTime, present, err = parseTxnTimeHeader(header); present && err == nil {
+			for {
+				oldTxnTime := atomic.LoadInt64(&client.lastTxnTime)
+				if oldTxnTime > newTxnTime ||
+					atomic.CompareAndSwapInt64(&client.lastTxnTime, oldTxnTime, newTxnTime) {
+					break
+				}
+			}
+		}
+	}
+
+	return
+}
+
+func parseTxnTimeHeader(header http.Header) (txnTime int64, present bool, err error) {
+	if lastSeenHeader := header.Get("X-Txn-Time"); lastSeenHeader != "" {
+		txnTime, err = strconv.ParseInt(lastSeenHeader, 10, 64)
+		present = true
+	}
+	return
 }
 
 func basicAuth(secret string) string {
