@@ -172,12 +172,11 @@ func (client *FaunaClient) addLastTxnTimeHeader(request *http.Request) {
 func (client *FaunaClient) storeLastTxnTime(header http.Header) (err error) {
 	if client.isTxnTimeEnabled {
 		var newTxnTime int64
-		var present bool
 
-		if newTxnTime, present, err = parseTxnTimeHeader(header); present && err == nil {
+		if newTxnTime, err = parseTxnTimeHeader(header); err == nil {
 			for {
 				oldTxnTime := atomic.LoadInt64(&client.lastTxnTime)
-				if oldTxnTime > newTxnTime ||
+				if oldTxnTime >= newTxnTime ||
 					atomic.CompareAndSwapInt64(&client.lastTxnTime, oldTxnTime, newTxnTime) {
 					break
 				}
@@ -188,10 +187,9 @@ func (client *FaunaClient) storeLastTxnTime(header http.Header) (err error) {
 	return
 }
 
-func parseTxnTimeHeader(header http.Header) (txnTime int64, present bool, err error) {
+func parseTxnTimeHeader(header http.Header) (txnTime int64, err error) {
 	if lastSeenHeader := header.Get("X-Txn-Time"); lastSeenHeader != "" {
 		txnTime, err = strconv.ParseInt(lastSeenHeader, 10, 64)
-		present = true
 	}
 	return
 }
