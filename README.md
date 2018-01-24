@@ -14,6 +14,7 @@ Currently, the driver is tested on:
 - 1.6
 - 1.7
 - 1.8
+- 1.9
 
 ## Using the Driver
 
