@@ -40,7 +40,11 @@ func RandomStartingWith(parts ...string) string {
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key Value
 
-	adminClient = NewFaunaClient(faunaSecret, Endpoint(faunaEndpoint))
+	adminClient = NewFaunaClient(
+		faunaSecret,
+		Endpoint(faunaEndpoint),
+		EnableTxnTimePassthrough(),
+	)
 
 	DeleteTestDB()
 
