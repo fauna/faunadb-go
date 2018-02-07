@@ -373,6 +373,13 @@ func TestSerializeIf(t *testing.T) {
 	)
 }
 
+func TestSerializeAbort(t *testing.T) {
+	assertJSON(t,
+		Abort("abort message"),
+		`{"abort":"abort message"}`,
+	)
+}
+
 func TestSerializeDo(t *testing.T) {
 	assertJSON(t,
 		Do(Arr{

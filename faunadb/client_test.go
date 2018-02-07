@@ -480,6 +480,16 @@ func (s *ClientTestSuite) TestEvalIfExpression() {
 	s.Require().Equal("true", str)
 }
 
+func (s *ClientTestSuite) TestAbortExpression() {
+	_, err := s.client.Query(
+		f.Abort("abort message"),
+	)
+
+	if _, ok := err.(f.BadRequest); !ok {
+		s.Require().Fail("Should have returned BadRequest")
+	}
+}
+
 func (s *ClientTestSuite) TestEvalDoExpression() {
 	var ref f.RefV
 

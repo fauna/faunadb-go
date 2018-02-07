@@ -136,6 +136,11 @@ func Null() Expr { return NullV{} }
 
 // Basic forms
 
+// Abort aborts the execution of the query
+//
+// See: https://fauna.com/documentation/queries#basic_forms
+func Abort(msg interface{}) Expr { return fn1("abort", msg) }
+
 // Do sequentially evaluates its arguments, and returns the last expression.
 // If no expressions are provided, do returns an error.
 //
