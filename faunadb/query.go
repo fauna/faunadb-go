@@ -413,10 +413,17 @@ func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "pas
 
 // Miscellaneous
 
+// Deprecated: Use NewId instead
+//
 // NextID produces a new identifier suitable for use when constructing refs.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func NextID() Expr { return fn1("next_id", NullV{}) }
+
+// NewId produces a new identifier suitable for use when constructing refs.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func NewId() Expr { return fn1("new_id", NullV{}) }
 
 // Database creates a new database ref.
 //

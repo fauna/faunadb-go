@@ -835,10 +835,10 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	s.Require().False(identified)
 }
 
-func (s *ClientTestSuite) TestEvalNextIDExpression() {
+func (s *ClientTestSuite) TestEvalNewIdExpression() {
 	var id string
 
-	s.queryAndDecode(f.NextID(), &id)
+	s.queryAndDecode(f.NewId(), &id)
 	s.Require().NotEmpty(id)
 }
 

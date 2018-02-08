@@ -684,10 +684,10 @@ func TestSerializeIndentify(t *testing.T) {
 	)
 }
 
-func TestSerializeNextID(t *testing.T) {
+func TestSerializeNewId(t *testing.T) {
 	assertJSON(t,
-		NextID(),
-		`{"next_id":null}`,
+		NewId(),
+		`{"new_id":null}`,
 	)
 }
 
