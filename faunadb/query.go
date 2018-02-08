@@ -40,11 +40,15 @@ func unescapedBindings(obj Obj) unescapedObj {
 
 // Optional parameters
 
-// Events is an boolean optional parameter that describes if the query should include historical events.
+// Deprecated: The Events function was renamed to EventsOpt to support the new history API.
+// EventsOpt is provided here for backwards compatibility. Instead of using Paginate with the EventsOpt parameter,
+// you should use the new Events function.
+//
+// EventsOpt is an boolean optional parameter that describes if the query should include historical events.
 // For more information about events, check https://fauna.com/documentation/queries#values-events.
 //
 // Functions that accept this optional parameter are: Paginate.
-func Events(events interface{}) OptionalParameter {
+func EventsOpt(events interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["events"] = wrap(events)
 	}
@@ -255,7 +259,7 @@ func KeyFromSecret(secret interface{}) Expr { return fn1("key_from_secret", secr
 func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("exists", ref, options...) }
 
 // Paginate retrieves a page from the set informed.
-// Optional parameters: TS, After, Before, Size, Events, and Sources.
+// Optional parameters: TS, After, Before, Size, EventsOpt, and Sources.
 //
 // See: https://fauna.com/documentation/queries#read_functions
 func Paginate(set interface{}, options ...OptionalParameter) Expr {
@@ -356,6 +360,16 @@ func Date(str interface{}) Expr { return fn1("date", str) }
 func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) }
 
 // Set
+
+// Singleton returns the history of the instance's presence of the provided ref.
+//
+// See: https://fauna.com/documentation/queries#sets
+func Singleton(ref interface{}) Expr { return fn1("singleton", ref) }
+
+// Events returns the history of instance's data of the provided ref.
+//
+// See: https://fauna.com/documentation/queries#sets
+func Events(refSet interface{}) Expr { return fn1("events", refSet) }
 
 // Match returns the set of instances in the ref informed.
 //

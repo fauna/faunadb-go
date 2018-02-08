@@ -508,7 +508,7 @@ func TestSerializePaginateWithParameters(t *testing.T) {
 			Ref("databases"),
 			Before(Ref("databases/test10")),
 			After(Ref("databases/test")),
-			Events(true),
+			EventsOpt(true),
 			Sources(true),
 			TS(10),
 			Size(2),
@@ -568,6 +568,20 @@ func TestSerializeDate(t *testing.T) {
 	assertJSON(t,
 		Date("1970-01-01"),
 		`{"date":"1970-01-01"}`,
+	)
+}
+
+func TestSerializeSingleton(t *testing.T) {
+	assertJSON(t,
+		Singleton(Class("widgets")),
+		`{"singleton":{"class":"widgets"}}`,
+	)
+}
+
+func TestSerializeEvents(t *testing.T) {
+	assertJSON(t,
+		Events(Class("widgets")),
+		`{"events":{"class":"widgets"}}`,
 	)
 }
 
