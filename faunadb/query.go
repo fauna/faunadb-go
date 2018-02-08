@@ -411,6 +411,22 @@ func Logout(invalidateAll interface{}) Expr { return fn1("logout", invalidateAll
 // See: https://fauna.com/documentation/queries#auth_functions
 func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "password", password) }
 
+// Identity returns the instance reference associated with the current key token.
+//
+// For example, the current key token created using:
+//	Create(Tokens(), Obj{"instance": someRef})
+// or via:
+//	Login(someRef, Obj{"password":"sekrit"})
+// will return "someRef" as the result of this function.
+//
+// See: https://fauna.com/documentation/queries#auth_functions
+func Identity() Expr { return fn1("identity", NullV{}) }
+
+// HasIdentity checks if the current key token has an identity associated to it.
+//
+// See: https://fauna.com/documentation/queries#auth_functions
+func HasIdentity() Expr { return fn1("has_identity", NullV{}) }
+
 // Miscellaneous
 
 // Deprecated: Use NewId instead

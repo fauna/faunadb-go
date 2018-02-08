@@ -805,7 +805,6 @@ func (s *ClientTestSuite) TestEvalDateExpression() {
 }
 
 func (s *ClientTestSuite) TestAuthenticateSession() {
-	var secret string
 	var loggedOut, identified bool
 
 	ref := s.queryForRef(
@@ -816,12 +815,11 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 		}),
 	)
 
-	auth := s.query(
+	secret := s.queryForSecret(
 		f.Login(ref, f.Obj{
 			"password": "abcdefg",
 		}),
 	)
-	s.Require().NoError(auth.At(secretField).Get(&secret))
 
 	sessionClient := s.client.NewSessionClient(secret)
 	res, err := sessionClient.Query(f.Logout(true))
@@ -833,6 +831,50 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	res = s.query(f.Identify(ref, "wrong-password"))
 	s.Require().NoError(res.Get(&identified))
 	s.Require().False(identified)
+}
+
+func (s *ClientTestSuite) TestHasIdentityExpression() {
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{
+			"credentials": f.Obj{
+				"password": "sekrit",
+			},
+		}),
+	)
+
+	secret := s.queryForSecret(
+		f.Login(ref, f.Obj{"password": "sekrit"}),
+	)
+
+	tokenClient := s.client.NewSessionClient(secret)
+
+	res, err := tokenClient.Query(f.HasIdentity())
+
+	var hasIdentity bool
+	s.Require().NoError(err)
+	s.Require().NoError(res.Get(&hasIdentity))
+	s.Require().True(hasIdentity)
+}
+
+func (s *ClientTestSuite) TestIdentityExpression() {
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{
+			"credentials": f.Obj{
+				"password": "sekrit",
+			},
+		}),
+	)
+
+	secret := s.queryForSecret(
+		f.Login(ref, f.Obj{"password": "sekrit"}),
+	)
+
+	tokenClient := s.client.NewSessionClient(secret)
+
+	res, err := tokenClient.Query(f.Identity())
+
+	s.Require().NoError(err)
+	s.Require().Equal(ref, res)
 }
 
 func (s *ClientTestSuite) TestEvalNewIdExpression() {
@@ -1078,6 +1120,17 @@ func (s *ClientTestSuite) queryForRef(expr f.Expr) (ref f.RefV) {
 
 	s.Require().NoError(
 		value.At(refField).Get(&ref),
+	)
+
+	return
+}
+
+func (s *ClientTestSuite) queryForSecret(expr f.Expr) (secret string) {
+	auth, err := s.client.Query(expr)
+	s.Require().NoError(err)
+
+	s.Require().NoError(
+		auth.At(secretField).Get(&secret),
 	)
 
 	return
