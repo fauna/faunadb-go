@@ -117,6 +117,15 @@ func Separator(sep interface{}) OptionalParameter {
 	}
 }
 
+// Normalizer is a string optional parameter that specifies the normalization function for casefold operation.
+//
+// Functions that accept this optional parameter are: Casefold.
+func Normalizer(norm interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["normalizer"] = wrap(norm)
+	}
+}
+
 // Values
 
 // Ref creates a new RefV value with the ID informed.
@@ -325,7 +334,9 @@ func Concat(terms interface{}, options ...OptionalParameter) Expr {
 // Casefold normalizes strings according to the Unicode Standard section 5.18 "Case Mappings".
 //
 // See: https://fauna.com/documentation/queries#string_functions
-func Casefold(str interface{}) Expr { return fn1("casefold", str) }
+func Casefold(str interface{}, options ...OptionalParameter) Expr {
+	return fn1("casefold", str, options...)
+}
 
 // Time and Date
 

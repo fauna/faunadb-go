@@ -740,12 +740,25 @@ func (s *ClientTestSuite) TestEvalConcatExpression() {
 func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 	var str string
 
-	s.queryAndDecode(
-		f.Casefold("GET DOWN"),
-		&str,
-	)
-
+	s.queryAndDecode(f.Casefold("GET DOWN"), &str)
 	s.Require().Equal("get down", str)
+
+	// https://unicode.org/reports/tr15/
+
+	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFD")), &str)
+	s.Require().Equal("A\u030A", str)
+
+	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFC")), &str)
+	s.Require().Equal("\u00C5", str)
+
+	s.queryAndDecode(f.Casefold("\u1E9B\u0323", f.Normalizer("NFKD")), &str)
+	s.Require().Equal("\u0073\u0323\u0307", str)
+
+	s.queryAndDecode(f.Casefold("\u1E9B\u0323", f.Normalizer("NFKC")), &str)
+	s.Require().Equal("\u1E69", str)
+
+	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFKCCaseFold")), &str)
+	s.Require().Equal("\u00E5", str)
 }
 
 func (s *ClientTestSuite) TestEvalTimeExpression() {

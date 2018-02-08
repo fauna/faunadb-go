@@ -537,6 +537,11 @@ func TestSerializeCasefold(t *testing.T) {
 		Casefold("GET DOWN"),
 		`{"casefold":"GET DOWN"}`,
 	)
+
+	assertJSON(t,
+		Casefold("GET DOWN", Normalizer("NFK")),
+		`{"casefold":"GET DOWN","normalizer":"NFK"}`,
+	)
 }
 
 func TestSerializeTime(t *testing.T) {
