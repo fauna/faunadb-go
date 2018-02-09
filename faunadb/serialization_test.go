@@ -373,6 +373,13 @@ func TestSerializeIf(t *testing.T) {
 	)
 }
 
+func TestSerializeAbort(t *testing.T) {
+	assertJSON(t,
+		Abort("abort message"),
+		`{"abort":"abort message"}`,
+	)
+}
+
 func TestSerializeDo(t *testing.T) {
 	assertJSON(t,
 		Do(Arr{
@@ -530,6 +537,11 @@ func TestSerializeCasefold(t *testing.T) {
 		Casefold("GET DOWN"),
 		`{"casefold":"GET DOWN"}`,
 	)
+
+	assertJSON(t,
+		Casefold("GET DOWN", Normalizer("NFK")),
+		`{"casefold":"GET DOWN","normalizer":"NFK"}`,
+	)
 }
 
 func TestSerializeTime(t *testing.T) {
@@ -672,10 +684,24 @@ func TestSerializeIndentify(t *testing.T) {
 	)
 }
 
-func TestSerializeNextID(t *testing.T) {
+func TestSerializeIdentity(t *testing.T) {
 	assertJSON(t,
-		NextID(),
-		`{"next_id":null}`,
+		Identity(),
+		`{"identity":null}`,
+	)
+}
+
+func TestSerializeHasIdentity(t *testing.T) {
+	assertJSON(t,
+		HasIdentity(),
+		`{"has_identity":null}`,
+	)
+}
+
+func TestSerializeNewId(t *testing.T) {
+	assertJSON(t,
+		NewId(),
+		`{"new_id":null}`,
 	)
 }
 

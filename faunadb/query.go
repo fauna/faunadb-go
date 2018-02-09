@@ -117,6 +117,15 @@ func Separator(sep interface{}) OptionalParameter {
 	}
 }
 
+// Normalizer is a string optional parameter that specifies the normalization function for casefold operation.
+//
+// Functions that accept this optional parameter are: Casefold.
+func Normalizer(norm interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["normalizer"] = wrap(norm)
+	}
+}
+
 // Values
 
 // Ref creates a new RefV value with the ID informed.
@@ -135,6 +144,11 @@ func RefClass(classRef, id interface{}) Expr { return fn2("ref", classRef, "id",
 func Null() Expr { return NullV{} }
 
 // Basic forms
+
+// Abort aborts the execution of the query
+//
+// See: https://fauna.com/documentation/queries#basic_forms
+func Abort(msg interface{}) Expr { return fn1("abort", msg) }
 
 // Do sequentially evaluates its arguments, and returns the last expression.
 // If no expressions are provided, do returns an error.
@@ -320,7 +334,9 @@ func Concat(terms interface{}, options ...OptionalParameter) Expr {
 // Casefold normalizes strings according to the Unicode Standard section 5.18 "Case Mappings".
 //
 // See: https://fauna.com/documentation/queries#string_functions
-func Casefold(str interface{}) Expr { return fn1("casefold", str) }
+func Casefold(str interface{}, options ...OptionalParameter) Expr {
+	return fn1("casefold", str, options...)
+}
 
 // Time and Date
 
@@ -395,12 +411,35 @@ func Logout(invalidateAll interface{}) Expr { return fn1("logout", invalidateAll
 // See: https://fauna.com/documentation/queries#auth_functions
 func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "password", password) }
 
+// Identity returns the instance reference associated with the current key token.
+//
+// For example, the current key token created using:
+//	Create(Tokens(), Obj{"instance": someRef})
+// or via:
+//	Login(someRef, Obj{"password":"sekrit"})
+// will return "someRef" as the result of this function.
+//
+// See: https://fauna.com/documentation/queries#auth_functions
+func Identity() Expr { return fn1("identity", NullV{}) }
+
+// HasIdentity checks if the current key token has an identity associated to it.
+//
+// See: https://fauna.com/documentation/queries#auth_functions
+func HasIdentity() Expr { return fn1("has_identity", NullV{}) }
+
 // Miscellaneous
 
+// Deprecated: Use NewId instead
+//
 // NextID produces a new identifier suitable for use when constructing refs.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func NextID() Expr { return fn1("next_id", NullV{}) }
+
+// NewId produces a new identifier suitable for use when constructing refs.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func NewId() Expr { return fn1("new_id", NullV{}) }
 
 // Database creates a new database ref.
 //

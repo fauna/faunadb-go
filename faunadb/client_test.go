@@ -480,6 +480,16 @@ func (s *ClientTestSuite) TestEvalIfExpression() {
 	s.Require().Equal("true", str)
 }
 
+func (s *ClientTestSuite) TestAbortExpression() {
+	_, err := s.client.Query(
+		f.Abort("abort message"),
+	)
+
+	if _, ok := err.(f.BadRequest); !ok {
+		s.Require().Fail("Should have returned BadRequest")
+	}
+}
+
 func (s *ClientTestSuite) TestEvalDoExpression() {
 	var ref f.RefV
 
@@ -730,12 +740,25 @@ func (s *ClientTestSuite) TestEvalConcatExpression() {
 func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 	var str string
 
-	s.queryAndDecode(
-		f.Casefold("GET DOWN"),
-		&str,
-	)
-
+	s.queryAndDecode(f.Casefold("GET DOWN"), &str)
 	s.Require().Equal("get down", str)
+
+	// https://unicode.org/reports/tr15/
+
+	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFD")), &str)
+	s.Require().Equal("A\u030A", str)
+
+	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFC")), &str)
+	s.Require().Equal("\u00C5", str)
+
+	s.queryAndDecode(f.Casefold("\u1E9B\u0323", f.Normalizer("NFKD")), &str)
+	s.Require().Equal("\u0073\u0323\u0307", str)
+
+	s.queryAndDecode(f.Casefold("\u1E9B\u0323", f.Normalizer("NFKC")), &str)
+	s.Require().Equal("\u1E69", str)
+
+	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFKCCaseFold")), &str)
+	s.Require().Equal("\u00E5", str)
 }
 
 func (s *ClientTestSuite) TestEvalTimeExpression() {
@@ -782,7 +805,6 @@ func (s *ClientTestSuite) TestEvalDateExpression() {
 }
 
 func (s *ClientTestSuite) TestAuthenticateSession() {
-	var secret string
 	var loggedOut, identified bool
 
 	ref := s.queryForRef(
@@ -793,12 +815,11 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 		}),
 	)
 
-	auth := s.query(
+	secret := s.queryForSecret(
 		f.Login(ref, f.Obj{
 			"password": "abcdefg",
 		}),
 	)
-	s.Require().NoError(auth.At(secretField).Get(&secret))
 
 	sessionClient := s.client.NewSessionClient(secret)
 	res, err := sessionClient.Query(f.Logout(true))
@@ -812,10 +833,54 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	s.Require().False(identified)
 }
 
-func (s *ClientTestSuite) TestEvalNextIDExpression() {
+func (s *ClientTestSuite) TestHasIdentityExpression() {
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{
+			"credentials": f.Obj{
+				"password": "sekrit",
+			},
+		}),
+	)
+
+	secret := s.queryForSecret(
+		f.Login(ref, f.Obj{"password": "sekrit"}),
+	)
+
+	tokenClient := s.client.NewSessionClient(secret)
+
+	res, err := tokenClient.Query(f.HasIdentity())
+
+	var hasIdentity bool
+	s.Require().NoError(err)
+	s.Require().NoError(res.Get(&hasIdentity))
+	s.Require().True(hasIdentity)
+}
+
+func (s *ClientTestSuite) TestIdentityExpression() {
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{
+			"credentials": f.Obj{
+				"password": "sekrit",
+			},
+		}),
+	)
+
+	secret := s.queryForSecret(
+		f.Login(ref, f.Obj{"password": "sekrit"}),
+	)
+
+	tokenClient := s.client.NewSessionClient(secret)
+
+	res, err := tokenClient.Query(f.Identity())
+
+	s.Require().NoError(err)
+	s.Require().Equal(ref, res)
+}
+
+func (s *ClientTestSuite) TestEvalNewIdExpression() {
 	var id string
 
-	s.queryAndDecode(f.NextID(), &id)
+	s.queryAndDecode(f.NewId(), &id)
 	s.Require().NotEmpty(id)
 }
 
@@ -1055,6 +1120,17 @@ func (s *ClientTestSuite) queryForRef(expr f.Expr) (ref f.RefV) {
 
 	s.Require().NoError(
 		value.At(refField).Get(&ref),
+	)
+
+	return
+}
+
+func (s *ClientTestSuite) queryForSecret(expr f.Expr) (secret string) {
+	auth, err := s.client.Query(expr)
+	s.Require().NoError(err)
+
+	s.Require().NoError(
+		auth.At(secretField).Get(&secret),
 	)
 
 	return
