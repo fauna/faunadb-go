@@ -773,6 +773,19 @@ func TestSerializeSelect(t *testing.T) {
 	)
 }
 
+func TestSelializeSelectAll(t *testing.T) {
+	assertJSON(t,
+		SelectAll(
+			"foo",
+			Arr{
+				Obj{"foo": "bar"},
+				Obj{"foo": "baz"},
+			},
+		),
+		`{"from":[{"object":{"foo":"bar"}},{"object":{"foo":"baz"}}],"select_all":"foo"}`,
+	)
+}
+
 func TestSerializeAdd(t *testing.T) {
 	assertJSON(t,
 		Add(Arr{1, 2}),

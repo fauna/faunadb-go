@@ -536,3 +536,10 @@ func Not(boolean interface{}) Expr { return fn1("not", boolean) }
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return fn2("select", path, "from", value, options...)
 }
+
+// SelectAll traverses into the value informed flattening all values under the desired path.
+//
+// See: https://fauna.com/documentation/queries#misc_functions
+func SelectAll(path, value interface{}) Expr {
+	return fn2("select_all", path, "from", value)
+}
