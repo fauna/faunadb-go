@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// A DecodeError describes an error when decoding a Fauna Value to a native Go lang type
+// A DecodeError describes an error when decoding a Fauna Value to a native Golang type
 type DecodeError struct {
 	path path
 	err  error

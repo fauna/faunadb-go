@@ -9,19 +9,19 @@ type FieldValue interface {
 	Get(i interface{}) error  // Get decodes a FaunaDB value to a native Go type.
 }
 
-// ObjKey creates a field extractor for a JSON object based on the keys informed.
+// ObjKey creates a field extractor for a JSON object based on the provided keys.
 func ObjKey(keys ...string) Field { return Field{pathFromKeys(keys...)} }
 
-// ArrIndex creates a field extractor for a JSON array based on the indexes informed.
+// ArrIndex creates a field extractor for a JSON array based on the provided indexes.
 func ArrIndex(indexes ...int) Field { return Field{pathFromIndexes(indexes...)} }
 
-// At creates a new field extractor based on the sub field informed.
+// At creates a new field extractor based on the provided path.
 func (f Field) At(other Field) Field { return Field{f.path.subPath(other.path)} }
 
-// AtKey creates a new field extractor based on the sub key informed.
+// AtKey creates a new field extractor based on the provided key.
 func (f Field) AtKey(keys ...string) Field { return f.At(ObjKey(keys...)) }
 
-// AtIndex creates a new field extractor based on the sub index informed.
+// AtIndex creates a new field extractor based on the provided index.
 func (f Field) AtIndex(indexes ...int) Field { return f.At(ArrIndex(indexes...)) }
 
 func (f *Field) get(value Value) FieldValue {
