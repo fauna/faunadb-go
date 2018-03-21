@@ -1065,6 +1065,38 @@ func (s *ClientTestSuite) TestEvalSelectExpression() {
 	s.Require().Equal("no food", food)
 }
 
+func (s *ClientTestSuite) TestEvalSelectAllExpression() {
+	var foo []string
+
+	s.queryAndDecode(
+		f.SelectAll(
+			"foo",
+			f.Arr{
+				f.Obj{"foo": "bar"},
+				f.Obj{"foo": "baz"},
+			},
+		),
+		&foo,
+	)
+
+	s.Require().Equal([]string{"bar", "baz"}, foo)
+
+	var numbers []int
+
+	s.queryAndDecode(
+		f.SelectAll(
+			f.Arr{"foo", 0},
+			f.Arr{
+				f.Obj{"foo": f.Arr{0, 1}},
+				f.Obj{"foo": f.Arr{2, 3}},
+			},
+		),
+		&numbers,
+	)
+
+	s.Require().Equal([]int{0, 2}, numbers)
+}
+
 func (s *ClientTestSuite) TestEvalAddExpression() {
 	var num int
 
