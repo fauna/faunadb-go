@@ -96,8 +96,8 @@ func TestDeserializeBooleanFalse(t *testing.T) {
 func TestDeserializeRefV(t *testing.T) {
 	var ref RefV
 
-	require.NoError(t, decodeJSON(`{ "@ref": "classes/spells/42" }`, &ref))
-	require.Equal(t, RefV{"classes/spells/42"}, ref)
+	require.NoError(t, decodeJSON(`{"@ref":{"id":"42","class":{"@ref":{"id":"spells","class":{"@ref":{"id":"classes"}}}}}}`, &ref))
+	require.Equal(t, RefV{"42", &RefV{"spells", NativeClasses(), nil}, nil}, ref)
 }
 
 func TestDeserializeDateV(t *testing.T) {
@@ -157,7 +157,7 @@ func TestDeserializeSetRefV(t *testing.T) {
 	json := `
 	{
 		"@set": {
-			"match": { "@ref": "indexes/spells/spells_by_element" },
+			"match": {"@ref":{"id":"spells_by_element","class":{"@ref":{"id":"indexes"}}}},
 			"terms": "fire"
 		}
 	}
@@ -167,7 +167,7 @@ func TestDeserializeSetRefV(t *testing.T) {
 
 	require.Equal(t,
 		SetRefV{ObjectV{
-			"match": RefV{ID: "indexes/spells/spells_by_element"},
+			"match": RefV{"spells_by_element", NativeIndexes(), nil},
 			"terms": StringV("fire"),
 		}},
 		setRef,
@@ -393,7 +393,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 	json := `
 	{
 		"Ref": {
-			"@ref": "classes/spells/42"
+			"@ref":{"id":"42","class":{"@ref":{"id":"spells","class":{"@ref":{"id":"classes"}}}}}
 		},
 		"Any": "any value",
 		"Date": { "@date": "1970-01-03" },
@@ -418,7 +418,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 	`
 	expected := complexStruct{
 		TaggedString: "TaggedString",
-		Ref:          RefV{"classes/spells/42"},
+		Ref:          RefV{"42", &RefV{"spells", NativeClasses(), nil}, nil},
 		Any:          StringV("any value"),
 		Date:         time.Date(1970, time.January, 3, 0, 0, 0, 0, time.UTC),
 		Time:         time.Date(1970, time.January, 1, 0, 0, 0, 5, time.UTC),

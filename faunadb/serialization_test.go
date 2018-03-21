@@ -710,6 +710,11 @@ func TestSerializeDatabase(t *testing.T) {
 		Database("test-db"),
 		`{"database":"test-db"}`,
 	)
+
+	assertJSON(t,
+		ScopedDatabase("test-db", Database("scope")),
+		`{"database":"test-db","scope":{"database":"scope"}}`,
+	)
 }
 
 func TestSerializeIndex(t *testing.T) {
@@ -717,12 +722,118 @@ func TestSerializeIndex(t *testing.T) {
 		Index("test-index"),
 		`{"index":"test-index"}`,
 	)
+
+	assertJSON(t,
+		ScopedIndex("test-db", Database("scope")),
+		`{"index":"test-db","scope":{"database":"scope"}}`,
+	)
 }
 
 func TestSerializeClass(t *testing.T) {
 	assertJSON(t,
 		Class("test-class"),
 		`{"class":"test-class"}`,
+	)
+
+	assertJSON(t,
+		ScopedClass("test-db", Database("scope")),
+		`{"class":"test-db","scope":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeFunction(t *testing.T) {
+	assertJSON(t,
+		Function("test-function"),
+		`{"function":"test-function"}`,
+	)
+
+	assertJSON(t,
+		ScopedFunction("test-db", Database("scope")),
+		`{"function":"test-db","scope":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeClasses(t *testing.T) {
+	assertJSON(t,
+		Classes(),
+		`{"classes":null}`,
+	)
+
+	assertJSON(t,
+		ScopedClasses(Database("scope")),
+		`{"classes":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeIndexes(t *testing.T) {
+	assertJSON(t,
+		Indexes(),
+		`{"indexes":null}`,
+	)
+
+	assertJSON(t,
+		ScopedIndexes(Database("scope")),
+		`{"indexes":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeDatabases(t *testing.T) {
+	assertJSON(t,
+		Databases(),
+		`{"databases":null}`,
+	)
+
+	assertJSON(t,
+		ScopedDatabases(Database("scope")),
+		`{"databases":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeFunctions(t *testing.T) {
+	assertJSON(t,
+		Functions(),
+		`{"functions":null}`,
+	)
+
+	assertJSON(t,
+		ScopedFunctions(Database("scope")),
+		`{"functions":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeKeys(t *testing.T) {
+	assertJSON(t,
+		Keys(),
+		`{"keys":null}`,
+	)
+
+	assertJSON(t,
+		ScopedKeys(Database("scope")),
+		`{"keys":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeTokens(t *testing.T) {
+	assertJSON(t,
+		Tokens(),
+		`{"tokens":null}`,
+	)
+
+	assertJSON(t,
+		ScopedTokens(Database("scope")),
+		`{"tokens":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeCredentials(t *testing.T) {
+	assertJSON(t,
+		Credentials(),
+		`{"credentials":null}`,
+	)
+
+	assertJSON(t,
+		ScopedCredentials(Database("scope")),
+		`{"credentials":{"database":"scope"}}`,
 	)
 }
 
