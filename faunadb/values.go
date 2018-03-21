@@ -10,14 +10,14 @@ import (
 Value represents valid FaunaDB values returned from the server. Values also implement the Expr interface.
 They can be sent back and forth to FaunaDB with no extra escaping needed.
 
-Then Get method is used to decode a FaunaDB value into a Go type. For example:
+The Get method is used to decode a FaunaDB value into a Go type. For example:
 
 	var t time.Time
 
 	faunaTime, _ := client.Query(Time("now"))
 	_ := faunaTime.Get(&t)
 
-The At method uses field extractors to transverse the data and reach to a more specific field.
+The At method uses field extractors to transverse the data to specify a field:
 
 	var firstEmail string
 
