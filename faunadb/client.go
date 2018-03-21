@@ -22,13 +22,13 @@ const (
 
 var resource = ObjKey("resource")
 
-// ClientConfig are used to apply specific configurations to the FaunaClient structure.
+// ClientConfig is the base type for the configuration parameters of a FaunaClient.
 type ClientConfig func(*FaunaClient)
 
-// Endpoint configures the FaunaClient structure to send requests to a specific FaunaDB url.
+// Endpoint configures the FaunaDB URL for a FaunaClient.
 func Endpoint(url string) ClientConfig { return func(cli *FaunaClient) { cli.endpoint = url } }
 
-// HTTP configures the FaunaClient structure to use a specific http.Client.
+// HTTP allows the user to override the http.Client used by a FaunaClient.
 func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.http = http } }
 
 /*
@@ -55,9 +55,9 @@ type FaunaClient struct {
 }
 
 /*
-NewFaunaClient creates a new FaunaClient structure. Possible configurations are:
+NewFaunaClient creates a new FaunaClient structure. Possible configuration options:
 	Endpoint: sets a specific FaunaDB url. Default: https://db.fauna.com
-		HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
+	HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
 */
 func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	client := &FaunaClient{basicAuth: basicAuth(secret)}
@@ -79,7 +79,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	return client
 }
 
-// Query sends a query language expression to FaunaDB
+// Query is the primary method used to send a query language expression to FaunaDB.
 func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	response, err := client.performRequest(expr)
 
@@ -99,7 +99,8 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 	return
 }
 
-// BatchQuery sends multiple query language expressions to FaunaDB
+// BatchQuery will sends multiple simultaneous queries to FaunaDB. values are returned in the same order
+// as the queries.
 func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) {
 	arr := make(unescapedArr, len(exprs))
 
@@ -116,7 +117,7 @@ func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) 
 	return
 }
 
-// NewSessionClient creates a new child FaunaClient with the specified secret. The new client reuses its parents internal http resources.
+// NewSessionClient creates a new child FaunaClient with a new secret. The returned client reuses its parent's internal http resources.
 func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
 	return &FaunaClient{
 		basicAuth:        basicAuth(secret),

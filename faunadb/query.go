@@ -40,11 +40,15 @@ func unescapedBindings(obj Obj) unescapedObj {
 
 // Optional parameters
 
-// Events is an boolean optional parameter that describes if the query should include historical events.
+// EventsOpt is an boolean optional parameter that describes if the query should include historical events.
 // For more information about events, check https://fauna.com/documentation/queries#values-events.
 //
 // Functions that accept this optional parameter are: Paginate.
-func Events(events interface{}) OptionalParameter {
+//
+// Deprecated: The Events function was renamed to EventsOpt to support the new history API.
+// EventsOpt is provided here for backwards compatibility. Instead of using Paginate with the EventsOpt parameter,
+// you should use the new Events function.
+func EventsOpt(events interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["events"] = wrap(events)
 	}
@@ -59,7 +63,7 @@ func TS(timestamp interface{}) OptionalParameter {
 	}
 }
 
-// After is a cursor optional parameter that specifies the next page of a cursor, inclusive.
+// After is an optional parameter used when cursoring that refers to the specified cursor's the next page, inclusive.
 // For more information about pages, check https://fauna.com/documentation/queries#values-pages.
 //
 // Functions that accept this optional parameter are: Paginate.
@@ -69,7 +73,7 @@ func After(ref interface{}) OptionalParameter {
 	}
 }
 
-// Before is a cursor optional parameter that specifies the previous page of a cursor, exclusive.
+// Before is an optional parameter used when cursoring that refers to the specified cursor's previous page, exclusive.
 // For more information about pages, check https://fauna.com/documentation/queries#values-pages.
 //
 // Functions that accept this optional parameter are: Paginate.
@@ -98,7 +102,7 @@ func Sources(sources interface{}) OptionalParameter {
 	}
 }
 
-// Default is a optional parameter that specifies the default value for a select operation when
+// Default is an optional parameter that specifies the default value for a select operation when
 // the desired value path is absent.
 //
 // Functions that accept this optional parameter are: Select.
@@ -182,14 +186,14 @@ func Let(bindings Obj, in interface{}) Expr { return fn2("let", unescapedBinding
 // See: https://fauna.com/documentation/queries#basic_forms
 func Var(name string) Expr { return fn1("var", name) }
 
-// Invoke the specified function passing in a variable number of arguments
+// Call invokes the specified function passing in a variable number of arguments
 //
 // See: https://fauna.com/documentation/queries#basic_forms
 func Call(ref interface{}, args ...interface{}) Expr {
 	return fn2("call", ref, "arguments", varargs(args...))
 }
 
-// Creates an instance of `@query` type with the specified lambda
+// Query creates an instance of the `@query` type with the specified lambda
 //
 // See: https://fauna.com/documentation/queries#basic_forms
 func Query(lambda interface{}) Expr { return fn1("query", lambda) }
@@ -255,7 +259,7 @@ func KeyFromSecret(secret interface{}) Expr { return fn1("key_from_secret", secr
 func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("exists", ref, options...) }
 
 // Paginate retrieves a page from the set informed.
-// Optional parameters: TS, After, Before, Size, Events, and Sources.
+// Optional parameters: TS, After, Before, Size, EventsOpt, and Sources.
 //
 // See: https://fauna.com/documentation/queries#read_functions
 func Paginate(set interface{}, options ...OptionalParameter) Expr {
@@ -264,12 +268,12 @@ func Paginate(set interface{}, options ...OptionalParameter) Expr {
 
 // Write
 
-// Create an instance of the class informed.
+// Create creates an instance of the specified class.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func Create(ref, params interface{}) Expr { return fn2("create", ref, "params", params) }
 
-// CreateClass creates an new class.
+// CreateClass creates a new class.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func CreateClass(params interface{}) Expr { return fn1("create_class", params) }
@@ -279,51 +283,51 @@ func CreateClass(params interface{}) Expr { return fn1("create_class", params) }
 // See: https://fauna.com/documentation/queries#write_functions
 func CreateDatabase(params interface{}) Expr { return fn1("create_database", params) }
 
-// CreateIndex creates an new index.
+// CreateIndex creates a new index.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func CreateIndex(params interface{}) Expr { return fn1("create_index", params) }
 
-// CreateKey creates an new key.
+// CreateKey creates a new key.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func CreateKey(params interface{}) Expr { return fn1("create_key", params) }
 
-// CreateFunction creates an new function.
+// CreateFunction creates a new function.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func CreateFunction(params interface{}) Expr { return fn1("create_function", params) }
 
-// Update the instance informed.
+// Update updates the provided instance.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func Update(ref, params interface{}) Expr { return fn2("update", ref, "params", params) }
 
-// Replace the instance informed.
+// Replace replaces the provided instance.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func Replace(ref, params interface{}) Expr { return fn2("replace", ref, "params", params) }
 
-// Delete the instance informed.
+// Delete deletes the provided instance.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func Delete(ref interface{}) Expr { return fn1("delete", ref) }
 
-// Insert adds an event on an instance's history.
+// Insert adds an event to the provided instance's history.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func Insert(ref, ts, action, params interface{}) Expr {
 	return fn4("insert", ref, "ts", ts, "action", action, "params", params)
 }
 
-// Remove deletes an event on an instance's history.
+// Remove deletes an event from the provided instance's history.
 //
 // See: https://fauna.com/documentation/queries#write_functions
 func Remove(ref, ts, action interface{}) Expr { return fn3("remove", ref, "ts", ts, "action", action) }
 
 // String
 
-// Concat joins a list of strings into a single string.
+// Concat concatenates a list of strings into a single string.
 // Optional parameters: Separator.
 //
 // See: https://fauna.com/documentation/queries#string_functions
@@ -357,12 +361,22 @@ func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) 
 
 // Set
 
-// Match returns the set of instances in the ref informed.
+// Singleton returns the history of the instance's presence of the provided ref.
+//
+// See: https://fauna.com/documentation/queries#sets
+func Singleton(ref interface{}) Expr { return fn1("singleton", ref) }
+
+// Events returns the history of instance's data of the provided ref.
+//
+// See: https://fauna.com/documentation/queries#sets
+func Events(refSet interface{}) Expr { return fn1("events", refSet) }
+
+// Match returns the set of instances for the specified index.
 //
 // See: https://fauna.com/documentation/queries#sets
 func Match(ref interface{}) Expr { return fn1("match", ref) }
 
-// MatchTerm returns the set of instances that match the terms informed.
+// MatchTerm returns th set of instances that match the terms in an index.
 //
 // See: https://fauna.com/documentation/queries#sets
 func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", terms) }
@@ -377,18 +391,18 @@ func Union(sets ...interface{}) Expr { return fn1("union", varargs(sets...)) }
 // See: https://fauna.com/documentation/queries#sets
 func Intersection(sets ...interface{}) Expr { return fn1("intersection", varargs(sets...)) }
 
-// Difference returns the set of instances that are present in the source set and not in
+// Difference returns the set of instances that are present in the source set but not in
 // any of the other specified sets.
 //
 // See: https://fauna.com/documentation/queries#sets
 func Difference(sets ...interface{}) Expr { return fn1("difference", varargs(sets...)) }
 
-// Distinct returns the set after removing duplicates.
+// Distinct returns the set of instances with duplicates removed.
 //
 // See: https://fauna.com/documentation/queries#sets
 func Distinct(set interface{}) Expr { return fn1("distinct", set) }
 
-// Join derives a set of resources from target by applying each instance in source to target.
+// Join derives a set of resources by applying each instance in the source set to the target set.
 //
 // See: https://fauna.com/documentation/queries#sets
 func Join(source, target interface{}) Expr { return fn2("join", source, "with", target) }
@@ -400,18 +414,17 @@ func Join(source, target interface{}) Expr { return fn2("join", source, "with", 
 // See: https://fauna.com/documentation/queries#auth_functions
 func Login(ref, params interface{}) Expr { return fn2("login", ref, "params", params) }
 
-// Logout deletes all tokens associated with the current session, if invalidateAll is true. Otherwise,
-// it deletes only current session token.
+// Logout deletes the current session token. If invalidateAll is true, logout will delete all tokens associated with the current session.
 //
 // See: https://fauna.com/documentation/queries#auth_functions
 func Logout(invalidateAll interface{}) Expr { return fn1("logout", invalidateAll) }
 
-// Identify checks the given password against the ref's credentials.
+// Identify checks the given password against the provided ref's credentials.
 //
 // See: https://fauna.com/documentation/queries#auth_functions
 func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "password", password) }
 
-// Identity returns the instance reference associated with the current key token.
+// Identity returns the instance reference associated with the current key.
 //
 // For example, the current key token created using:
 //	Create(Tokens(), Obj{"instance": someRef})
@@ -422,16 +435,16 @@ func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "pas
 // See: https://fauna.com/documentation/queries#auth_functions
 func Identity() Expr { return fn1("identity", NullV{}) }
 
-// HasIdentity checks if the current key token has an identity associated to it.
+// HasIdentity checks if the current key has an identity associated to it.
 //
 // See: https://fauna.com/documentation/queries#auth_functions
 func HasIdentity() Expr { return fn1("has_identity", NullV{}) }
 
 // Miscellaneous
 
-// Deprecated: Use NewId instead
-//
 // NextID produces a new identifier suitable for use when constructing refs.
+//
+// Deprecated: Use NewId instead
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func NextID() Expr { return fn1("next_id", NullV{}) }
@@ -590,46 +603,43 @@ func Divide(args ...interface{}) Expr { return fn1("divide", varargs(args...)) }
 // See: https://fauna.com/documentation/queries#misc_functions
 func Modulo(args ...interface{}) Expr { return fn1("modulo", varargs(args...)) }
 
-// LT returns true if each specified value compares as less than the ones following it,
-// and false otherwise.
+// LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func LT(args ...interface{}) Expr { return fn1("lt", varargs(args...)) }
 
-// LTE returns true if each specified value compares as less than or equal the ones following it,
-// and false otherwise.
+// LTE returns true if each specified value is less than or equal to all subsequent values. Otherwise LTE returns false.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func LTE(args ...interface{}) Expr { return fn1("lte", varargs(args...)) }
 
-// GT returns true if each specified value compares as greater than the ones following it,
+// GT returns true if each specified value is greater than all subsequent values. Otherwise GT returns false.
 // and false otherwise.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func GT(args ...interface{}) Expr { return fn1("gt", varargs(args...)) }
 
-// GTE returns true if each specified value compares as greater than or equal the ones following it,
-// and false otherwise.
+// GTE returns true if each specified value is greater than or equal to all subsequent values. Otherwise GTE returns false.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func GTE(args ...interface{}) Expr { return fn1("gte", varargs(args...)) }
 
-// And computes the conjunction of a list of boolean values.
+// And returns the conjunction of a list of boolean values.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func And(args ...interface{}) Expr { return fn1("and", varargs(args...)) }
 
-// Or computes the disjunction of a list of boolean values.
+// Or returnsj the disjunction of a list of boolean values.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func Or(args ...interface{}) Expr { return fn1("or", varargs(args...)) }
 
-// Not computes the negation of a boolean value.
+// Not returns the negation of a boolean value.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func Not(boolean interface{}) Expr { return fn1("not", boolean) }
 
-// Select traverses into the value informed returning the value under the desired path.
+// Select traverses into the provided value, returning the value at the given path.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func Select(path, value interface{}, options ...OptionalParameter) Expr {

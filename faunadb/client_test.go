@@ -595,6 +595,50 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 	s.Require().Equal([]int{1, 2, 3, 4}, arr)
 }
 
+type PaginateEvent struct {
+	Action   string `fauna:"action"`
+	Instance f.RefV `fauna:"instance"`
+}
+
+func (s *ClientTestSuite) TestEvents() {
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{}),
+	)
+
+	_ = s.query(f.Update(ref, f.Obj{}))
+	_ = s.query(f.Delete(ref))
+
+	data := s.query(f.Paginate(f.Events(ref)))
+
+	var events []PaginateEvent
+
+	s.Require().NoError(data.At(dataField).Get(&events))
+	s.Require().Len(events, 3)
+
+	s.Require().Equal(PaginateEvent{"create", ref}, events[0])
+	s.Require().Equal(PaginateEvent{"update", ref}, events[1])
+	s.Require().Equal(PaginateEvent{"delete", ref}, events[2])
+}
+
+func (s *ClientTestSuite) TestSingleton() {
+	ref := s.queryForRef(
+		f.Create(randomClass, f.Obj{}),
+	)
+
+	_ = s.query(f.Update(ref, f.Obj{}))
+	_ = s.query(f.Delete(ref))
+
+	data := s.query(f.Paginate(f.Events(f.Singleton(ref))))
+
+	var events []PaginateEvent
+
+	s.Require().NoError(data.At(dataField).Get(&events))
+	s.Require().Len(events, 2)
+
+	s.Require().Equal(PaginateEvent{"add", ref}, events[0])
+	s.Require().Equal(PaginateEvent{"remove", ref}, events[1])
+}
+
 func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 	var spells []f.RefV
 	var before, after f.Value

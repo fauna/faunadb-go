@@ -1,16 +1,16 @@
 /*
-Package faunadb implements FaunaDB query language support for Go lang applications.
+Package faunadb implements the FaunaDB query language for Golang applications.
 
-FaunaClient is the main structure that implements methods from where we can interact with a FaunaDB cluster.
-This structure is designed to be reused as much as possible. Avoid making copies of it.
+FaunaClient is the main client structure, containing methods to communicate with a FaunaDB Cluster.
+This structure is designed to be reused, so avoid making copies of it.
 
-FaunaDB's query language is composed by expressions that must implement the Expr interface.
-Expressions are created using the query language functions located in the query.go file.
+FaunaDB's query language is composed of expressions that implement the Expr interface.
+Expressions are created using the query language functions found in query.go.
 
-Values returned by the server are wrapped into types that implements the Value interface. This interface provides
+Responses returned by FaunaDB are wrapped into types that implement the Value interface. This interface provides
 methods for transversing and decoding FaunaDB values into native Go types.
 
-The driver uses reflection to encode custom data structures. That means that you can create your own struct
+The driver allows for the user to encode custom data structures. You can create your own struct
 and encode it as a valid FaunaDB object.
 
 	type User struct {
@@ -18,16 +18,16 @@ and encode it as a valid FaunaDB object.
 		Age  int
 	}
 
-	user := User{"Jhon", 24} // Encode as: {"Name": "Jhon", "Age": 24}
+	user := User{"John", 24} // Encodes as: {"Name": "John", "Age": 24}
 
-If you wish to control property names, you can tag them with "fauna" tag:
+If you wish to control the property names, you can tag them with the "fauna" tag:
 
 	type User struct {
 		Name string `fauna:"displayName"`
 		Age  int    `fauna:"age"`
 	}
 
-	user := User{"Jhon", 24} // Encode as: {"displayName": "Jhon", "age": 24}
+	user := User{"John", 24} // Encodes as: {"displayName": "John", "age": 24}
 
 For more information about FaunaDB, check https://fauna.com/.
 */
