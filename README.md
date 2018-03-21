@@ -20,22 +20,46 @@ Currently, the driver is tested on:
 
 ### Installing
 
-#### Using `go get`:
+To get the latest version run:
 
 ```bash
 go get github.com/fauna/faunadb-go/faunadb
 ```
 
-#### Using `dep`
+Please note that our driver undergoes breaking changes from time to time, so depending on our `master` branch is not recommended.
+It is recommended to use one of the following methods instead:
+
+#### Using `gopkg.in`
+
+To get a specific version when using `gopkg.in`, use:
 
 ```bash
-dep ensure --add github.com/fauna/faunadb-go@master
+go get gopkg.in/fauna/faunadb-go.v2/faunadb
+```
+
+#### Using `dep`
+
+To get a specific version when using `dep`, use:
+
+```bash
+dep ensure -add github.com/fauna/fauadb-go/faunadb@v2.0.0
 ```
 
 ### Importing
 
-For better usage, we recommend that you import this driver with an alias import
-such as:
+For better usage, we recommend that you import this driver with an alias import.
+
+#### Using `gopkg.in`
+
+To import a specific version when using `gopkg.in`, use:
+
+```go
+import f "gopkg.in/fauna/faunadb-go.v2/faunadb"
+```
+
+#### Using `dep` or `go get`
+
+To import a specific version when using `dep` or `go get`, use:
 
 ```go
 import f "github.com/fauna/faunadb-go/faunadb"
@@ -99,7 +123,7 @@ Debian-based Go image can be provided via `RUNTIME_IMAGE`).
 
 ## LICENSE
 
-Copyright 2017 [Fauna, Inc.](https://fauna.com/)
+Copyright 2018 [Fauna, Inc.](https://fauna.com/)
 
 Licensed under the Mozilla Public License, Version 2.0 (the
 "License"); you may not use this software except in compliance with
