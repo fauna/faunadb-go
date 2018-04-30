@@ -42,7 +42,7 @@ go get gopkg.in/fauna/faunadb-go.v2/faunadb
 To get a specific version when using `dep`, use:
 
 ```bash
-dep ensure -add github.com/fauna/fauadb-go/faunadb@v2.0.0
+dep ensure -add github.com/fauna/faunadb-go/faunadb@v2.0.0
 ```
 
 ### Importing
