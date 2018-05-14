@@ -88,7 +88,7 @@ type TimeV time.Time
 // Get implements the Value interface by decoding the underlying value to either a TimeV or a time.Time type.
 func (localTime TimeV) Get(i interface{}) error { return newValueDecoder(i).assign(localTime) }
 
-// At implements the Value interface by returning an invalid field since TimeV is not transversable.
+// At implements the Value interface by returning an invalid field since TimeV is not traversable.
 func (localTime TimeV) At(field Field) FieldValue { return field.get(localTime) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB time representation.
@@ -106,7 +106,7 @@ type RefV struct {
 // Get implements the Value interface by decoding the underlying ref to a RefV.
 func (ref RefV) Get(i interface{}) error { return newValueDecoder(i).assign(ref) }
 
-// At implements the Value interface by returning an invalid field since RefV is not transversable.
+// At implements the Value interface by returning an invalid field since RefV is not traversable.
 func (ref RefV) At(field Field) FieldValue { return field.get(ref) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB ref representation.
@@ -171,7 +171,7 @@ type SetRefV struct {
 // Get implements the Value interface by decoding the underlying value to a SetRefV.
 func (set SetRefV) Get(i interface{}) error { return newValueDecoder(i).assign(set) }
 
-// At implements the Value interface by returning an invalid field since SetRefV is not transversable.
+// At implements the Value interface by returning an invalid field since SetRefV is not traversable.
 func (set SetRefV) At(field Field) FieldValue { return field.get(set) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB setref representation.
@@ -204,7 +204,7 @@ type NullV struct{}
 // Get implements the Value interface by decoding the underlying value to a either a NullV or a nil pointer.
 func (null NullV) Get(i interface{}) error { return nil }
 
-// At implements the Value interface by returning an invalid field since NullV is not transversable.
+// At implements the Value interface by returning an invalid field since NullV is not traversable.
 func (null NullV) At(field Field) FieldValue { return field.get(null) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to JSON null representation.
@@ -216,7 +216,7 @@ type BytesV []byte
 // Get implements the Value interface by decoding the underlying value to either a ByteV or a []byte type.
 func (bytes BytesV) Get(i interface{}) error { return newValueDecoder(i).assign(bytes) }
 
-// At implements the Value interface by returning an invalid field since BytesV is not transversable.
+// At implements the Value interface by returning an invalid field since BytesV is not traversable.
 func (bytes BytesV) At(field Field) FieldValue { return field.get(bytes) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB bytes representation.
@@ -233,7 +233,7 @@ type QueryV struct {
 // Get implements the Value interface by decoding the underlying value to a QueryV.
 func (query QueryV) Get(i interface{}) error { return newValueDecoder(i).assign(query) }
 
-// At implements the Value interface by returning an invalid field since QueryV is not transversable.
+// At implements the Value interface by returning an invalid field since QueryV is not traversable.
 func (query QueryV) At(field Field) FieldValue { return field.get(query) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB query representation.
