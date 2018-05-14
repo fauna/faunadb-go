@@ -447,7 +447,7 @@ func HasIdentity() Expr { return fn1("has_identity", NullV{}) }
 // Deprecated: Use NewId instead
 //
 // See: https://fauna.com/documentation/queries#misc_functions
-func NextID() Expr { return fn1("next_id", NullV{}) }
+func NextID() Expr { return fn1("new_id", NullV{}) }
 
 // NewId produces a new identifier suitable for use when constructing refs.
 //
