@@ -132,12 +132,12 @@ func Normalizer(norm interface{}) OptionalParameter {
 
 // Values
 
-// Ref creates a new RefV value with the ID informed.
+// Ref creates a new RefV value with the provided ID.
 //
 // See: https://fauna.com/documentation/queries#values-special_types
 func Ref(id string) Expr { return fn1("@ref", id) }
 
-// RefClass creates a new Ref based on the class and ID informed.
+// RefClass creates a new Ref based on the provided class and ID.
 //
 // See: https://fauna.com/documentation/queries#values-special_types
 func RefClass(classRef, id interface{}) Expr { return fn2("ref", classRef, "id", id) }
@@ -242,7 +242,7 @@ func Append(elems, coll interface{}) Expr { return fn2("append", elems, "collect
 
 // Read
 
-// Get retrieves the instance identified by the ref informed. Optional parameters: TS.
+// Get retrieves the instance identified by the provided ref. Optional parameters: TS.
 //
 // See: https://fauna.com/documentation/queries#read_functions
 func Get(ref interface{}, options ...OptionalParameter) Expr { return fn1("get", ref, options...) }
@@ -258,7 +258,7 @@ func KeyFromSecret(secret interface{}) Expr { return fn1("key_from_secret", secr
 // See: https://fauna.com/documentation/queries#read_functions
 func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("exists", ref, options...) }
 
-// Paginate retrieves a page from the set informed.
+// Paginate retrieves a page from the provided set.
 // Optional parameters: TS, After, Before, Size, EventsOpt, and Sources.
 //
 // See: https://fauna.com/documentation/queries#read_functions
@@ -573,7 +573,7 @@ func ScopedCredentials(scope interface{}) Expr { return fn1("credentials", scope
 // See: https://fauna.com/documentation/queries#misc_functions
 func Equals(args ...interface{}) Expr { return fn1("equals", varargs(args...)) }
 
-// Contains checks if the value informed contains the path specified.
+// Contains checks if the provided value contains the path specified.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func Contains(path, value interface{}) Expr { return fn2("contains", path, "in", value) }
@@ -646,7 +646,7 @@ func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	return fn2("select", path, "from", value, options...)
 }
 
-// SelectAll traverses into the value informed flattening all values under the desired path.
+// SelectAll traverses into the provided value flattening all values under the desired path.
 //
 // See: https://fauna.com/documentation/queries#misc_functions
 func SelectAll(path, value interface{}) Expr {

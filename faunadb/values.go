@@ -29,7 +29,7 @@ For more information, check https://fauna.com/documentation/queries#values.
 type Value interface {
 	Expr
 	Get(interface{}) error // Decode a FaunaDB value into a native Go type
-	At(Field) FieldValue   // Transverse the value using the field extractor informed
+	At(Field) FieldValue   // Transverse the value using the provided field extractor
 }
 
 // StringV represents a valid JSON string.
@@ -183,7 +183,7 @@ type ObjectV map[string]Value
 // Get implements the Value interface by decoding the underlying value to either a ObjectV or a native map type.
 func (obj ObjectV) Get(i interface{}) error { return newValueDecoder(i).decodeMap(obj) }
 
-// At implements the Value interface by transversing the object and extracting the field informed.
+// At implements the Value interface by transversing the object and extracting the provided field.
 func (obj ObjectV) At(field Field) FieldValue { return field.get(obj) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB object representation.
@@ -195,7 +195,7 @@ type ArrayV []Value
 // Get implements the Value interface by decoding the underlying value to either an ArrayV or a native slice type.
 func (arr ArrayV) Get(i interface{}) error { return newValueDecoder(i).decodeArray(arr) }
 
-// At implements the Value interface by transversing the array and extracting the field informed.
+// At implements the Value interface by transversing the array and extracting the provided field.
 func (arr ArrayV) At(field Field) FieldValue { return field.get(arr) }
 
 // NullV represents a valid JSON null.
