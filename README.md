@@ -98,11 +98,8 @@ func main() {
 }
 ```
 
-The [tutorials](https://fauna.com/tutorials) in the FaunaDB documentation
-contain driver-specific examples.
-
 For more information about FaunaDB query language, consult our query language
-[reference documentation](https://fauna.com/documentation/queries).
+[reference documentation](https://fauna.com/documentation/reference/queryapi).
 
 Specific reference documentation for the driver is hosted at
 [GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb).
