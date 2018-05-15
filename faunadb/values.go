@@ -17,7 +17,7 @@ The Get method is used to decode a FaunaDB value into a Go type. For example:
 	faunaTime, _ := client.Query(Time("now"))
 	_ := faunaTime.Get(&t)
 
-The At method uses field extractors to transverse the data to specify a field:
+The At method uses field extractors to traverse the data to specify a field:
 
 	var firstEmail string
 
@@ -29,7 +29,7 @@ For more information, check https://fauna.com/documentation/queries#values.
 type Value interface {
 	Expr
 	Get(interface{}) error // Decode a FaunaDB value into a native Go type
-	At(Field) FieldValue   // Transverse the value using the provided field extractor
+	At(Field) FieldValue   // Traverse the value using the provided field extractor
 }
 
 // StringV represents a valid JSON string.
@@ -38,7 +38,7 @@ type StringV string
 // Get implements the Value interface by decoding the underlying value to either a StringV or a string type.
 func (str StringV) Get(i interface{}) error { return newValueDecoder(i).assign(str) }
 
-// At implements the Value interface by returning an invalid field since StringV is not transversable.
+// At implements the Value interface by returning an invalid field since StringV is not traversable.
 func (str StringV) At(field Field) FieldValue { return field.get(str) }
 
 // LongV represents a valid JSON number.
@@ -47,7 +47,7 @@ type LongV int64
 // Get implements the Value interface by decoding the underlying value to either a LongV or a numeric type.
 func (num LongV) Get(i interface{}) error { return newValueDecoder(i).assign(num) }
 
-// At implements the Value interface by returning an invalid field since LongV is not transversable.
+// At implements the Value interface by returning an invalid field since LongV is not traversable.
 func (num LongV) At(field Field) FieldValue { return field.get(num) }
 
 // DoubleV represents a valid JSON double.
@@ -56,7 +56,7 @@ type DoubleV float64
 // Get implements the Value interface by decoding the underlying value to either a DoubleV or a float type.
 func (num DoubleV) Get(i interface{}) error { return newValueDecoder(i).assign(num) }
 
-// At implements the Value interface by returning an invalid field since DoubleV is not transversable.
+// At implements the Value interface by returning an invalid field since DoubleV is not traversable.
 func (num DoubleV) At(field Field) FieldValue { return field.get(num) }
 
 // BooleanV represents a valid JSON boolean.
@@ -65,7 +65,7 @@ type BooleanV bool
 // Get implements the Value interface by decoding the underlying value to either a BooleanV or a boolean type.
 func (boolean BooleanV) Get(i interface{}) error { return newValueDecoder(i).assign(boolean) }
 
-// At implements the Value interface by returning an invalid field since BooleanV is not transversable.
+// At implements the Value interface by returning an invalid field since BooleanV is not traversable.
 func (boolean BooleanV) At(field Field) FieldValue { return field.get(boolean) }
 
 // DateV represents a FaunaDB date type.
@@ -74,7 +74,7 @@ type DateV time.Time
 // Get implements the Value interface by decoding the underlying value to either a DateV or a time.Time type.
 func (date DateV) Get(i interface{}) error { return newValueDecoder(i).assign(date) }
 
-// At implements the Value interface by returning an invalid field since DateV is not transversable.
+// At implements the Value interface by returning an invalid field since DateV is not traversable.
 func (date DateV) At(field Field) FieldValue { return field.get(date) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB date representation.
@@ -183,7 +183,7 @@ type ObjectV map[string]Value
 // Get implements the Value interface by decoding the underlying value to either a ObjectV or a native map type.
 func (obj ObjectV) Get(i interface{}) error { return newValueDecoder(i).decodeMap(obj) }
 
-// At implements the Value interface by transversing the object and extracting the provided field.
+// At implements the Value interface by traversing the object and extracting the provided field.
 func (obj ObjectV) At(field Field) FieldValue { return field.get(obj) }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB object representation.
@@ -195,7 +195,7 @@ type ArrayV []Value
 // Get implements the Value interface by decoding the underlying value to either an ArrayV or a native slice type.
 func (arr ArrayV) Get(i interface{}) error { return newValueDecoder(i).decodeArray(arr) }
 
-// At implements the Value interface by transversing the array and extracting the provided field.
+// At implements the Value interface by traversing the array and extracting the provided field.
 func (arr ArrayV) At(field Field) FieldValue { return field.get(arr) }
 
 // NullV represents a valid JSON null.
