@@ -151,6 +151,23 @@ func TestDeserializeQueryV(t *testing.T) {
 	require.Equal(t, QueryV{lambda}, query)
 }
 
+func TestDeserializeQueryVInsideObjectV(t *testing.T) {
+	var object ObjectV
+
+	lambda := json.RawMessage(`{"lambda": "x", "expr": {"var": "x"}}`)
+
+	require.NoError(t, decodeJSON(`{"a": "a", "b": {"lambda": {"@query": {"lambda": "x", "expr": {"var": "x"}}}}, "c": "c"}`, &object))
+	require.Equal(t, ObjectV{"a": StringV("a"), "b": ObjectV{"lambda": QueryV{lambda}}, "c": StringV("c")}, object)
+}
+
+func TestDeserializeInvalidQueryV(t *testing.T) {
+	var object ObjectV
+
+	require.EqualError(t,
+		decodeJSON(`{"query":{"@query": {}, "invalid":"what?"}`, &object),
+		`Expected end of object but got "invalid"`)
+}
+
 func TestDeserializeSetRefV(t *testing.T) {
 	var setRef SetRefV
 
