@@ -21,7 +21,7 @@ The At method uses field extractors to traverse the data to specify a field:
 
 	var firstEmail string
 
-	profile, _ := client.Query(Ref("classes/profile/43"))
+	profile, _ := client.Query(RefClass(Class("profile), "43"))
 	profile.At(ObjKey("emails").AtIndex(0)).Get(&firstEmail)
 
 For more information, check https://fauna.com/documentation/queries#values.
