@@ -43,7 +43,6 @@ func SetupTestDB() (client *FaunaClient, err error) {
 	adminClient = NewFaunaClient(
 		faunaSecret,
 		Endpoint(faunaEndpoint),
-		EnableTxnTimePassthrough(),
 	)
 
 	DeleteTestDB()

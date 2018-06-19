@@ -35,9 +35,23 @@ func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.
 EnableTxnTimePassthrough configures the FaunaClient to keep track of the last seen transaction time.
 The last seen transaction time is used to avoid reading stale data from outdated replicas when
 reading and writing from different nodes at the same time.
+
+Deprecated: This function is deprecated since this feature is enabled by default.
 */
 func EnableTxnTimePassthrough() ClientConfig {
 	return func(cli *FaunaClient) { cli.isTxnTimeEnabled = true }
+}
+
+/*
+DisableTxnTimePassthrough configures the FaunaClient to not keep track of the last seen transaction time.
+The last seen transaction time is used to avoid reading stale data from outdated replicas when
+reading and writing from different nodes at the same time.
+
+Disabling this option might lead to data inconsistencies and is not recommended. If don't know what you're
+doing leave this alone. Use at your own risk.
+*/
+func DisableTxnTimePassthrough() ClientConfig {
+	return func(cli *FaunaClient) { cli.isTxnTimeEnabled = false }
 }
 
 /*
@@ -60,7 +74,7 @@ NewFaunaClient creates a new FaunaClient structure. Possible configuration optio
 	HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
 */
 func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
-	client := &FaunaClient{basicAuth: basicAuth(secret)}
+	client := &FaunaClient{basicAuth: basicAuth(secret), isTxnTimeEnabled: true}
 
 	for _, config := range configs {
 		config(client)
