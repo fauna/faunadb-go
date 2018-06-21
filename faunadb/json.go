@@ -160,6 +160,13 @@ func (p *jsonParser) parseQuery() (value Value, err error) {
 		value = QueryV{lambda}
 	}
 
+	var token json.Token
+	if token, err = p.decoder.Token(); err == nil {
+		if token != json.Delim('}') {
+			err = wrongToken{"end of object", token}
+		}
+	}
+
 	return
 }
 
