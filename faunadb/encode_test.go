@@ -91,8 +91,7 @@ func TestWrapStruct(t *testing.T) {
 	}
 }
 
-
-func TestWrapSlice(t *testing.T) {
+func TestWrapSliceAndArrays(t *testing.T) {
 	tests := []struct {
 		name     string
 		in       interface{}
@@ -101,6 +100,9 @@ func TestWrapSlice(t *testing.T) {
 		{"empty slice", []Expr{}, unescapedArr{}},
 		{"One element slice", []int{1}, unescapedArr{LongV(1)}},
 		{"Nested slice", [][]int{[]int{1}}, unescapedArr{unescapedArr{LongV(1)}}},
+
+		{"empty array", [0]Expr{}, unescapedArr{}},
+		{"One element array", [1]int{1}, unescapedArr{LongV(1)}},
 	}
 
 	for _, test := range tests {
