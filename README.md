@@ -112,7 +112,11 @@ GitHub pull requests are very welcome.
 
 Run `go get -t ./...` in order to install project's dependencies.
 
-Run tests with `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
+Run tests against FaunaDB Cloud by passing your root database key to the
+test suite, as follows: `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
+
+If you have access to another running FaunaDB database, use the
+`FAUNA_ENDPOINT` environment variable to specify its URI.
 
 Alternatively, tests can be run via a Docker container with
 `FAUNA_ROOT_KEY="your-cloud-secret" make docker-test` (an alternate

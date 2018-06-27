@@ -70,7 +70,7 @@ func wrap(i interface{}) Expr {
 		value, _ = indirectValue(structToMap(value))
 		return wrapMap(value)
 
-	case reflect.Slice:
+	case reflect.Slice, reflect.Array:
 		return wrapArray(value)
 
 	default:
