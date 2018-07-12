@@ -1225,6 +1225,42 @@ func (s *ClientTestSuite) TestEvalNotExpression() {
 	s.Require().True(b)
 }
 
+func (s *ClientTestSuite) TestEvalToStringExpression() {
+	var str string
+
+	s.queryAndDecode(f.ToString(42), &str)
+	s.Require().Equal("42", str)
+}
+
+func (s *ClientTestSuite) TestEvalToNumberExpression() {
+	var num int
+
+	s.queryAndDecode(f.ToNumber("42"), &num)
+	s.Require().Equal(42, num)
+}
+
+func (s *ClientTestSuite) TestEvalToTimeExpression() {
+	var t time.Time
+
+	s.queryAndDecode(f.ToTime("1970-01-01T00:00:00-04:00"), &t)
+
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(4)*time.Hour),
+	)
+}
+
+func (s *ClientTestSuite) TestEvalToDateExpression() {
+	var t time.Time
+
+	s.queryAndDecode(f.ToDate("1970-01-02"), &t)
+
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(24)*time.Hour),
+	)
+}
+
 func (s *ClientTestSuite) TestSetRef() {
 	var set f.SetRefV
 	var match f.RefV
