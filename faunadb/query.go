@@ -1238,3 +1238,48 @@ func Select(path, value interface{}, options ...OptionalParameter) Expr {
 func SelectAll(path, value interface{}) Expr {
 	return fn2("select_all", path, "from", value)
 }
+
+// ToString attempts to convert an expression to a string literal.
+//
+// Parameters:
+//   value Object - The expression to convert.
+//
+// Returns:
+//   string - A string literal.
+func ToString(value interface{}) Expr {
+	return fn1("to_string", value)
+}
+
+// ToNumber attempts to convert an expression to a numeric literal -
+// either an int64 or float64.
+//
+// Parameters:
+//   value Object - The expression to convert.
+//
+// Returns:
+//   number - A numeric literal.
+func ToNumber(value interface{}) Expr {
+	return fn1("to_number", value)
+}
+
+// ToTime attempts to convert an expression to a time literal.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToTime(value interface{}) Expr {
+	return fn1("to_time", value)
+}
+
+// ToDate attempts to convert an expression to a date literal.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   date - A date literal.
+func ToDate(value interface{}) Expr {
+	return fn1("to_date", value)
+}

@@ -1050,6 +1050,34 @@ func TestSerializeNot(t *testing.T) {
 	)
 }
 
+func TestSerializeToString(t *testing.T) {
+	assertJSON(t,
+		ToString(42),
+		`{"to_string":42}`,
+	)
+}
+
+func TestSerializeToNumber(t *testing.T) {
+	assertJSON(t,
+		ToNumber("42"),
+		`{"to_number":"42"}`,
+	)
+}
+
+func TestSerializeToTime(t *testing.T) {
+	assertJSON(t,
+		ToTime("1970-01-01T00:00:00Z"),
+		`{"to_time":"1970-01-01T00:00:00Z"}`,
+	)
+}
+
+func TestSerializeToDate(t *testing.T) {
+	assertJSON(t,
+		ToDate("1970-01-01"),
+		`{"to_date":"1970-01-01"}`,
+	)
+}
+
 func assertJSON(t *testing.T, expr Expr, expected string) {
 	bytes, err := json.Marshal(expr)
 
