@@ -807,6 +807,107 @@ func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 	s.Require().Equal("\u00E5", str)
 }
 
+func (s *ClientTestSuite) TestEvalFindStrExpression() {
+	var res int
+
+	s.queryAndDecode(f.FindStr("GET DOWN", "DOWN"), &res)
+	s.Require().Equal(4, res)
+
+	s.queryAndDecode(f.FindStr("One Fish Two Fish", "Fish", f.Start(8)), &res)
+	s.Require().Equal(13, res)
+}
+
+func (s *ClientTestSuite) TestEvalLengthExpression() {
+	var res int
+
+	s.queryAndDecode(f.Length("One Fish Two Fish"), &res)
+	s.Require().Equal(17, res)
+}
+
+func (s *ClientTestSuite) TestEvalLowerCaseExpression() {
+	var res string
+
+	s.queryAndDecode(f.LowerCase("One Fish Two Fish"), &res)
+	s.Require().Equal("one fish two fish", res)
+}
+
+func (s *ClientTestSuite) TestEvalLTrimExpression() {
+	var res string
+
+	s.queryAndDecode(f.LTrim("    One Fish Two Fish"), &res)
+	s.Require().Equal("One Fish Two Fish", res)
+}
+
+func (s *ClientTestSuite) TestEvalRepeatExpression() {
+	var res string
+
+	s.queryAndDecode(f.Repeat("ABC ",3), &res)
+	s.Require().Equal("ABC ABC ABC ", res)
+}
+
+func (s *ClientTestSuite) TestEvalReplaceStrExpression() {
+	var res string
+
+	s.queryAndDecode(f.ReplaceStr("One Fish Two Fish","Fish","Dog"), &res)
+	s.Require().Equal("One Dog Two Dog", res)
+}
+func (s *ClientTestSuite) TestEvalReplaceStrRegexExpression() {
+	var res string
+
+	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish","[Ff][Ii]sh","Dog"), &res)
+	s.Require().Equal("One Dog Two Dog", res)
+
+	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish","[Ff][Ii]sh","Dog",f.First(true)), &res)
+	s.Require().Equal("One Dog Two fish", res)
+}
+
+func (s *ClientTestSuite) TestEvalRTrimExpression() {
+	var res string
+
+	s.queryAndDecode(f.RTrim("One Fish Two Fish   "), &res)
+	s.Require().Equal("One Fish Two Fish", res)
+}
+
+func (s *ClientTestSuite) TestEvalSpaceExpression() {
+	var res string
+
+	s.queryAndDecode(f.Space(5), &res)
+	s.Require().Equal("     ", res)
+}
+
+func (s *ClientTestSuite) TestEvalSubStringExpression() {
+	var res string
+
+	s.queryAndDecode(f.SubString("ABCDEF",3), &res)
+	s.Require().Equal("DEF", res)
+	s.queryAndDecode(f.SubString("ABCDEF",-2), &res)
+	s.Require().Equal("EF", res)
+	s.queryAndDecode(f.SubString("ABCDEFZZZ",3,f.StrLength(3)), &res)
+	s.Require().Equal("DEF", res)
+}
+
+
+func (s *ClientTestSuite) TestEvalTrimExpression() {
+	var res string
+
+	s.queryAndDecode(f.Trim("   One Fish Two Fish   "), &res)
+	s.Require().Equal("One Fish Two Fish", res)
+}
+
+func (s *ClientTestSuite) TestEvalTitleCaseExpression() {
+	var res string
+
+	s.queryAndDecode(f.TitleCase("onE Fish tWO FiSh"), &res)
+	s.Require().Equal("One Fish Two Fish", res)
+}
+
+func (s *ClientTestSuite) TestEvalUpperCaseExpression() {
+	var res string
+
+	s.queryAndDecode(f.UpperCase("One Fish Two Fish"), &res)
+	s.Require().Equal("ONE FISH TWO FISH", res)
+}
+
 func (s *ClientTestSuite) TestEvalTimeExpression() {
 	var t time.Time
 

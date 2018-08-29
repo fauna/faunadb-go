@@ -544,6 +544,105 @@ func TestSerializeCasefold(t *testing.T) {
 	)
 }
 
+func TestSerializeFindStr(t *testing.T) {
+	assertJSON(t,
+		FindStr("GET DOWN", "DOWN"),
+		`{"find":"DOWN","findstr":"GET DOWN"}`,
+	)
+}
+
+func TestSerializeFindStrRegex(t *testing.T) {
+	assertJSON(t,
+		FindStrRegex("GET DOWN", "DOWN"),
+		`{"findstrregex":"GET DOWN","pattern":"DOWN"}`,
+	)
+}
+
+func TestSerializeLength(t *testing.T) {
+	assertJSON(t,
+		Length("0123456789"),
+		`{"length":"0123456789"}`,
+	)
+}
+
+func TestSerializeLowerCase(t *testing.T) {
+	assertJSON(t,
+		LowerCase("0123456789"),
+		`{"lowercase":"0123456789"}`,
+	)
+}
+
+func TestSerializeLTrim(t *testing.T) {
+	assertJSON(t,
+		LTrim("0123456789"),
+		`{"ltrim":"0123456789"}`,
+	)
+}
+
+func TestSerializeRepeat(t *testing.T) {
+	assertJSON(t,
+		Repeat("0123456789", 2),
+		`{"number":2,"repeat":"0123456789"}`,
+	)
+}
+
+func TestSerializeReplaceStr(t *testing.T) {
+	assertJSON(t,
+		ReplaceStr("0123456789","12","34"),
+		`{"find":"12","replace":"34","replacestr":"0123456789"}`,
+	)
+}
+
+func TestSerializeReplaceStrRegex(t *testing.T) {
+	assertJSON(t,
+		ReplaceStrRegex("0123456789","12","34"),
+		`{"pattern":"12","replace":"34","replacestrregex":"0123456789"}`,
+	)
+}
+
+func TestSerializeRTrim(t *testing.T) {
+	assertJSON(t,
+		RTrim("0123456789"),
+		`{"rtrim":"0123456789"}`,
+	)
+}
+
+func TestSerializeSpace(t *testing.T) {
+	assertJSON(t,
+		Space("0123456789"),
+		`{"space":"0123456789"}`,
+	)
+}
+
+func TestSerializeSubString(t *testing.T) {
+	assertJSON(t,
+		SubString("0123456789",1),
+		`{"start":1,"substring":"0123456789"}`,
+	)
+}
+
+
+func TestSerializeTitleCase(t *testing.T) {
+	assertJSON(t,
+		TitleCase("0123456789"),
+		`{"titlecase":"0123456789"}`,
+	)
+}
+
+func TestSerializeTrim(t *testing.T) {
+	assertJSON(t,
+		Trim("0123456789"),
+		`{"trim":"0123456789"}`,
+	)
+}
+
+func TestSerializeUpperCase(t *testing.T) {
+	assertJSON(t,
+		UpperCase("0123456789"),
+		`{"uppercase":"0123456789"}`,
+	)
+}
+
 func TestSerializeTime(t *testing.T) {
 	assertJSON(t,
 		Time("1970-01-01T00:00:00+00:00"),
