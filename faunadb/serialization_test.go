@@ -911,6 +911,54 @@ func TestSelializeSelectAll(t *testing.T) {
 	)
 }
 
+func TestSerializeAbs(t *testing.T) {
+	assertJSON(t,
+		Abs(1),
+		`{"abs":1}`,
+	)
+
+	assertJSON(t,
+		Abs(-1),
+		`{"abs":-1}`,
+	)
+}
+
+func TestSerializeAcos(t *testing.T) {
+	assertJSON(t,
+		Acos(1),
+		`{"acos":1}`,
+	)
+
+	assertJSON(t,
+		Acos(1.23),
+		`{"acos":1.23}`,
+	)
+}
+
+func TestSerializeAsin(t *testing.T) {
+	assertJSON(t,
+		Asin(1),
+		`{"asin":1}`,
+	)
+
+	assertJSON(t,
+		Asin(1.23),
+		`{"asin":1.23}`,
+	)
+}
+
+func TestSerializeAtan(t *testing.T) {
+	assertJSON(t,
+		Atan(1),
+		`{"atan":1}`,
+	)
+
+	assertJSON(t,
+		Atan(1.23),
+		`{"atan":1.23}`,
+	)
+}
+
 func TestSerializeAdd(t *testing.T) {
 	assertJSON(t,
 		Add(Arr{1, 2}),
@@ -923,27 +971,64 @@ func TestSerializeAdd(t *testing.T) {
 	)
 }
 
-func TestSerializeMultiply(t *testing.T) {
+func TestSerializeBitAnd(t *testing.T) {
 	assertJSON(t,
-		Multiply(Arr{1, 2}),
-		`{"multiply":[1,2]}`,
-	)
-
-	assertJSON(t,
-		Multiply(3, 4),
-		`{"multiply":[3,4]}`,
+		BitAnd(Arr{1, 2}),
+		`{"bitand":[1,2]}`,
 	)
 }
 
-func TestSerializeSubtract(t *testing.T) {
+func TestSerializeBitNot(t *testing.T) {
 	assertJSON(t,
-		Subtract(Arr{1, 2}),
-		`{"subtract":[1,2]}`,
+		BitNot(1),
+		`{"bitnot":1}`,
 	)
 
 	assertJSON(t,
-		Subtract(3, 4),
-		`{"subtract":[3,4]}`,
+		BitNot(3),
+		`{"bitnot":3}`,
+	)
+}
+
+func TestSerializeBitOr(t *testing.T) {
+	assertJSON(t,
+		BitOr(Arr{1, 2}),
+		`{"bitor":[1,2]}`,
+	)
+}
+
+func TestSerializeBitXor(t *testing.T) {
+	assertJSON(t,
+		BitXor(Arr{1, 2}),
+		`{"bitxor":[1,2]}`,
+	)
+}
+
+func TestSerializeCeil(t *testing.T) {
+	assertJSON(t,
+		Ceil(1.8),
+		`{"ceil":1.8}`,
+	)
+}
+
+func TestSerializeCos(t *testing.T) {
+	assertJSON(t,
+		Cos(1),
+		`{"cos":1}`,
+	)
+}
+
+func TestSerializeCosh(t *testing.T) {
+	assertJSON(t,
+		Cosh(1),
+		`{"cosh":1}`,
+	)
+}
+
+func TestSerializeDegrees(t *testing.T) {
+	assertJSON(t,
+		Degrees(1),
+		`{"degrees":1}`,
 	)
 }
 
@@ -959,6 +1044,69 @@ func TestSerializeDivide(t *testing.T) {
 	)
 }
 
+func TestSerializeExp(t *testing.T) {
+	assertJSON(t,
+		Exp(1),
+		`{"exp":1}`,
+	)
+}
+
+func TestSerializeFloor(t *testing.T) {
+	assertJSON(t,
+		Floor(1),
+		`{"floor":1}`,
+	)
+}
+
+func TestSerializeHypot(t *testing.T) {
+	assertJSON(t,
+		Hypot(1,2),
+		`{"b":2,"hypot":1}`,
+	)
+}
+
+func TestSerializeLn(t *testing.T) {
+	assertJSON(t,
+		Ln(1),
+		`{"ln":1}`,
+	)
+}
+
+func TestSerializeLog(t *testing.T) {
+	assertJSON(t,
+		Log(1),
+		`{"log":1}`,
+	)
+}
+
+func TestSerializeMax(t *testing.T) {
+	assertJSON(t,
+		Max(1),
+		`{"max":1}`,
+	)
+}
+
+func TestSerializeMin(t *testing.T) {
+	assertJSON(t,
+		Min(1),
+		`{"min":1}`,
+	)
+}
+
+func TestSerializePow(t *testing.T) {
+	assertJSON(t,
+		Pow(1,2),
+		`{"exp":2,"pow":1}`,
+	)
+}
+
+func TestSerializeRadians(t *testing.T) {
+	assertJSON(t,
+		Radians(2),
+		`{"radians":2}`,
+	)
+}
+
 func TestSerializeModulo(t *testing.T) {
 	assertJSON(t,
 		Modulo(Arr{1, 2}),
@@ -968,6 +1116,128 @@ func TestSerializeModulo(t *testing.T) {
 	assertJSON(t,
 		Modulo(3, 4),
 		`{"modulo":[3,4]}`,
+	)
+}
+
+func TestSerializeMultiply(t *testing.T) {
+	assertJSON(t,
+		Multiply(Arr{1, 2}),
+		`{"multiply":[1,2]}`,
+	)
+
+	assertJSON(t,
+		Multiply(3, 4),
+		`{"multiply":[3,4]}`,
+	)
+}
+
+
+
+func TestSerializeRound(t *testing.T) {
+	assertJSON(t,
+		Round(1.2345678),
+		`{"round":1.2345678}`,
+	)
+
+	assertJSON(t,
+		Round(3),
+		`{"round":3}`,
+	)
+}
+
+func TestSerializeSubtract(t *testing.T) {
+	assertJSON(t,
+		Subtract(Arr{1, 2}),
+		`{"subtract":[1,2]}`,
+	)
+
+	assertJSON(t,
+		Subtract(3, 4),
+		`{"subtract":[3,4]}`,
+	)
+}
+
+func TestSerializeSign(t *testing.T) {
+	assertJSON(t,
+		Sign(1),
+		`{"sign":1}`,
+	)
+
+	assertJSON(t,
+		Sign(0),
+		`{"sign":0}`,
+	)
+}
+
+func TestSerializeSin(t *testing.T) {
+	assertJSON(t,
+		Sin(1),
+		`{"sin":1}`,
+	)
+
+	assertJSON(t,
+		Sin(0),
+		`{"sin":0}`,
+	)
+}
+
+func TestSerializeSinh(t *testing.T) {
+	assertJSON(t,
+		Sinh(1),
+		`{"sinh":1}`,
+	)
+
+	assertJSON(t,
+		Sinh(0),
+		`{"sinh":0}`,
+	)
+}
+
+func TestSerializeSqrt(t *testing.T) {
+	assertJSON(t,
+		Sqrt(1),
+		`{"sqrt":1}`,
+	)
+
+	assertJSON(t,
+		Sqrt(0),
+		`{"sqrt":0}`,
+	)
+}
+
+func TestSerializeTan(t *testing.T) {
+	assertJSON(t,
+		Tan(1),
+		`{"tan":1}`,
+	)
+
+	assertJSON(t,
+		Tan(0),
+		`{"tan":0}`,
+	)
+}
+
+func TestSerializeTanh(t *testing.T) {
+	assertJSON(t,
+		Tanh(1),
+		`{"tanh":1}`,
+	)
+
+	assertJSON(t,
+		Tanh(0),
+		`{"tanh":0}`,
+	)
+}
+
+func TestSerializeTrunc(t *testing.T) {
+	assertJSON(t,
+		Trunc(1.2345678),
+		`{"trunc":1.2345678}`,
+	)
+
+	assertJSON(t,
+		Trunc(3),
+		`{"trunc":3}`,
 	)
 }
 

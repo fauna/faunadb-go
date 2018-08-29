@@ -135,6 +135,15 @@ func Separator(sep interface{}) OptionalParameter {
 	}
 }
 
+// Precision is a optional parameter that specifies the precision for a Trunc/Round operations.
+//
+// Functions that accept this optional parameter are: Round/Trunc.
+func Precision(precision interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["precision"] = wrap(precision)
+	}
+}
+
 // Normalizer is a string optional parameter that specifies the normalization function for casefold operation.
 //
 // Functions that accept this optional parameter are: Casefold.
@@ -1075,6 +1084,50 @@ func Equals(args ...interface{}) Expr { return fn1("equals", varargs(args...)) }
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Contains(path, value interface{}) Expr { return fn2("contains", path, "in", value) }
 
+// Abs computes the absolute value of a number.
+//
+// Parameters:
+//  value number - The number to take the absolute value of
+//
+// Returns:
+//  number - The abosulte value of a number
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Abs(value interface{}) Expr { return fn1("abs", value) }
+
+// Acos computes the arccosine of a number.
+//
+// Parameters:
+//  value number - The number to take the arccosine of
+//
+// Returns:
+//  number - The arccosine of a number
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Acos(value interface{}) Expr { return fn1("acos", value) }
+
+// Asin computes the arcsine of a number.
+//
+// Parameters:
+//  value number - The number to take the arcsine of
+//
+// Returns:
+//  number - The arcsine of a number
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Asin(value interface{}) Expr { return fn1("asin", value) }
+
+// Atan computes the arctan of a number.
+//
+// Parameters:
+//  value number - The number to take the arctan of
+//
+// Returns:
+//  number - The arctan of a number
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Atan(value interface{}) Expr { return fn1("atan", value) }
+
 // Add computes the sum of a list of numbers.
 //
 // Parameters:
@@ -1086,27 +1139,94 @@ func Contains(path, value interface{}) Expr { return fn2("contains", path, "in",
 // See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Add(args ...interface{}) Expr { return fn1("add", varargs(args...)) }
 
-// Multiply computes the product of a list of numbers.
+// BitAnd computes the and of a list of numbers.
 //
 // Parameters:
-//  args []number - A collection of numbers to multiply together.
+//  args []number - A collection of numbers to and together.
 //
 // Returns:
-//  number - The multiplication of all elements.
+//  number - The and of all elements.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
-func Multiply(args ...interface{}) Expr { return fn1("multiply", varargs(args...)) }
+func BitAnd(args ...interface{}) Expr { return fn1("bitand", varargs(args...)) }
 
-// Subtract computes the difference of a list of numbers.
+// BitNot computes the 2's complement of a number
 //
 // Parameters:
-//  args []number - A collection of numbers to compute the difference of.
+//  value number - A numbers to not
 //
 // Returns:
-//  number - The difference of all elements.
+//  number - The not of an element
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
-func Subtract(args ...interface{}) Expr { return fn1("subtract", varargs(args...)) }
+func BitNot(value interface{}) Expr { return fn1("bitnot", value) }
+
+// BitOr computes the OR of a list of numbers.
+//
+// Parameters:
+//  args []number - A collection of numbers to OR together.
+//
+// Returns:
+//  number - The OR of all elements.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func BitOr(args ...interface{}) Expr { return fn1("bitor", varargs(args...)) }
+
+
+// BitXor computes the XOR of a list of numbers.
+//
+// Parameters:
+//  args []number - A collection of numbers to XOR together.
+//
+// Returns:
+//  number - The XOR of all elements.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func BitXor(args ...interface{}) Expr { return fn1("bitxor", varargs(args...)) }
+
+// Ceil computes the largest integer greater than or equal to
+//
+// Parameters:
+//  value number - A numbers to compute the ceil of
+//
+// Returns:
+//  number - The ceil of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Ceil(value interface{}) Expr { return fn1("ceil", value) }
+
+// Cos computes the Cosine of a number
+//
+// Parameters:
+//  value number - A number to compute the cosine of
+//
+// Returns:
+//  number - The cosine of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Cos(value interface{}) Expr { return fn1("cos", value) }
+
+// Cosh computes the Hyperbolic Cosine of a number
+//
+// Parameters:
+//  value number - A number to compute the Hyperbolic cosine of
+//
+// Returns:
+//  number - The Hyperbolic cosine of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Cosh(value interface{}) Expr { return fn1("cosh", value) }
+
+// Degrees computes the degress of a number
+//
+// Parameters:
+//  value number - A number to compute the degress of
+//
+// Returns:
+//  number - The degrees of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Degrees(value interface{}) Expr { return fn1("degrees", value) }
 
 // Divide computes the quotient of a list of numbers.
 //
@@ -1119,6 +1239,84 @@ func Subtract(args ...interface{}) Expr { return fn1("subtract", varargs(args...
 // See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Divide(args ...interface{}) Expr { return fn1("divide", varargs(args...)) }
 
+// Exp computes the Exp of a number
+//
+// Parameters:
+//  value number - A number to compute the exp of
+//
+// Returns:
+//  number - The exp of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Exp(value interface{}) Expr { return fn1("exp", value) }
+
+// Floor computes the Floor of a number
+//
+// Parameters:
+//  value number - A number to compute the Floor of
+//
+// Returns:
+//  number - The Floor of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Floor(value interface{}) Expr { return fn1("floor", value) }
+
+// Hypot computes the Hypotenuse of two numbers
+//
+// Parameters:
+//  a number - A side of a right triangle
+//  b number - A side of a right triangle
+//
+// Returns:
+//  number - The hypotenuse of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Hypot(a, b interface{}) Expr { return fn2("hypot", a, "b", b) }
+
+// ln computes the ln of a number
+//
+// Parameters:
+//  value number - A number to compute the ln of
+//
+// Returns:
+//  number - The ln of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Ln(value interface{}) Expr { return fn1("ln", value) }
+
+// Log computes the Log of a number
+//
+// Parameters:
+//  value number - A number to compute the Log of
+//
+// Returns:
+//  number - The Log of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Log(value interface{}) Expr { return fn1("log", value) }
+
+// Max computes the max of a list of numbers.
+//
+// Parameters:
+//  args []number - A collection of numbers to find the max of.
+//
+// Returns:
+//  number - The max of all elements.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Max(args ...interface{}) Expr { return fn1("max", varargs(args...)) }
+
+// Min computes the Min of a list of numbers.
+//
+// Parameters:
+//  args []number - A collection of numbers to find the min of.
+//
+// Returns:
+//  number - The min of all elements.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Min(args ...interface{}) Expr { return fn1("min", varargs(args...)) }
+
 // Modulo computes the reminder after the division of a list of numbers.
 //
 // Parameters:
@@ -1129,6 +1327,148 @@ func Divide(args ...interface{}) Expr { return fn1("divide", varargs(args...)) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Modulo(args ...interface{}) Expr { return fn1("modulo", varargs(args...)) }
+
+// Multiply computes the product of a list of numbers.
+//
+// Parameters:
+//  args []number - A collection of numbers to multiply together.
+//
+// Returns:
+//  number - The multiplication of all elements.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Multiply(args ...interface{}) Expr { return fn1("multiply", varargs(args...)) }
+
+// Pow computes the Power of a number
+//
+// Parameters:
+//  base number - A number which is the base
+//  exp number  - A number which is the exponent
+//
+// Returns:
+//  number - The Pow of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Pow(base, exp interface{}) Expr { return fn2("pow", base, "exp", exp) }
+
+// Radians computes the Radians of a number
+//
+// Parameters:
+//  value number - A number which is convert to radians
+//
+// Returns:
+//  number - The Radians of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Radians(value interface{}) Expr { return fn1("radians", value) }
+
+// Round a number at the given percission
+//
+// Parameters:
+//  value number - The number to truncate
+//  precision number - precision where to truncate
+//
+// Returns:
+//  number - The Rounded value.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Round(value interface{}, options ...OptionalParameter) Expr {
+	return fn1("round", value, options...)
+}
+
+// Sign computes the Sign of a number
+//
+// Parameters:
+//  value number - A number to compute the Sign of
+//
+// Returns:
+//  number - The Sign of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Sign(value interface{}) Expr { return fn1("sign", value) }
+
+// Sin computes the Sine of a number
+//
+// Parameters:
+//  value number - A number to compute the Sine of
+//
+// Returns:
+//  number - The Sine of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Sin(value interface{}) Expr { return fn1("sin", value) }
+
+// Sinh computes the Hyperbolic Sine of a number
+//
+// Parameters:
+//  value number - A number to compute the Hyperbolic Sine of
+//
+// Returns:
+//  number - The Hyperbolic Sine of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Sinh(value interface{}) Expr { return fn1("sinh", value) }
+
+// Sqrt computes the square root of a number
+//
+// Parameters:
+//  value number - A number to compute the square root of
+//
+// Returns:
+//  number - The square root of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Sqrt(value interface{}) Expr { return fn1("sqrt", value) }
+
+// Subtract computes the difference of a list of numbers.
+//
+// Parameters:
+//  args []number - A collection of numbers to compute the difference of.
+//
+// Returns:
+//  number - The difference of all elements.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Subtract(args ...interface{}) Expr { return fn1("subtract", varargs(args...)) }
+
+// Tan computes the Tangent of a number
+//
+// Parameters:
+//  value number - A number to compute the Tangent of
+//
+// Returns:
+//  number - The Tangent of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Tan(value interface{}) Expr { return fn1("tan", value) }
+
+// Tanh computes the Hyperbolic Tangent of a number
+//
+// Parameters:
+//  value number - A number to compute the Hyperbolic Tangent of
+//
+// Returns:
+//  number - The Hyperbolic Tangent of value
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Tanh(value interface{}) Expr { return fn1("tanh", value) }
+
+// Trunc truncates a number at the given percission
+//
+// Parameters:
+//  value number - The number to truncate
+//  precision number - precision where to truncate
+//
+// Returns:
+//  number - The truncated value.
+//
+// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+func Trunc(value interface{}, options ...OptionalParameter) Expr {
+	return fn1("trunc", value, options...)
+}
+
+
+
 
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //

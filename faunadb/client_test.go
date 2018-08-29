@@ -1146,6 +1146,34 @@ func (s *ClientTestSuite) TestEvalSelectAllExpression() {
 	s.Require().Equal([]int{0, 2}, numbers)
 }
 
+func (s *ClientTestSuite) TestEvalAbsExpression() {
+	var num int
+
+	s.queryAndDecode(f.Abs(-2), &num)
+	s.Require().Equal(2, num)
+}
+
+func (s *ClientTestSuite) TestEvalAcosExpression() {
+	var num int
+
+	s.queryAndDecode(f.Acos(1), &num)
+	s.Require().Equal(0, num)
+}
+
+func (s *ClientTestSuite) TestEvalAsinExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Asin(0.5)), &num)
+	s.Require().Equal(0.52, num)
+}
+
+func (s *ClientTestSuite) TestEvalAtanExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Atan(0.5)), &num)
+	s.Require().Equal(0.46, num)
+}
+
 func (s *ClientTestSuite) TestEvalAddExpression() {
 	var num int
 
@@ -1153,18 +1181,60 @@ func (s *ClientTestSuite) TestEvalAddExpression() {
 	s.Require().Equal(5, num)
 }
 
-func (s *ClientTestSuite) TestEvalMultiplyExpression() {
+func (s *ClientTestSuite) TestEvalBitAndExpression() {
 	var num int
 
-	s.queryAndDecode(f.Multiply(2, 3), &num)
-	s.Require().Equal(6, num)
+	s.queryAndDecode(f.BitAnd(2, 3), &num)
+	s.Require().Equal(2, num)
 }
 
-func (s *ClientTestSuite) TestEvalSubtractExpression() {
+func (s *ClientTestSuite) TestEvalBitNotExpression() {
 	var num int
 
-	s.queryAndDecode(f.Subtract(2, 3), &num)
-	s.Require().Equal(-1, num)
+	s.queryAndDecode(f.BitNot(2), &num)
+	s.Require().Equal(-3, num)
+}
+
+func (s *ClientTestSuite) TestEvalBitOrExpression() {
+	var num int
+
+	s.queryAndDecode(f.BitOr(2, 1), &num)
+	s.Require().Equal(3, num)
+}
+
+func (s *ClientTestSuite) TestEvalBitXorExpression() {
+	var num int
+
+	s.queryAndDecode(f.BitXor(2, 3), &num)
+	s.Require().Equal(1, num)
+}
+
+func (s *ClientTestSuite) TestEvalCeilExpression() {
+	var num int
+
+	s.queryAndDecode(f.Ceil(1.8), &num)
+	s.Require().Equal(2, num)
+}
+
+func (s *ClientTestSuite) TestEvalCosExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Cos(0.5)), &num)
+	s.Require().Equal(0.87, num)
+}
+
+func (s *ClientTestSuite) TestEvalCoshExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Cosh(0.5)), &num)
+	s.Require().Equal(1.12, num)
+}
+
+func (s *ClientTestSuite) TestEvalDegreesExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Degrees(0.5)), &num)
+	s.Require().Equal(28.64, num)
 }
 
 func (s *ClientTestSuite) TestEvalDivideExpression() {
@@ -1174,11 +1244,145 @@ func (s *ClientTestSuite) TestEvalDivideExpression() {
 	s.Require().Equal(5, num)
 }
 
+func (s *ClientTestSuite) TestEvalExpExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Exp(2)), &num)
+	s.Require().Equal(7.38, num)
+}
+
+func (s *ClientTestSuite) TestEvalFloorExpression() {
+	var num int
+
+	s.queryAndDecode(f.Floor(2.99), &num)
+	s.Require().Equal(2, num)
+}
+
+func (s *ClientTestSuite) TestEvalHypotExpression() {
+	var num int
+
+	s.queryAndDecode(f.Hypot(3,4), &num)
+	s.Require().Equal(5, num)
+}
+
+func (s *ClientTestSuite) TestEvalLnExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Ln(2)), &num)
+	s.Require().Equal(0.69, num)
+}
+
+func (s *ClientTestSuite) TestEvalLogExpression() {
+	var num int
+
+	s.queryAndDecode(f.Log(100), &num)
+	s.Require().Equal(2, num)
+}
+
+func (s *ClientTestSuite) TestEvalMaxExpression() {
+	var num int
+
+	s.queryAndDecode(f.Max(2, 3), &num)
+	s.Require().Equal(3, num)
+}
+
+func (s *ClientTestSuite) TestEvalMinExpression() {
+	var num int
+
+	s.queryAndDecode(f.Min(4, 3), &num)
+	s.Require().Equal(3, num)
+}
+
 func (s *ClientTestSuite) TestEvalModuloExpression() {
 	var num int
 
 	s.queryAndDecode(f.Modulo(10, 2), &num)
 	s.Require().Equal(0, num)
+}
+
+func (s *ClientTestSuite) TestEvalMultiplyExpression() {
+	var num int
+
+	s.queryAndDecode(f.Multiply(2, 3), &num)
+	s.Require().Equal(6, num)
+}
+
+
+func (s *ClientTestSuite) TestEvalPowExpression() {
+	var num int
+
+	s.queryAndDecode(f.Pow(2,3), &num)
+	s.Require().Equal(8, num)
+}
+
+func (s *ClientTestSuite) TestEvalRadiansExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Radians(2)), &num)
+	s.Require().Equal(0.03, num)
+}
+
+func (s *ClientTestSuite) TestEvalRoundExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Round(1.666666, f.Precision(3)), &num)
+	s.Require().Equal(1.667, num)
+}
+
+func (s *ClientTestSuite) TestEvalSignExpression() {
+	var num int
+
+	s.queryAndDecode(f.Sign(-1), &num)
+	s.Require().Equal(-1, num)
+}
+
+func (s *ClientTestSuite) TestEvalSinExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Sin(20)), &num)
+	s.Require().Equal(0.91, num)
+}
+
+func (s *ClientTestSuite) TestEvalSinhExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Sinh(0.5)), &num)
+	s.Require().Equal(0.52, num)
+}
+
+func (s *ClientTestSuite) TestEvalSqrtExpression() {
+	var num int
+
+	s.queryAndDecode(f.Sqrt(16), &num)
+	s.Require().Equal(4, num)
+}
+
+func (s *ClientTestSuite) TestEvalSubtractExpression() {
+	var num int
+
+	s.queryAndDecode(f.Subtract(2, 3), &num)
+	s.Require().Equal(-1, num)
+}
+
+func (s *ClientTestSuite) TestEvalTanExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Tan(20)), &num)
+	s.Require().Equal(2.23, num)
+}
+
+func (s *ClientTestSuite) TestEvalTanhExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(f.Tanh(0.5)), &num)
+	s.Require().Equal(0.46, num)
+}
+
+func (s *ClientTestSuite) TestEvalTruncExpression() {
+	var num float64
+
+	s.queryAndDecode(f.Trunc(1.234567), &num)
+	s.Require().Equal(1.23, num)
 }
 
 func (s *ClientTestSuite) TestEvalLTExpression() {
