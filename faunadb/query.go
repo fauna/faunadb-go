@@ -135,9 +135,9 @@ func Separator(sep interface{}) OptionalParameter {
 	}
 }
 
-// Precision is a optional parameter that specifies the precision for a Trunc/Round operations.
+// Precision is an optional parameter that specifies the precision for a Trunc and Round operations.
 //
-// Functions that accept this optional parameter are: Round/Trunc.
+// Functions that accept this optional parameter are: Round and Trunc.
 func Precision(precision interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["precision"] = wrap(precision)
@@ -1172,7 +1172,6 @@ func BitNot(value interface{}) Expr { return fn1("bitnot", value) }
 // See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
 func BitOr(args ...interface{}) Expr { return fn1("bitor", varargs(args...)) }
 
-
 // BitXor computes the XOR of a list of numbers.
 //
 // Parameters:
@@ -1228,7 +1227,6 @@ func Cosh(value interface{}) Expr { return fn1("cosh", value) }
 // See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
 func Degrees(value interface{}) Expr { return fn1("degrees", value) }
 
-
 // Divide computes the quotient of a list of numbers.
 //
 // Parameters:
@@ -1274,10 +1272,10 @@ func Floor(value interface{}) Expr { return fn1("floor", value) }
 // See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
 func Hypot(a, b interface{}) Expr { return fn2("hypot", a, "b", b) }
 
-// ln computes the ln of a number
+// Ln computes the natural log of a number
 //
 // Parameters:
-//  value number - A number to compute the ln of
+//  value number - A number to compute the natural log of
 //
 // Returns:
 //  number - The ln of value
@@ -1366,8 +1364,8 @@ func Radians(value interface{}) Expr { return fn1("radians", value) }
 // Round a number at the given percission
 //
 // Parameters:
-//  value number - The number to truncate 
-//  precision number - precision where to truncate
+//  value number - The number to truncate
+//  precision number - precision where to truncate, defaults is 2
 //
 // Returns:
 //  number - The Rounded value.
@@ -1457,8 +1455,8 @@ func Tanh(value interface{}) Expr { return fn1("tanh", value) }
 // Trunc truncates a number at the given percission
 //
 // Parameters:
-//  value number - The number to truncate 
-//  precision number - precision where to truncate
+//  value number - The number to truncate
+//  precision number - precision where to truncate, defaults is 2
 //
 // Returns:
 //  number - The truncated value.
@@ -1467,9 +1465,6 @@ func Tanh(value interface{}) Expr { return fn1("tanh", value) }
 func Trunc(value interface{}, options ...OptionalParameter) Expr {
 	return fn1("trunc", value, options...)
 }
-
-
-
 
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //

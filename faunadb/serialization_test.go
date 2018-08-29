@@ -1060,7 +1060,7 @@ func TestSerializeFloor(t *testing.T) {
 
 func TestSerializeHypot(t *testing.T) {
 	assertJSON(t,
-		Hypot(1,2),
+		Hypot(1, 2),
 		`{"b":2,"hypot":1}`,
 	)
 }
@@ -1095,7 +1095,7 @@ func TestSerializeMin(t *testing.T) {
 
 func TestSerializePow(t *testing.T) {
 	assertJSON(t,
-		Pow(1,2),
+		Pow(1, 2),
 		`{"exp":2,"pow":1}`,
 	)
 }
@@ -1130,8 +1130,6 @@ func TestSerializeMultiply(t *testing.T) {
 		`{"multiply":[3,4]}`,
 	)
 }
-
-
 
 func TestSerializeRound(t *testing.T) {
 	assertJSON(t,

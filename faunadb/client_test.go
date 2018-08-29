@@ -1256,7 +1256,7 @@ func (s *ClientTestSuite) TestEvalFloorExpression() {
 func (s *ClientTestSuite) TestEvalHypotExpression() {
 	var num int
 
-	s.queryAndDecode(f.Hypot(3,4), &num)
+	s.queryAndDecode(f.Hypot(3, 4), &num)
 	s.Require().Equal(5, num)
 }
 
@@ -1302,11 +1302,10 @@ func (s *ClientTestSuite) TestEvalMultiplyExpression() {
 	s.Require().Equal(6, num)
 }
 
-
 func (s *ClientTestSuite) TestEvalPowExpression() {
 	var num int
 
-	s.queryAndDecode(f.Pow(2,3), &num)
+	s.queryAndDecode(f.Pow(2, 3), &num)
 	s.Require().Equal(8, num)
 }
 
