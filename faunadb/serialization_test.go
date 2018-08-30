@@ -588,14 +588,14 @@ func TestSerializeRepeat(t *testing.T) {
 
 func TestSerializeReplaceStr(t *testing.T) {
 	assertJSON(t,
-		ReplaceStr("0123456789","12","34"),
+		ReplaceStr("0123456789", "12", "34"),
 		`{"find":"12","replace":"34","replacestr":"0123456789"}`,
 	)
 }
 
 func TestSerializeReplaceStrRegex(t *testing.T) {
 	assertJSON(t,
-		ReplaceStrRegex("0123456789","12","34"),
+		ReplaceStrRegex("0123456789", "12", "34"),
 		`{"pattern":"12","replace":"34","replacestrregex":"0123456789"}`,
 	)
 }
@@ -616,11 +616,10 @@ func TestSerializeSpace(t *testing.T) {
 
 func TestSerializeSubString(t *testing.T) {
 	assertJSON(t,
-		SubString("0123456789",1),
+		SubString("0123456789", 1),
 		`{"start":1,"substring":"0123456789"}`,
 	)
 }
-
 
 func TestSerializeTitleCase(t *testing.T) {
 	assertJSON(t,
