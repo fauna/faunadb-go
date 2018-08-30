@@ -862,7 +862,7 @@ func (s *ClientTestSuite) TestEvalReplaceStrRegexExpression() {
 	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog"), &res)
 	s.Require().Equal("One Dog Two Dog", res)
 
-	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog", f.OnlyFirst(true)), &res)
+	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog", f.OnlyFirst()), &res)
 	s.Require().Equal("One Dog Two fish", res)
 }
 
