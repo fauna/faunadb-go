@@ -23,7 +23,7 @@ const (
 
 // Normalizers for Casefold
 //
-// See: https://fauna.com/documentation/queries#string_functions
+// See: https://fauna.com/documentation/reference/queryapi#string-functions
 const (
 	NormalizerNFKCCaseFold = "NFKCCaseFold"
 	NormalizerNFC          = "NFC"
@@ -124,11 +124,10 @@ func StrLength(length interface{}) OptionalParameter {
 	}
 }
 
-
-// first is a boolean optional parameter that only replace the first string
+// OnlyFirst is a boolean optional parameter that only replace the first string
 //
 // Functions that accept this optional parameter are: ReplaceStrRegex
-func First(first interface{}) OptionalParameter {
+func OnlyFirst(first interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["first"] = wrap(first)
 	}
@@ -643,10 +642,10 @@ func Casefold(str interface{}, options ...OptionalParameter) Expr {
 	return fn1("casefold", str, options...)
 }
 
-// FindStr locates a substring in a source string
+// FindStr locates a substring in a source string.  Optional parameters: Start
 //
 // Parameters:
-//  str string  - The source string 
+//  str string  - The source string
 //  find string - The string to locate
 //
 // Optional parameters:
@@ -655,16 +654,15 @@ func Casefold(str interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
 //
-// See: https://fauna.com/documentation/queries#string_functions
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func FindStr(str, find interface{}, options ...OptionalParameter) Expr {
 	return fn2("findstr", str, "find", find, options...)
 }
 
-// FindStrRegex locates a java regex pattern in a source string
+// FindStrRegex locates a java regex pattern in a source string.  Optional parameters: Start
 //
 // Parameters:
-//  str string      - The sourcestring 
+//  str string      - The sourcestring
 //  pattern string  - The pattern to locate.
 //
 // Optional parameters:
@@ -673,7 +671,6 @@ func FindStr(str, find interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
 //
-// See: https://fauna.com/documentation/queries#string_functions
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func FindStrRegex(str, pattern interface{}, options ...OptionalParameter) Expr {
 	return fn2("findstrregex", str, "pattern", pattern, options...)
@@ -696,7 +693,7 @@ func Length(str interface{}) Expr { return fn1("length", str) }
 //  str string - A string to convert to lowercase
 //
 // Returns:
-//  length - A string in lowercase.
+//  lowercase - A string in lowercase.
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func LowerCase(str interface{}) Expr { return fn1("lowercase", str) }
@@ -704,7 +701,7 @@ func LowerCase(str interface{}) Expr { return fn1("lowercase", str) }
 // LTrim returns a string wtih leading white space removed.
 //
 // Parameters:
-//  str string - A string to remove leading white space 
+//  str string - A string to remove leading white space
 //
 // Returns:
 //  length - A string with all leading white space removed
@@ -715,7 +712,7 @@ func LTrim(str interface{}) Expr { return fn1("ltrim", str) }
 // Repeat returns a string wtih repeated n times
 //
 // Parameters:
-//  str string - A string to remove leading white space 
+//  str string - A string to repeat
 //  number int - The number of times to repeat the string
 //
 // Returns:
@@ -727,17 +724,19 @@ func Repeat(str, number interface{}) Expr { return fn2("repeat", str, "number", 
 // ReplaceStr returns a string with every occurence of the "find" string changed to "replace" string
 //
 // Parameters:
-//  str string     - A string to remove leading white space 
-//  find string    - A string to remove leading white space 
-//  replace string - A string to remove leading white space 
+//  str string     - A source string
+//  find string    - The substring to locate in in the source string
+//  replace string - The string to replaice the "find" string when located
 //
 // Returns:
 //  ReplaceStr - returns a string with every occurence of the "find" string changed to "replace"
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
-func ReplaceStr(str, find, replace interface{}) Expr { return fn3("replacestr", str, "find", find, "replace", replace) }
+func ReplaceStr(str, find, replace interface{}) Expr {
+	return fn3("replacestr", str, "find", find, "replace", replace)
+}
 
-// ReplaceStrRegex returns a string with occurence(s) of the java regular expression "pattern" changed to "replace" string
+// ReplaceStrRegex returns a string with occurence(s) of the java regular expression "pattern" changed to "replace" string.   Optional parameters: OnlyFirst
 //
 // Parameters:
 //  value string   - The source string
@@ -745,7 +744,7 @@ func ReplaceStr(str, find, replace interface{}) Expr { return fn3("replacestr", 
 //  replace string - The string to replace the pattern when located
 //
 // Optional parameters:
-//  first boolean  - Only replace the first found pattern
+//  OnlyFirst boolean  - Only replace the first found pattern
 //
 // Returns:
 //  Value - A string with occurence(s) of the java regular expression "pattern" changed to "replace" string
@@ -759,7 +758,7 @@ func ReplaceStrRegex(value, pattern, replace interface{}, options ...OptionalPar
 // RTrim returns a string wtih trailing white space removed.
 //
 // Parameters:
-//  str string - A string to remove trailing white space 
+//  str string - A string to remove trailing white space
 //
 // Returns:
 //  length - A string with all trailing white space removed
@@ -773,26 +772,27 @@ func RTrim(str interface{}) Expr { return fn1("rtrim", str) }
 //  value int - the number of spaces
 //
 // Returns:
-//  Space - function returns a subset of the source string
+//  Space - function returns string with n spaces
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func Space(value interface{}) Expr { return fn1("space", value) }
 
-// SubString returns a subset of the source string
+// SubString returns a subset of the source string.   Optional parameters: StrLength
 //
 // Parameters:
-//  str string - A string to remove trailing white space 
+//  str string - A source string
 //  start int  - The position in the source string where SubString starts extracting characters
 //
 // Optional parameters:
-//  length int -- A default value for the length of the substring
+//  StrLength int - A value for the length of the extracted substring
 //
 // Returns:
 //  SubString - function returns a subset of the source string
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
-func SubString(str, start interface{}, options ...OptionalParameter) Expr { 
-        return fn2("substring", str, "start", start, options...) }
+func SubString(str, start interface{}, options ...OptionalParameter) Expr {
+	return fn2("substring", str, "start", start, options...)
+}
 
 // TitleCase changes all characters in the string to TitleCase
 //
@@ -800,7 +800,7 @@ func SubString(str, start interface{}, options ...OptionalParameter) Expr {
 //  str string - A string to convert to TitleCase
 //
 // Returns:
-//  length - A string in TitleCase.
+//  TitleCase - A string in TitleCase.
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func TitleCase(str interface{}) Expr { return fn1("titlecase", str) }
@@ -808,7 +808,7 @@ func TitleCase(str interface{}) Expr { return fn1("titlecase", str) }
 // Trim returns a string wtih trailing white space removed.
 //
 // Parameters:
-//  str string - A string to remove trailing white space 
+//  str string - A string to remove trailing white space
 //
 // Returns:
 //  length - A string with all trailing white space removed
@@ -822,7 +822,7 @@ func Trim(str interface{}) Expr { return fn1("trim", str) }
 //  str string - A string to convert to uppercase
 //
 // Returns:
-//  length - A string in lowercase.
+//  UpperCase - A string in uppercase.
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func UpperCase(str interface{}) Expr { return fn1("uppercase", str) }

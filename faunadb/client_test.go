@@ -841,23 +841,23 @@ func (s *ClientTestSuite) TestEvalLTrimExpression() {
 func (s *ClientTestSuite) TestEvalRepeatExpression() {
 	var res string
 
-	s.queryAndDecode(f.Repeat("ABC ",3), &res)
+	s.queryAndDecode(f.Repeat("ABC ", 3), &res)
 	s.Require().Equal("ABC ABC ABC ", res)
 }
 
 func (s *ClientTestSuite) TestEvalReplaceStrExpression() {
 	var res string
 
-	s.queryAndDecode(f.ReplaceStr("One Fish Two Fish","Fish","Dog"), &res)
+	s.queryAndDecode(f.ReplaceStr("One Fish Two Fish", "Fish", "Dog"), &res)
 	s.Require().Equal("One Dog Two Dog", res)
 }
 func (s *ClientTestSuite) TestEvalReplaceStrRegexExpression() {
 	var res string
 
-	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish","[Ff][Ii]sh","Dog"), &res)
+	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog"), &res)
 	s.Require().Equal("One Dog Two Dog", res)
 
-	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish","[Ff][Ii]sh","Dog",f.First(true)), &res)
+	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog", f.OnlyFirst(true)), &res)
 	s.Require().Equal("One Dog Two fish", res)
 }
 
@@ -878,14 +878,13 @@ func (s *ClientTestSuite) TestEvalSpaceExpression() {
 func (s *ClientTestSuite) TestEvalSubStringExpression() {
 	var res string
 
-	s.queryAndDecode(f.SubString("ABCDEF",3), &res)
+	s.queryAndDecode(f.SubString("ABCDEF", 3), &res)
 	s.Require().Equal("DEF", res)
-	s.queryAndDecode(f.SubString("ABCDEF",-2), &res)
+	s.queryAndDecode(f.SubString("ABCDEF", -2), &res)
 	s.Require().Equal("EF", res)
-	s.queryAndDecode(f.SubString("ABCDEFZZZ",3,f.StrLength(3)), &res)
+	s.queryAndDecode(f.SubString("ABCDEFZZZ", 3, f.StrLength(3)), &res)
 	s.Require().Equal("DEF", res)
 }
-
 
 func (s *ClientTestSuite) TestEvalTrimExpression() {
 	var res string
