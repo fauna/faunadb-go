@@ -127,9 +127,9 @@ func StrLength(length interface{}) OptionalParameter {
 // OnlyFirst is a boolean optional parameter that only replace the first string
 //
 // Functions that accept this optional parameter are: ReplaceStrRegex
-func OnlyFirst(first interface{}) OptionalParameter {
+func OnlyFirst() OptionalParameter {
 	return func(fn unescapedObj) {
-		fn["first"] = wrap(first)
+		fn["first"] = BooleanV(true)
 	}
 }
 
@@ -744,7 +744,7 @@ func ReplaceStr(str, find, replace interface{}) Expr {
 //  replace string - The string to replace the pattern when located
 //
 // Optional parameters:
-//  OnlyFirst boolean  - Only replace the first found pattern
+//  OnlyFirst - Only replace the first found pattern
 //
 // Returns:
 //  Value - A string with occurence(s) of the java regular expression "pattern" changed to "replace" string
