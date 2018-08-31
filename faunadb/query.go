@@ -649,7 +649,7 @@ func Casefold(str interface{}, options ...OptionalParameter) Expr {
 //  find string - The string to locate
 //
 // Optional parameters:
-//  start long - a position to start the search
+//  start int - a position to start the search. See Start() function.
 //
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
@@ -666,7 +666,7 @@ func FindStr(str, find interface{}, options ...OptionalParameter) Expr {
 //  pattern string  - The pattern to locate.
 //
 // Optional parameters:
-//  start long - a position to start the search
+//  start long - a position to start the search.  See Start() function.
 //
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
@@ -744,7 +744,7 @@ func ReplaceStr(str, find, replace interface{}) Expr {
 //  replace string - The string to replace the pattern when located
 //
 // Optional parameters:
-//  OnlyFirst - Only replace the first found pattern
+//  OnlyFirst - Only replace the first found pattern.  See OnlyFirst() function.
 //
 // Returns:
 //  string - A string with occurence(s) of the java regular expression "pattern" changed to "replace" string
@@ -783,7 +783,7 @@ func Space(value interface{}) Expr { return fn1("space", value) }
 //  start int  - The position in the source string where SubString starts extracting characters
 //
 // Optional parameters:
-//  StrLength int - A value for the length of the extracted substring
+//  StrLength int - A value for the length of the extracted substring. See StrLength() function.
 //
 // Returns:
 //  string - function returns a subset of the source string
@@ -821,7 +821,7 @@ func Trim(str interface{}) Expr { return fn1("trim", str) }
 //  string - A string to convert to uppercase
 //
 // Returns:
-//  UpperCase - A string in uppercase.
+//  string - A string in uppercase.
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func UpperCase(str interface{}) Expr { return fn1("uppercase", str) }
