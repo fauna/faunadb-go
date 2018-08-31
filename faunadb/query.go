@@ -682,7 +682,7 @@ func FindStrRegex(str, pattern interface{}, options ...OptionalParameter) Expr {
 //  str string - A string to find the length in codepoints
 //
 // Returns:
-//  Long - A length of a string.
+//  int - A length of a string.
 //
 // See: https://fauna.com/documentation/reference/queryapi#string-functions
 func Length(str interface{}) Expr { return fn1("length", str) }
