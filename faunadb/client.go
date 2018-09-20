@@ -54,6 +54,14 @@ func DisableTxnTimePassthrough() ClientConfig {
 	return func(cli *FaunaClient) { cli.isTxnTimeEnabled = false }
 }
 
+// ObserverCallback is the callback type for requests.
+type ObserverCallback func(*QueryResult)
+
+// Observer configures a callback function called for every query executed.
+func Observer(observer ObserverCallback) ClientConfig {
+	return func(cli *FaunaClient) { cli.observer = observer }
+}
+
 /*
 FaunaClient provides methods for performing queries on a FaunaDB cluster.
 
@@ -66,6 +74,18 @@ type FaunaClient struct {
 	http             *http.Client
 	isTxnTimeEnabled bool
 	lastTxnTime      int64
+	observer         ObserverCallback
+}
+
+// QueryResult is a structure containing the result context for a given FaunaDB query.
+type QueryResult struct {
+	Client     *FaunaClient
+	Query      Expr
+	Result     Value
+	StatusCode int
+	Headers    map[string][]string
+	StartTime  time.Time
+	EndTime    time.Time
 }
 
 /*
@@ -90,11 +110,34 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		}
 	}
 
+	if client.observer == nil {
+		client.observer = func(queryResult *QueryResult) {}
+	}
+
 	return client
+}
+
+// QueryResult run and return the cost headers associated with this query.
+func (client *FaunaClient) QueryResult(expr Expr) (value Value, headers map[string][]string, err error) {
+	value, err = client.NewWithObserver(func(queryResult *QueryResult) {
+		headers = queryResult.Headers
+	}).Query(expr)
+
+	return
+}
+
+// BatchQueryResult run and return the cost headers associated with this query.
+func (client *FaunaClient) BatchQueryResult(expr []Expr) (value []Value, headers map[string][]string, err error) {
+	value, err = client.NewWithObserver(func(queryResult *QueryResult) {
+		headers = queryResult.Headers
+	}).BatchQuery(expr)
+
+	return
 }
 
 // Query is the primary method used to send a query language expression to FaunaDB.
 func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
+	startTime := time.Now()
 	response, err := client.performRequest(expr)
 
 	if response != nil {
@@ -106,7 +149,7 @@ func (client *FaunaClient) Query(expr Expr) (value Value, err error) {
 
 	if err == nil {
 		if err = checkForResponseErrors(response); err == nil {
-			value, err = client.parseResponse(response)
+			value, err = client.parseResponse(response, expr, startTime)
 		}
 	}
 
@@ -133,12 +176,22 @@ func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) 
 
 // NewSessionClient creates a new child FaunaClient with a new secret. The returned client reuses its parent's internal http resources.
 func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
+	return client.newClient(basicAuth(secret), client.observer)
+}
+
+// NewWithObserver creates a new FaunaClient with a specific observer callback. The returned client reuses its parent's internal http resources.
+func (client *FaunaClient) NewWithObserver(observer ObserverCallback) *FaunaClient {
+	return client.newClient(client.basicAuth, observer)
+}
+
+func (client *FaunaClient) newClient(basicAuth string, observer ObserverCallback) *FaunaClient {
 	return &FaunaClient{
-		basicAuth:        basicAuth(secret),
+		basicAuth:        basicAuth,
 		endpoint:         client.endpoint,
 		http:             client.http,
 		isTxnTimeEnabled: client.isTxnTimeEnabled,
 		lastTxnTime:      client.lastTxnTime,
+		observer:         observer,
 	}
 }
 
@@ -167,16 +220,31 @@ func (client *FaunaClient) prepareRequest(expr Expr) (request *http.Request, err
 	return
 }
 
-func (client *FaunaClient) parseResponse(response *http.Response) (value Value, err error) {
+func (client *FaunaClient) parseResponse(response *http.Response, expr Expr, startTime time.Time) (value Value, err error) {
 	var parsedResponse Value
 
 	if err = client.storeLastTxnTime(response.Header); err == nil {
 		if parsedResponse, err = parseJSON(response.Body); err == nil {
 			value, err = parsedResponse.At(resource).GetValue()
+			client.callObserver(response, expr, value, startTime)
 		}
 	}
 
 	return
+}
+
+func (client *FaunaClient) callObserver(response *http.Response, expr Expr, value Value, startTime time.Time) {
+	queryResult := &QueryResult{
+		client,
+		expr,
+		value,
+		response.StatusCode,
+		response.Header,
+		startTime,
+		time.Now(),
+	}
+
+	client.observer(queryResult)
 }
 
 func (client *FaunaClient) addLastTxnTimeHeader(request *http.Request) {
