@@ -236,7 +236,7 @@ func Abort(msg interface{}) Expr { return fn1("abort", msg) }
 //  Value - The result of the last expression in the list.
 //
 // See: https://fauna.com/documentation/queries#basic_forms
-func Do(exprs ...interface{}) Expr { return fn1("do", varargs(exprs...)) }
+func Do(exprs ...interface{}) Expr { return fn1("do", exprs) }
 
 // If evaluates and returns then or elze depending on the value of cond.
 // If cond evaluates to anything other than a boolean, if returns an “invalid argument” error
