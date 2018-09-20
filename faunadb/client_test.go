@@ -506,6 +506,11 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 
 	s.Require().NoError(res.Get(&ref))
 	s.Require().Equal(ref, f.RefV{randomID, &randomClass, nil})
+
+	var array []int
+	err := s.query(f.Do(f.Arr{1, 2, 3})).Get(&array)
+	s.Require().NoError(err)
+	s.Require().Equal(array, []int{1, 2, 3})
 }
 
 func (s *ClientTestSuite) TestMapOverACollection() {

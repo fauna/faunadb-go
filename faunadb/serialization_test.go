@@ -386,7 +386,7 @@ func TestSerializeDo(t *testing.T) {
 			Get(Ref("classes/spells/4")),
 			Get(Ref("classes/spells/2")),
 		}),
-		`{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`,
+		`{"do":[[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]]}`,
 	)
 
 	assertJSON(t,
