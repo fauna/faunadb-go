@@ -99,7 +99,7 @@ func main() {
 ```
 
 For more information about FaunaDB query language, consult our query language
-[reference documentation](https://fauna.com/documentation/reference/queryapi).
+[reference documentation](https://app.fauna.com/documentation/reference/queryapi).
 
 Specific reference documentation for the driver is hosted at
 [GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb).
