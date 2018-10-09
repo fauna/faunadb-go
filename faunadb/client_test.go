@@ -1046,6 +1046,7 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 			f.Class("cls"),
 			f.Database("db"),
 			f.Function("fn"),
+			f.Role("role"),
 		},
 		&refs,
 	)
@@ -1057,26 +1058,30 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 		f.RefV{"cls", f.NativeClasses(), nil},
 		f.RefV{"db", f.NativeDatabases(), nil},
 		f.RefV{"fn", f.NativeFunctions(), nil},
+		f.RefV{"role", f.NativeRoles(), nil},
 	}, refs)
 }
 
 func (s *ClientTestSuite) TestEvalScopedRefFunctions() {
 	var refs []f.RefV
 
-	s.adminQuery(
+	s.adminQueryAndDecode(
 		f.Arr{
 			f.ScopedIndex("idx", f.DbRef()),
 			f.ScopedClass("cls", f.DbRef()),
 			f.ScopedDatabase("db", f.DbRef()),
 			f.ScopedFunction("fn", f.DbRef()),
+			f.ScopedRole("role", f.DbRef()),
 		},
-	).Get(&refs)
+		&refs,
+	)
 
 	s.Require().Equal([]f.RefV{
 		f.RefV{"idx", f.NativeIndexes(), f.DbRef()},
 		f.RefV{"cls", f.NativeClasses(), f.DbRef()},
 		f.RefV{"db", f.NativeDatabases(), f.DbRef()},
 		f.RefV{"fn", f.NativeFunctions(), f.DbRef()},
+		f.RefV{"role", f.NativeRoles(), f.DbRef()},
 	}, refs)
 }
 
@@ -1608,6 +1613,23 @@ func (s *ClientTestSuite) TestCreateFunction() {
 	s.Require().True(exists)
 }
 
+func (s *ClientTestSuite) TestCreateRole() {
+	name := f.RandomStartingWith("a_role")
+
+	s.adminQuery(f.CreateRole(f.Obj{
+		"name": name,
+		"privileges": f.Arr{f.Obj{
+			"resource": f.Databases(),
+			"actions":  f.Obj{"read": true},
+		}},
+	}))
+
+	var exists bool
+
+	s.adminQueryAndDecode(f.Exists(f.Role(name)), &exists)
+	s.Require().True(exists)
+}
+
 func (s *ClientTestSuite) TestCallFunction() {
 	body := f.Query(
 		f.Lambda(
@@ -1702,6 +1724,11 @@ func (s *ClientTestSuite) queryForSecret(expr f.Expr) (secret string) {
 
 func (s *ClientTestSuite) queryAndDecode(expr f.Expr, i interface{}) {
 	value := s.query(expr)
+	s.Require().NoError(value.Get(i))
+}
+
+func (s *ClientTestSuite) adminQueryAndDecode(expr f.Expr, i interface{}) {
+	value := s.adminQuery(expr)
 	s.Require().NoError(value.Get(i))
 }
 

@@ -545,6 +545,17 @@ func CreateKey(params interface{}) Expr { return fn1("create_key", params) }
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func CreateFunction(params interface{}) Expr { return fn1("create_function", params) }
 
+// CreateRole creates a new role.
+//
+// Parameters:
+//  params Object - An object with attributes of the role.
+//
+// Returns:
+//  Object - The new created role object.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+func CreateRole(params interface{}) Expr { return fn1("create_role", params) }
+
 // Update updates the provided instance.
 //
 // Parameters:
@@ -1139,6 +1150,29 @@ func ScopedFunction(name interface{}, scope interface{}) Expr {
 	return fn2("function", name, "scope", scope)
 }
 
+// Role create a new role ref.
+//
+// Parameters:
+//  name string - The name of the role.
+//
+// Returns:
+//  Ref - The role reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Role(name interface{}) Expr { return fn1("role", name) }
+
+// ScopedRole create a new role ref.
+//
+// Parameters:
+//  name string - The name of the role.
+//  scope Ref - The reference of the role's scope.
+//
+// Returns:
+//  Ref - The role reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedRole(name, scope interface{}) Expr { return fn2("role", name, "scope", scope) }
+
 // Classes creates a native ref for classes.
 //
 // Returns:
@@ -1214,6 +1248,25 @@ func Functions() Expr { return fn1("functions", NullV{}) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func ScopedFunctions(scope interface{}) Expr { return fn1("functions", scope) }
+
+// Roles creates a native ref for roles.
+//
+// Returns:
+//  Ref - The reference of the roles set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Roles() Expr { return fn1("roles", NullV{}) }
+
+// ScopedRole creates a native ref for roles inside a database.
+//
+// Parameters:
+//  scope Ref - The reference of the role set's scope.
+//
+// Returns:
+//  Ref - The reference of the role set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedRoles(scope interface{}) Expr { return fn1("roles", scope) }
 
 // Keys creates a native ref for keys.
 //

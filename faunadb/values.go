@@ -129,6 +129,7 @@ var (
 	nativeIndexes     = RefV{"indexes", nil, nil}
 	nativeDatabases   = RefV{"databases", nil, nil}
 	nativeFunctions   = RefV{"functions", nil, nil}
+	nativeRoles       = RefV{"roles", nil, nil}
 	nativeKeys        = RefV{"keys", nil, nil}
 	nativeTokens      = RefV{"tokens", nil, nil}
 	nativeCredentials = RefV{"credentials", nil, nil}
@@ -138,6 +139,7 @@ func NativeClasses() *RefV     { return &nativeClasses }
 func NativeIndexes() *RefV     { return &nativeIndexes }
 func NativeDatabases() *RefV   { return &nativeDatabases }
 func NativeFunctions() *RefV   { return &nativeFunctions }
+func NativeRoles() *RefV       { return &nativeRoles }
 func NativeKeys() *RefV        { return &nativeKeys }
 func NativeTokens() *RefV      { return &nativeTokens }
 func NativeCredentials() *RefV { return &nativeCredentials }
@@ -152,6 +154,8 @@ func nativeFromName(id string) *RefV {
 		return &nativeDatabases
 	case "functions":
 		return &nativeFunctions
+	case "roles":
+		return &nativeRoles
 	case "keys":
 		return &nativeKeys
 	case "tokens":

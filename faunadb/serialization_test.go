@@ -320,6 +320,32 @@ func TestSerializeCreateKey(t *testing.T) {
 	)
 }
 
+func TestSerializeCreateRole(t *testing.T) {
+	assertJSON(t,
+		CreateRole(Obj{
+			"name": "a_role",
+			"privileges": Arr{Obj{
+				"resource": Ref("databases"),
+				"actions":  Obj{"read": true},
+			}},
+		}),
+		`{"create_role":{"object":{"name":"a_role","privileges":[`+
+			`{"object":{"actions":{"object":{"read":true}},"resource":{"@ref":"databases"}}}]}}}`,
+	)
+
+	assertJSON(t,
+		CreateRole(Obj{
+			"name": "a_role",
+			"privileges": Obj{
+				"resource": Ref("databases"),
+				"actions":  Obj{"read": true},
+			},
+		}),
+		`{"create_role":{"object":{"name":"a_role","privileges":`+
+			`{"object":{"actions":{"object":{"read":true}},"resource":{"@ref":"databases"}}}}}}`,
+	)
+}
+
 func TestSerializeNull(t *testing.T) {
 	assertJSON(t, Null(), `null`)
 }
@@ -865,6 +891,18 @@ func TestSerializeFunction(t *testing.T) {
 	)
 }
 
+func TestSerializeRole(t *testing.T) {
+	assertJSON(t,
+		Role("test-role"),
+		`{"role":"test-role"}`,
+	)
+
+	assertJSON(t,
+		ScopedRole("test-role", Database("scope")),
+		`{"role":"test-role","scope":{"database":"scope"}}`,
+	)
+}
+
 func TestSerializeClasses(t *testing.T) {
 	assertJSON(t,
 		Classes(),
@@ -910,6 +948,18 @@ func TestSerializeFunctions(t *testing.T) {
 	assertJSON(t,
 		ScopedFunctions(Database("scope")),
 		`{"functions":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeRoles(t *testing.T) {
+	assertJSON(t,
+		Roles(),
+		`{"roles":null}`,
+	)
+
+	assertJSON(t,
+		ScopedRoles(Database("scope")),
+		`{"roles":{"database":"scope"}}`,
 	)
 }
 
