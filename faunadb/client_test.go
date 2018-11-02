@@ -606,6 +606,8 @@ type PaginateEvent struct {
 }
 
 func (s *ClientTestSuite) TestEvents() {
+	firstSeen := s.client.GetLastTxnTime()
+
 	ref := s.queryForRef(
 		f.Create(randomClass, f.Obj{}),
 	)
@@ -623,6 +625,7 @@ func (s *ClientTestSuite) TestEvents() {
 	s.Require().Equal(PaginateEvent{"create", ref}, events[0])
 	s.Require().Equal(PaginateEvent{"update", ref}, events[1])
 	s.Require().Equal(PaginateEvent{"delete", ref}, events[2])
+	s.Require().True(firstSeen > 0 && s.client.GetLastTxnTime() > firstSeen)
 }
 
 func (s *ClientTestSuite) TestSingleton() {
@@ -1637,11 +1640,25 @@ func (s *ClientTestSuite) TestCallFunction() {
 }
 
 func (s *ClientTestSuite) TestEchoQuery() {
+	firstSeen := s.client.GetLastTxnTime()
+
 	body := s.query(f.Query(f.Lambda("x", f.Var("x"))))
 
 	bodyEchoed := s.query(body)
 
 	s.Require().Equal(body, bodyEchoed)
+	s.Require().True(firstSeen > 0 && s.client.GetLastTxnTime() >= firstSeen)
+}
+
+func (s *ClientTestSuite) TestSyncLastTxnTime() {
+	firstSeen := s.client.GetLastTxnTime()
+
+	s.client.SyncLastTxnTime(firstSeen - 12000)
+	s.Require().Equal(s.client.GetLastTxnTime(), firstSeen)
+
+	lastSeen := firstSeen + 1200
+	s.client.SyncLastTxnTime(lastSeen)
+	s.Require().Equal(s.client.GetLastTxnTime(), lastSeen)
 }
 
 func (s *ClientTestSuite) assertMetrics(headers map[string][]string) {

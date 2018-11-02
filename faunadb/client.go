@@ -183,6 +183,31 @@ func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
 func (client *FaunaClient) NewWithObserver(observer ObserverCallback) *FaunaClient {
 	return client.newClient(client.basicAuth, observer)
 }
+ 
+// GetLastTxnTime gets the freshest timestamp reported to this client.
+func (client *FaunaClient) GetLastTxnTime() int64 {
+	if client.isTxnTimeEnabled {
+		return client.lastTxnTime
+	}
+	return 0
+}
+
+// SyncLastTxnTime syncs the freshest timestamp seen by this client.
+// This has no effect if more stale than the currently stored timestamp.
+// WARNING: This should be used only when coordinating timestamps across
+//          multiple clients. Moving the timestamp arbitrarily forward into
+//          the future will cause transactions to stall.
+func (client *FaunaClient) SyncLastTxnTime(newTxnTime int64) {
+	if client.isTxnTimeEnabled {
+		for {
+			oldTxnTime := atomic.LoadInt64(&client.lastTxnTime)
+			if oldTxnTime >= newTxnTime ||
+				atomic.CompareAndSwapInt64(&client.lastTxnTime, oldTxnTime, newTxnTime) {
+				break
+			}
+		}
+	}
+}
 
 func (client *FaunaClient) newClient(basicAuth string, observer ObserverCallback) *FaunaClient {
 	return &FaunaClient{
@@ -260,13 +285,7 @@ func (client *FaunaClient) storeLastTxnTime(header http.Header) (err error) {
 		var newTxnTime int64
 
 		if newTxnTime, err = parseTxnTimeHeader(header); err == nil {
-			for {
-				oldTxnTime := atomic.LoadInt64(&client.lastTxnTime)
-				if oldTxnTime >= newTxnTime ||
-					atomic.CompareAndSwapInt64(&client.lastTxnTime, oldTxnTime, newTxnTime) {
-					break
-				}
-			}
+			client.SyncLastTxnTime(newTxnTime)
 		}
 	}
 
