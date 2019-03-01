@@ -415,6 +415,28 @@ func Prepend(elems, coll interface{}) Expr { return fn2("prepend", elems, "colle
 // See: https://app.fauna.com/documentation/reference/queryapi#collections
 func Append(elems, coll interface{}) Expr { return fn2("append", elems, "collection", coll) }
 
+// IsEmpty returns true if the collection is the empty set, else false.
+//
+// Parameters:
+//  coll []Value - The collection of elements.
+//
+// Returns:
+//   bool - True if the collection is empty, else false.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#collections
+func IsEmpty(coll interface{}) Expr { return fn1("is_empty", coll) }
+
+// IsNonEmpty returns false if the collection is the empty set, else true
+//
+// Parameters:
+//  coll []Value - The collection of elements.
+//
+// Returns:
+//   bool - True if the collection is not empty, else false.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#collections
+func IsNonEmpty(coll interface{}) Expr { return fn1("is_non_empty", coll) }
+
 // Read
 
 // Get retrieves the instance identified by the provided ref. Optional parameters: TS.
