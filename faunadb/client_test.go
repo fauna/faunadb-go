@@ -1,10 +1,9 @@
-package faunadb_test
+package faunadb
 
 import (
 	"testing"
 	"time"
 
-	f "github.com/fauna/faunadb-go/faunadb"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -13,13 +12,13 @@ func TestRunClientTests(t *testing.T) {
 }
 
 var (
-	dataField     = f.ObjKey("data")
-	refField      = f.ObjKey("ref")
-	tsField       = f.ObjKey("ts")
-	beforeField   = f.ObjKey("before")
-	afterField    = f.ObjKey("after")
-	secretField   = f.ObjKey("secret")
-	instanceField = f.ObjKey("instance")
+	dataField     = ObjKey("data")
+	refField      = ObjKey("ref")
+	tsField       = ObjKey("ts")
+	beforeField   = ObjKey("before")
+	afterField    = ObjKey("after")
+	secretField   = ObjKey("secret")
+	instanceField = ObjKey("instance")
 )
 
 var randomClass,
@@ -34,17 +33,17 @@ var randomClass,
 	magicMissile,
 	fireball,
 	faerieFire,
-	thor f.RefV
+	thor RefV
 
 type Spellbook struct {
-	Owner f.RefV `fauna:"owner"`
+	Owner RefV `fauna:"owner"`
 }
 
 type Spell struct {
 	Name     string   `fauna:"name"`
 	Elements []string `fauna:"elements"`
 	Cost     int      `fauna:"cost"`
-	Book     *f.RefV  `fauna:"book"`
+	Book     *RefV  `fauna:"book"`
 }
 
 type Character struct {
@@ -53,11 +52,11 @@ type Character struct {
 
 type ClientTestSuite struct {
 	suite.Suite
-	client *f.FaunaClient
+	client *FaunaClient
 }
 
 func (s *ClientTestSuite) SetupSuite() {
-	client, err := f.SetupTestDB()
+	client, err := SetupTestDB()
 	s.Require().NoError(err)
 
 	s.client = client
@@ -66,83 +65,83 @@ func (s *ClientTestSuite) SetupSuite() {
 
 func (s *ClientTestSuite) setupSchema() {
 	randomClass = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "some_random_class"}),
+		CreateClass(Obj{"name": "some_random_class"}),
 	)
 
 	spells = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "spells"}),
+		CreateClass(Obj{"name": "spells"}),
 	)
 
 	characters = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "characters"}),
+		CreateClass(Obj{"name": "characters"}),
 	)
 
 	spellbook = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "spellbook"}),
+		CreateClass(Obj{"name": "spellbook"}),
 	)
 
 	allSpells = s.queryForRef(
-		f.CreateIndex(f.Obj{
+		CreateIndex(Obj{
 			"name":   "all_spells",
 			"source": spells,
 		}),
 	)
 
 	spellsByElement = s.queryForRef(
-		f.CreateIndex(f.Obj{
+		CreateIndex(Obj{
 			"name":   "spells_by_name",
 			"source": spells,
-			"terms": f.Arr{f.Obj{
-				"field": f.Arr{"data", "elements"},
+			"terms": Arr{Obj{
+				"field": Arr{"data", "elements"},
 			}},
 		}),
 	)
 
 	elementsOfSpells = s.queryForRef(
-		f.CreateIndex(f.Obj{
+		CreateIndex(Obj{
 			"name":   "elements_of_spells",
 			"source": spells,
-			"values": f.Arr{f.Obj{
-				"field": f.Arr{"data", "elements"},
+			"values": Arr{Obj{
+				"field": Arr{"data", "elements"},
 			}},
 		}),
 	)
 
 	spellbookByOwner = s.queryForRef(
-		f.CreateIndex(f.Obj{
+		CreateIndex(Obj{
 			"name":   "spellbook_by_owner",
 			"source": spellbook,
-			"terms": f.Arr{f.Obj{
-				"field": f.Arr{"data", "owner"},
+			"terms": Arr{Obj{
+				"field": Arr{"data", "owner"},
 			}},
 		}),
 	)
 
 	spellBySpellbook = s.queryForRef(
-		f.CreateIndex(f.Obj{
+		CreateIndex(Obj{
 			"name":   "spell_by_spellbook",
 			"source": spells,
-			"terms": f.Arr{f.Obj{
-				"field": f.Arr{"data", "book"},
+			"terms": Arr{Obj{
+				"field": Arr{"data", "book"},
 			}},
 		}),
 	)
 
 	thor = s.queryForRef(
-		f.Create(characters, f.Obj{"data": Character{"Thor"}}),
+		Create(characters, Obj{"data": Character{"Thor"}}),
 	)
 
 	thorsSpellbook := s.queryForRef(
-		f.Create(spellbook,
-			f.Obj{"data": Spellbook{
+		Create(spellbook,
+			Obj{"data": Spellbook{
 				Owner: thor,
 			}},
 		),
 	)
 
 	magicMissile = s.queryForRef(
-		f.Create(spells,
-			f.Obj{"data": Spell{
+		Create(spells,
+			Obj{"data": Spell{
 				Name:     "Magic Missile",
 				Elements: []string{"arcane"},
 				Cost:     10,
@@ -151,8 +150,8 @@ func (s *ClientTestSuite) setupSchema() {
 	)
 
 	fireball = s.queryForRef(
-		f.Create(spells,
-			f.Obj{"data": Spell{
+		Create(spells,
+			Obj{"data": Spell{
 				Name:     "Fireball",
 				Elements: []string{"fire"},
 				Cost:     10,
@@ -161,8 +160,8 @@ func (s *ClientTestSuite) setupSchema() {
 	)
 
 	faerieFire = s.queryForRef(
-		f.Create(spells,
-			f.Obj{"data": Spell{
+		Create(spells,
+			Obj{"data": Spell{
 				Name:     "Faerie Fire",
 				Elements: []string{"arcane", "nature"},
 				Cost:     10,
@@ -171,52 +170,52 @@ func (s *ClientTestSuite) setupSchema() {
 }
 
 func (s *ClientTestSuite) TearDownSuite() {
-	f.DeleteTestDB()
+	DeleteTestDB()
 }
 
 func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 	invalidClient := s.client.NewSessionClient("invalid-secret")
 
 	_, err := invalidClient.Query(
-		f.Get(f.Ref("classes/spells/1234")),
+		Get(Ref("classes/spells/1234")),
 	)
 
-	if _, ok := err.(f.Unauthorized); !ok {
+	if _, ok := err.(Unauthorized); !ok {
 		s.Require().Fail("Should have returned Unauthorized")
 	}
 }
 
 func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResource() {
-	key, err := f.CreateKeyWithRole("client")
+	key, err := CreateKeyWithRole("client")
 	s.Require().NoError(err)
-	client := s.client.NewSessionClient(f.GetSecret(key))
+	client := s.client.NewSessionClient(GetSecret(key))
 
 	_, err = client.Query(
-		f.Paginate(f.Databases()),
+		Paginate(Databases()),
 	)
 
-	if _, ok := err.(f.PermissionDenied); !ok {
+	if _, ok := err.(PermissionDenied); !ok {
 		s.Require().Fail("Should have returned PermissionDenied")
 	}
 }
 
 func (s *ClientTestSuite) TestReturnNotFoundForNonExistingInstance() {
 	_, err := s.client.Query(
-		f.Get(f.Ref("classes/spells/1234")),
+		Get(Ref("classes/spells/1234")),
 	)
 
-	if _, ok := err.(f.NotFound); !ok {
+	if _, ok := err.(NotFound); !ok {
 		s.Require().Fail("Should have returned NotFound")
 	}
 }
 
 func (s *ClientTestSuite) TestCreateAComplexInstante() {
 	instance := s.query(
-		f.Create(randomClass,
-			f.Obj{"data": f.Obj{
-				"testField": f.Obj{
-					"array":  f.Arr{1, 2, 3},
-					"obj":    f.Obj{"Name": "Jhon"},
+		Create(randomClass,
+			Obj{"data": Obj{
+				"testField": Obj{
+					"array":  Arr{1, 2, 3},
+					"obj":    Obj{"Name": "Jhon"},
 					"bool":   true,
 					"num":    1234,
 					"string": "sup",
@@ -256,9 +255,9 @@ func (s *ClientTestSuite) TestCreateAComplexInstante() {
 
 func (s *ClientTestSuite) TestCreateAnNonUniformArray() {
 	value := s.query(
-		f.Create(randomClass,
-			f.Obj{"data": f.Obj{
-				"array": f.Arr{"1", 2, 3.5, struct{ Data int }{4}},
+		Create(randomClass,
+			Obj{"data": Obj{
+				"array": Arr{"1", 2, 3.5, struct{ Data int }{4}},
 			}},
 		),
 	)
@@ -284,7 +283,7 @@ func (s *ClientTestSuite) TestGetAnInstance() {
 	var spell Spell
 
 	value := s.query(
-		f.Get(magicMissile),
+		Get(magicMissile),
 	)
 
 	s.Require().NoError(
@@ -302,9 +301,9 @@ func (s *ClientTestSuite) TestGetAnInstance() {
 }
 
 func (s *ClientTestSuite) TestBatchQuery() {
-	values, err := s.client.BatchQuery([]f.Expr{
-		f.Get(magicMissile),
-		f.Get(thor),
+	values, err := s.client.BatchQuery([]Expr{
+		Get(magicMissile),
+		Get(thor),
 	})
 
 	s.Require().NoError(err)
@@ -312,17 +311,17 @@ func (s *ClientTestSuite) TestBatchQuery() {
 }
 
 func (s *ClientTestSuite) TestKeyFromSecret() {
-	var ref f.RefV
+	var ref RefV
 
-	key, err := f.CreateKeyWithRole("server")
+	key, err := CreateKeyWithRole("server")
 	s.Require().NoError(err)
 
-	secret := f.GetSecret(key)
+	secret := GetSecret(key)
 	key.At(refField).Get(&ref)
 
 	s.Require().Equal(
-		s.adminQuery(f.KeyFromSecret(secret)),
-		s.adminQuery(f.Get(ref)),
+		s.adminQuery(KeyFromSecret(secret)),
+		s.adminQuery(Get(ref)),
 	)
 }
 
@@ -330,8 +329,8 @@ func (s *ClientTestSuite) TestUpdateAnInstaceData() {
 	var updated Spell
 
 	ref := s.queryForRef(
-		f.Create(randomClass,
-			f.Obj{"data": Spell{
+		Create(randomClass,
+			Obj{"data": Spell{
 				Name:     "Magic Missile",
 				Elements: []string{"arcane"},
 				Cost:     10,
@@ -340,10 +339,10 @@ func (s *ClientTestSuite) TestUpdateAnInstaceData() {
 	)
 
 	value := s.query(
-		f.Update(ref,
-			f.Obj{"data": f.Obj{
+		Update(ref,
+			Obj{"data": Obj{
 				"name": "Faerie Fire",
-				"cost": f.Null(),
+				"cost": Null(),
 			}},
 		),
 	)
@@ -366,8 +365,8 @@ func (s *ClientTestSuite) TestReplaceAnInstanceData() {
 	var replaced Spell
 
 	ref := s.queryForRef(
-		f.Create(randomClass,
-			f.Obj{"data": Spell{
+		Create(randomClass,
+			Obj{"data": Spell{
 				Name:     "Magic Missile",
 				Elements: []string{"arcane"},
 				Cost:     10,
@@ -376,10 +375,10 @@ func (s *ClientTestSuite) TestReplaceAnInstanceData() {
 	)
 
 	value := s.query(
-		f.Replace(ref,
-			f.Obj{"data": f.Obj{
+		Replace(ref,
+			Obj{"data": Obj{
 				"name":     "Volcano",
-				"elements": f.Arr{"fire", "earth"},
+				"elements": Arr{"fire", "earth"},
 			}},
 		),
 	)
@@ -402,25 +401,25 @@ func (s *ClientTestSuite) TestDeleteAnInstance() {
 	var exists bool
 
 	ref := s.queryForRef(
-		f.Create(randomClass,
-			f.Obj{"data": Spell{
+		Create(randomClass,
+			Obj{"data": Spell{
 				Name: "Magic Missile",
 			}},
 		),
 	)
-	_ = s.query(f.Delete(ref))
+	_ = s.query(Delete(ref))
 
-	s.queryAndDecode(f.Exists(ref), &exists)
+	s.queryAndDecode(Exists(ref), &exists)
 	s.Require().False(exists)
 }
 
 func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
-	var created, inserted, removed *f.RefV
+	var created, inserted, removed *RefV
 
 	res := s.query(
-		f.Create(
+		Create(
 			randomClass,
-			f.Obj{"data": f.Obj{
+			Obj{"data": Obj{
 				"name": "Magic Missile",
 			}},
 		),
@@ -428,45 +427,45 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 	s.Require().NoError(res.At(refField).Get(&created))
 
 	res = s.query(
-		f.Insert(created, 1, f.ActionCreate, f.Obj{
-			"data": f.Obj{"cooldown": 5},
+		Insert(created, 1, ActionCreate, Obj{
+			"data": Obj{"cooldown": 5},
 		}),
 	)
 
 	s.Require().NoError(res.At(instanceField).Get(&inserted))
 	s.Require().Equal(inserted, created)
 
-	res = s.query(f.Remove(created, 2, f.ActionDelete))
+	res = s.query(Remove(created, 2, ActionDelete))
 	s.Require().NoError(res.Get(&removed))
 	s.Require().Nil(removed)
 }
 
 func (s *ClientTestSuite) TestEvalAtExpression() {
-	var spells []f.RefV
+	var spells []RefV
 	var fireballTs int
 
 	res := s.query(
-		f.Paginate(f.Match(allSpells)),
+		Paginate(Match(allSpells)),
 	)
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{magicMissile, fireball, faerieFire}, spells)
+	s.Require().Equal([]RefV{magicMissile, fireball, faerieFire}, spells)
 
-	s.query(f.Get(fireball)).At(tsField).Get(&fireballTs)
+	s.query(Get(fireball)).At(tsField).Get(&fireballTs)
 
 	res = s.query(
-		f.At(fireballTs, f.Paginate(f.Match(allSpells))),
+		At(fireballTs, Paginate(Match(allSpells))),
 	)
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{magicMissile, fireball}, spells)
+	s.Require().Equal([]RefV{magicMissile, fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestEvalLetExpression() {
 	var arr []int
 
 	s.queryAndDecode(
-		f.Let(
-			f.Obj{"x": 1, "y": 2},
-			f.Arr{f.Var("x"), f.Var("y")},
+		Let(
+			Obj{"x": 1, "y": 2},
+			Arr{Var("x"), Var("y")},
 		),
 		&arr,
 	)
@@ -477,38 +476,38 @@ func (s *ClientTestSuite) TestEvalLetExpression() {
 func (s *ClientTestSuite) TestEvalIfExpression() {
 	var str string
 
-	s.queryAndDecode(f.If(true, "true", "false"), &str)
+	s.queryAndDecode(If(true, "true", "false"), &str)
 	s.Require().Equal("true", str)
 }
 
 func (s *ClientTestSuite) TestAbortExpression() {
 	_, err := s.client.Query(
-		f.Abort("abort message"),
+		Abort("abort message"),
 	)
 
-	if _, ok := err.(f.BadRequest); !ok {
+	if _, ok := err.(BadRequest); !ok {
 		s.Require().Fail("Should have returned BadRequest")
 	}
 }
 
 func (s *ClientTestSuite) TestEvalDoExpression() {
-	var ref f.RefV
+	var ref RefV
 
-	randomID := f.RandomStartingWith()
-	refToCreate := f.RefClass(randomClass, randomID)
+	randomID := RandomStartingWith()
+	refToCreate := RefClass(randomClass, randomID)
 
 	res := s.queryForRef(
-		f.Do(
-			f.Create(refToCreate, f.Obj{"data": f.Obj{"name": "Magic Missile"}}),
-			f.Get(refToCreate),
+		Do(
+			Create(refToCreate, Obj{"data": Obj{"name": "Magic Missile"}}),
+			Get(refToCreate),
 		),
 	)
 
 	s.Require().NoError(res.Get(&ref))
-	s.Require().Equal(ref, f.RefV{randomID, &randomClass, nil})
+	s.Require().Equal(ref, RefV{randomID, &randomClass, nil})
 
 	var array []int
-	err := s.query(f.Do(f.Arr{1, 2, 3})).Get(&array)
+	err := s.query(Do(Arr{1, 2, 3})).Get(&array)
 	s.Require().NoError(err)
 	s.Require().Equal(array, []int{1, 2, 3})
 }
@@ -517,10 +516,10 @@ func (s *ClientTestSuite) TestMapOverACollection() {
 	var arr []int
 
 	s.queryAndDecode(
-		f.Map(
-			f.Arr{1, 2, 3},
-			f.Lambda("x",
-				f.Add(f.Var("x"), 1)),
+		Map(
+			Arr{1, 2, 3},
+			Lambda("x",
+				Add(Var("x"), 1)),
 		),
 		&arr,
 	)
@@ -532,10 +531,10 @@ func (s *ClientTestSuite) TestExecuteForeachExpression() {
 	var arr []string
 
 	s.queryAndDecode(
-		f.Foreach(
-			f.Arr{"Fireball Level 1", "Fireball Level 2"},
-			f.Lambda("x",
-				f.Create(randomClass, f.Obj{"data": f.Obj{"name": f.Var("x")}})),
+		Foreach(
+			Arr{"Fireball Level 1", "Fireball Level 2"},
+			Lambda("x",
+				Create(randomClass, Obj{"data": Obj{"name": Var("x")}})),
 		),
 		&arr,
 	)
@@ -547,10 +546,10 @@ func (s *ClientTestSuite) TestFilterACollection() {
 	var arr []int
 
 	s.queryAndDecode(
-		f.Filter(
-			f.Arr{1, 2, 3},
-			f.Lambda("i",
-				f.Equals(0, f.Modulo(f.Var("i"), 2))),
+		Filter(
+			Arr{1, 2, 3},
+			Lambda("i",
+				Equals(0, Modulo(Var("i"), 2))),
 		),
 		&arr,
 	)
@@ -561,14 +560,14 @@ func (s *ClientTestSuite) TestFilterACollection() {
 func (s *ClientTestSuite) TestTakeElementsFromCollection() {
 	var arr []int
 
-	s.queryAndDecode(f.Take(2, f.Arr{1, 2, 3}), &arr)
+	s.queryAndDecode(Take(2, Arr{1, 2, 3}), &arr)
 	s.Require().Equal([]int{1, 2}, arr)
 }
 
 func (s *ClientTestSuite) TestDropElementsFromCollection() {
 	var arr []int
 
-	s.queryAndDecode(f.Drop(2, f.Arr{1, 2, 3}), &arr)
+	s.queryAndDecode(Drop(2, Arr{1, 2, 3}), &arr)
 	s.Require().Equal([]int{3}, arr)
 }
 
@@ -576,9 +575,9 @@ func (s *ClientTestSuite) TestPrependElementsInACollection() {
 	var arr []int
 
 	s.queryAndDecode(
-		f.Prepend(
-			f.Arr{1, 2},
-			f.Arr{3, 4},
+		Prepend(
+			Arr{1, 2},
+			Arr{3, 4},
 		),
 		&arr,
 	)
@@ -590,9 +589,9 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 	var arr []int
 
 	s.queryAndDecode(
-		f.Append(
-			f.Arr{3, 4},
-			f.Arr{1, 2},
+		Append(
+			Arr{3, 4},
+			Arr{1, 2},
 		),
 		&arr,
 	)
@@ -602,20 +601,20 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 
 type PaginateEvent struct {
 	Action   string `fauna:"action"`
-	Instance f.RefV `fauna:"instance"`
+	Instance RefV `fauna:"instance"`
 }
 
 func (s *ClientTestSuite) TestEvents() {
 	firstSeen := s.client.GetLastTxnTime()
 
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{}),
+		Create(randomClass, Obj{}),
 	)
 
-	_ = s.query(f.Update(ref, f.Obj{}))
-	_ = s.query(f.Delete(ref))
+	_ = s.query(Update(ref, Obj{}))
+	_ = s.query(Delete(ref))
 
-	data := s.query(f.Paginate(f.Events(ref)))
+	data := s.query(Paginate(Events(ref)))
 
 	var events []PaginateEvent
 
@@ -630,13 +629,13 @@ func (s *ClientTestSuite) TestEvents() {
 
 func (s *ClientTestSuite) TestSingleton() {
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{}),
+		Create(randomClass, Obj{}),
 	)
 
-	_ = s.query(f.Update(ref, f.Obj{}))
-	_ = s.query(f.Delete(ref))
+	_ = s.query(Update(ref, Obj{}))
+	_ = s.query(Delete(ref))
 
-	data := s.query(f.Paginate(f.Events(f.Singleton(ref))))
+	data := s.query(Paginate(Events(Singleton(ref))))
 
 	var events []PaginateEvent
 
@@ -648,13 +647,13 @@ func (s *ClientTestSuite) TestSingleton() {
 }
 
 func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
-	var spells []f.RefV
-	var before, after f.Value
+	var spells []RefV
+	var before, after Value
 
 	res := s.query(
-		f.Paginate(
-			f.Match(allSpells),
-			f.Size(1),
+		Paginate(
+			Match(allSpells),
+			Size(1),
 		),
 	)
 
@@ -665,10 +664,10 @@ func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 	s.Require().NotNil(after)
 
 	res = s.query(
-		f.Paginate(
-			f.Match(allSpells),
-			f.After(after),
-			f.Size(1),
+		Paginate(
+			Match(allSpells),
+			After(after),
+			Size(1),
 		),
 	)
 
@@ -680,67 +679,67 @@ func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 }
 
 func (s *ClientTestSuite) TestFindASingleInstanceOnAIndex() {
-	var spells []f.RefV
+	var spells []RefV
 
 	res := s.query(
-		f.Paginate(f.MatchTerm(
+		Paginate(MatchTerm(
 			spellsByElement,
 			"fire",
 		)),
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{fireball}, spells)
+	s.Require().Equal([]RefV{fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestUnion() {
-	var spells []f.RefV
+	var spells []RefV
 
 	res := s.query(
-		f.Paginate(f.Union(
-			f.MatchTerm(spellsByElement, "arcane"),
-			f.MatchTerm(spellsByElement, "fire"),
+		Paginate(Union(
+			MatchTerm(spellsByElement, "arcane"),
+			MatchTerm(spellsByElement, "fire"),
 		)),
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{magicMissile, fireball, faerieFire}, spells)
+	s.Require().Equal([]RefV{magicMissile, fireball, faerieFire}, spells)
 }
 
 func (s *ClientTestSuite) TestIntersection() {
-	var spells []f.RefV
+	var spells []RefV
 
 	res := s.query(
-		f.Paginate(f.Intersection(
-			f.MatchTerm(spellsByElement, "arcane"),
-			f.MatchTerm(spellsByElement, "nature"),
+		Paginate(Intersection(
+			MatchTerm(spellsByElement, "arcane"),
+			MatchTerm(spellsByElement, "nature"),
 		)),
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{faerieFire}, spells)
+	s.Require().Equal([]RefV{faerieFire}, spells)
 }
 
 func (s *ClientTestSuite) TestDifference() {
-	var spells []f.RefV
+	var spells []RefV
 
 	res := s.query(
-		f.Paginate(f.Difference(
-			f.MatchTerm(spellsByElement, "arcane"),
-			f.MatchTerm(spellsByElement, "nature"),
+		Paginate(Difference(
+			MatchTerm(spellsByElement, "arcane"),
+			MatchTerm(spellsByElement, "nature"),
 		)),
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{magicMissile}, spells)
+	s.Require().Equal([]RefV{magicMissile}, spells)
 }
 
 func (s *ClientTestSuite) TestDistinct() {
 	var elements []string
 
 	res := s.query(
-		f.Paginate(
-			f.Distinct(f.Match(elementsOfSpells)),
+		Paginate(
+			Distinct(Match(elementsOfSpells)),
 		),
 	)
 
@@ -749,27 +748,27 @@ func (s *ClientTestSuite) TestDistinct() {
 }
 
 func (s *ClientTestSuite) TestJoin() {
-	var spells []f.RefV
+	var spells []RefV
 
 	res := s.query(
-		f.Paginate(
-			f.Join(
-				f.MatchTerm(spellbookByOwner, thor),
-				f.Lambda("book",
-					f.MatchTerm(spellBySpellbook, f.Var("book"))),
+		Paginate(
+			Join(
+				MatchTerm(spellbookByOwner, thor),
+				Lambda("book",
+					MatchTerm(spellBySpellbook, Var("book"))),
 			),
 		),
 	)
 
 	s.Require().NoError(res.At(dataField).Get(&spells))
-	s.Require().Equal([]f.RefV{fireball}, spells)
+	s.Require().Equal([]RefV{fireball}, spells)
 }
 
 func (s *ClientTestSuite) TestEvalConcatExpression() {
 	var str string
 
 	s.queryAndDecode(
-		f.Concat(f.Arr{
+		Concat(Arr{
 			"Hello",
 			"World",
 		}),
@@ -779,12 +778,12 @@ func (s *ClientTestSuite) TestEvalConcatExpression() {
 	s.Require().Equal("HelloWorld", str)
 
 	s.queryAndDecode(
-		f.Concat(
-			f.Arr{
+		Concat(
+			Arr{
 				"Hello",
 				"World",
 			},
-			f.Separator(" ")),
+			Separator(" ")),
 		&str,
 	)
 
@@ -794,131 +793,131 @@ func (s *ClientTestSuite) TestEvalConcatExpression() {
 func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 	var str string
 
-	s.queryAndDecode(f.Casefold("GET DOWN"), &str)
+	s.queryAndDecode(Casefold("GET DOWN"), &str)
 	s.Require().Equal("get down", str)
 
 	// https://unicode.org/reports/tr15/
 
-	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFD")), &str)
+	s.queryAndDecode(Casefold("\u212B", Normalizer("NFD")), &str)
 	s.Require().Equal("A\u030A", str)
 
-	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFC")), &str)
+	s.queryAndDecode(Casefold("\u212B", Normalizer("NFC")), &str)
 	s.Require().Equal("\u00C5", str)
 
-	s.queryAndDecode(f.Casefold("\u1E9B\u0323", f.Normalizer("NFKD")), &str)
+	s.queryAndDecode(Casefold("\u1E9B\u0323", Normalizer("NFKD")), &str)
 	s.Require().Equal("\u0073\u0323\u0307", str)
 
-	s.queryAndDecode(f.Casefold("\u1E9B\u0323", f.Normalizer("NFKC")), &str)
+	s.queryAndDecode(Casefold("\u1E9B\u0323", Normalizer("NFKC")), &str)
 	s.Require().Equal("\u1E69", str)
 
-	s.queryAndDecode(f.Casefold("\u212B", f.Normalizer("NFKCCaseFold")), &str)
+	s.queryAndDecode(Casefold("\u212B", Normalizer("NFKCCaseFold")), &str)
 	s.Require().Equal("\u00E5", str)
 }
 
 func (s *ClientTestSuite) TestEvalFindStrExpression() {
 	var res int
 
-	s.queryAndDecode(f.FindStr("GET DOWN", "DOWN"), &res)
+	s.queryAndDecode(FindStr("GET DOWN", "DOWN"), &res)
 	s.Require().Equal(4, res)
 
-	s.queryAndDecode(f.FindStr("One Fish Two Fish", "Fish", f.Start(8)), &res)
+	s.queryAndDecode(FindStr("One Fish Two Fish", "Fish", Start(8)), &res)
 	s.Require().Equal(13, res)
 }
 
 func (s *ClientTestSuite) TestEvalLengthExpression() {
 	var res int
 
-	s.queryAndDecode(f.Length("One Fish Two Fish"), &res)
+	s.queryAndDecode(Length("One Fish Two Fish"), &res)
 	s.Require().Equal(17, res)
 }
 
 func (s *ClientTestSuite) TestEvalLowerCaseExpression() {
 	var res string
 
-	s.queryAndDecode(f.LowerCase("One Fish Two Fish"), &res)
+	s.queryAndDecode(LowerCase("One Fish Two Fish"), &res)
 	s.Require().Equal("one fish two fish", res)
 }
 
 func (s *ClientTestSuite) TestEvalLTrimExpression() {
 	var res string
 
-	s.queryAndDecode(f.LTrim("    One Fish Two Fish"), &res)
+	s.queryAndDecode(LTrim("    One Fish Two Fish"), &res)
 	s.Require().Equal("One Fish Two Fish", res)
 }
 
 func (s *ClientTestSuite) TestEvalRepeatExpression() {
 	var res string
 
-	s.queryAndDecode(f.Repeat("ABC ", 3), &res)
+	s.queryAndDecode(Repeat("ABC ", 3), &res)
 	s.Require().Equal("ABC ABC ABC ", res)
 }
 
 func (s *ClientTestSuite) TestEvalReplaceStrExpression() {
 	var res string
 
-	s.queryAndDecode(f.ReplaceStr("One Fish Two Fish", "Fish", "Dog"), &res)
+	s.queryAndDecode(ReplaceStr("One Fish Two Fish", "Fish", "Dog"), &res)
 	s.Require().Equal("One Dog Two Dog", res)
 }
 func (s *ClientTestSuite) TestEvalReplaceStrRegexExpression() {
 	var res string
 
-	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog"), &res)
+	s.queryAndDecode(ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog"), &res)
 	s.Require().Equal("One Dog Two Dog", res)
 
-	s.queryAndDecode(f.ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog", f.OnlyFirst()), &res)
+	s.queryAndDecode(ReplaceStrRegex("One FIsh Two fish", "[Ff][Ii]sh", "Dog", OnlyFirst()), &res)
 	s.Require().Equal("One Dog Two fish", res)
 }
 
 func (s *ClientTestSuite) TestEvalRTrimExpression() {
 	var res string
 
-	s.queryAndDecode(f.RTrim("One Fish Two Fish   "), &res)
+	s.queryAndDecode(RTrim("One Fish Two Fish   "), &res)
 	s.Require().Equal("One Fish Two Fish", res)
 }
 
 func (s *ClientTestSuite) TestEvalSpaceExpression() {
 	var res string
 
-	s.queryAndDecode(f.Space(5), &res)
+	s.queryAndDecode(Space(5), &res)
 	s.Require().Equal("     ", res)
 }
 
 func (s *ClientTestSuite) TestEvalSubStringExpression() {
 	var res string
 
-	s.queryAndDecode(f.SubString("ABCDEF", 3), &res)
+	s.queryAndDecode(SubString("ABCDEF", 3), &res)
 	s.Require().Equal("DEF", res)
-	s.queryAndDecode(f.SubString("ABCDEF", -2), &res)
+	s.queryAndDecode(SubString("ABCDEF", -2), &res)
 	s.Require().Equal("EF", res)
-	s.queryAndDecode(f.SubString("ABCDEFZZZ", 3, f.StrLength(3)), &res)
+	s.queryAndDecode(SubString("ABCDEFZZZ", 3, StrLength(3)), &res)
 	s.Require().Equal("DEF", res)
 }
 
 func (s *ClientTestSuite) TestEvalTrimExpression() {
 	var res string
 
-	s.queryAndDecode(f.Trim("   One Fish Two Fish   "), &res)
+	s.queryAndDecode(Trim("   One Fish Two Fish   "), &res)
 	s.Require().Equal("One Fish Two Fish", res)
 }
 
 func (s *ClientTestSuite) TestEvalTitleCaseExpression() {
 	var res string
 
-	s.queryAndDecode(f.TitleCase("onE Fish tWO FiSh"), &res)
+	s.queryAndDecode(TitleCase("onE Fish tWO FiSh"), &res)
 	s.Require().Equal("One Fish Two Fish", res)
 }
 
 func (s *ClientTestSuite) TestEvalUpperCaseExpression() {
 	var res string
 
-	s.queryAndDecode(f.UpperCase("One Fish Two Fish"), &res)
+	s.queryAndDecode(UpperCase("One Fish Two Fish"), &res)
 	s.Require().Equal("ONE FISH TWO FISH", res)
 }
 
 func (s *ClientTestSuite) TestEvalTimeExpression() {
 	var t time.Time
 
-	s.queryAndDecode(f.Time("1970-01-01T00:00:00-04:00"), &t)
+	s.queryAndDecode(Time("1970-01-01T00:00:00-04:00"), &t)
 
 	s.Require().Equal(t,
 		time.Unix(0, 0).UTC().
@@ -930,11 +929,11 @@ func (s *ClientTestSuite) TestEvalEpochExpression() {
 	var t []time.Time
 
 	s.queryAndDecode(
-		f.Arr{
-			f.Epoch(30, f.TimeUnitSecond),
-			f.Epoch(30, f.TimeUnitMillisecond),
-			f.Epoch(30, f.TimeUnitMicrosecond),
-			f.Epoch(30, f.TimeUnitNanosecond),
+		Arr{
+			Epoch(30, TimeUnitSecond),
+			Epoch(30, TimeUnitMillisecond),
+			Epoch(30, TimeUnitMicrosecond),
+			Epoch(30, TimeUnitNanosecond),
 		},
 		&t,
 	)
@@ -950,7 +949,7 @@ func (s *ClientTestSuite) TestEvalEpochExpression() {
 func (s *ClientTestSuite) TestEvalDateExpression() {
 	var t time.Time
 
-	s.queryAndDecode(f.Date("1970-01-02"), &t)
+	s.queryAndDecode(Date("1970-01-02"), &t)
 
 	s.Require().Equal(t,
 		time.Unix(0, 0).UTC().
@@ -962,47 +961,47 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	var loggedOut, identified bool
 
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{
-			"credentials": f.Obj{
+		Create(randomClass, Obj{
+			"credentials": Obj{
 				"password": "abcdefg",
 			},
 		}),
 	)
 
 	secret := s.queryForSecret(
-		f.Login(ref, f.Obj{
+		Login(ref, Obj{
 			"password": "abcdefg",
 		}),
 	)
 
 	sessionClient := s.client.NewSessionClient(secret)
-	res, err := sessionClient.Query(f.Logout(true))
+	res, err := sessionClient.Query(Logout(true))
 
 	s.Require().NoError(err)
 	s.Require().NoError(res.Get(&loggedOut))
 	s.Require().True(loggedOut)
 
-	res = s.query(f.Identify(ref, "wrong-password"))
+	res = s.query(Identify(ref, "wrong-password"))
 	s.Require().NoError(res.Get(&identified))
 	s.Require().False(identified)
 }
 
 func (s *ClientTestSuite) TestHasIdentityExpression() {
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{
-			"credentials": f.Obj{
+		Create(randomClass, Obj{
+			"credentials": Obj{
 				"password": "sekrit",
 			},
 		}),
 	)
 
 	secret := s.queryForSecret(
-		f.Login(ref, f.Obj{"password": "sekrit"}),
+		Login(ref, Obj{"password": "sekrit"}),
 	)
 
 	tokenClient := s.client.NewSessionClient(secret)
 
-	res, err := tokenClient.Query(f.HasIdentity())
+	res, err := tokenClient.Query(HasIdentity())
 
 	var hasIdentity bool
 	s.Require().NoError(err)
@@ -1012,20 +1011,20 @@ func (s *ClientTestSuite) TestHasIdentityExpression() {
 
 func (s *ClientTestSuite) TestIdentityExpression() {
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{
-			"credentials": f.Obj{
+		Create(randomClass, Obj{
+			"credentials": Obj{
 				"password": "sekrit",
 			},
 		}),
 	)
 
 	secret := s.queryForSecret(
-		f.Login(ref, f.Obj{"password": "sekrit"}),
+		Login(ref, Obj{"password": "sekrit"}),
 	)
 
 	tokenClient := s.client.NewSessionClient(secret)
 
-	res, err := tokenClient.Query(f.Identity())
+	res, err := tokenClient.Query(Identity())
 
 	s.Require().NoError(err)
 	s.Require().Equal(ref, res)
@@ -1034,141 +1033,141 @@ func (s *ClientTestSuite) TestIdentityExpression() {
 func (s *ClientTestSuite) TestEvalNewIdExpression() {
 	var id string
 
-	s.queryAndDecode(f.NewId(), &id)
+	s.queryAndDecode(NewId(), &id)
 	s.Require().NotEmpty(id)
 }
 
 func (s *ClientTestSuite) TestEvalRefFunctions() {
-	var refs []f.RefV
+	var refs []RefV
 
 	s.queryAndDecode(
-		f.Arr{
-			f.Ref("classes/thing/123"),
-			f.RefClass(f.Class("thing"), "123"),
-			f.Index("idx"),
-			f.Class("cls"),
-			f.Database("db"),
-			f.Function("fn"),
+		Arr{
+			Ref("classes/thing/123"),
+			RefClass(Class("thing"), "123"),
+			Index("idx"),
+			Class("cls"),
+			Database("db"),
+			Function("fn"),
 		},
 		&refs,
 	)
 
-	s.Require().Equal([]f.RefV{
-		f.RefV{"123", &f.RefV{"thing", f.NativeClasses(), nil}, nil},
-		f.RefV{"123", &f.RefV{"thing", f.NativeClasses(), nil}, nil},
-		f.RefV{"idx", f.NativeIndexes(), nil},
-		f.RefV{"cls", f.NativeClasses(), nil},
-		f.RefV{"db", f.NativeDatabases(), nil},
-		f.RefV{"fn", f.NativeFunctions(), nil},
+	s.Require().Equal([]RefV{
+		RefV{"123", &RefV{"thing", NativeClasses(), nil}, nil},
+		RefV{"123", &RefV{"thing", NativeClasses(), nil}, nil},
+		RefV{"idx", NativeIndexes(), nil},
+		RefV{"cls", NativeClasses(), nil},
+		RefV{"db", NativeDatabases(), nil},
+		RefV{"fn", NativeFunctions(), nil},
 	}, refs)
 }
 
 func (s *ClientTestSuite) TestEvalScopedRefFunctions() {
-	var refs []f.RefV
+	var refs []RefV
 
 	s.adminQuery(
-		f.Arr{
-			f.ScopedIndex("idx", f.DbRef()),
-			f.ScopedClass("cls", f.DbRef()),
-			f.ScopedDatabase("db", f.DbRef()),
-			f.ScopedFunction("fn", f.DbRef()),
+		Arr{
+			ScopedIndex("idx", DbRef()),
+			ScopedClass("cls", DbRef()),
+			ScopedDatabase("db", DbRef()),
+			ScopedFunction("fn", DbRef()),
 		},
 	).Get(&refs)
 
-	s.Require().Equal([]f.RefV{
-		f.RefV{"idx", f.NativeIndexes(), f.DbRef()},
-		f.RefV{"cls", f.NativeClasses(), f.DbRef()},
-		f.RefV{"db", f.NativeDatabases(), f.DbRef()},
-		f.RefV{"fn", f.NativeFunctions(), f.DbRef()},
+	s.Require().Equal([]RefV{
+		RefV{"idx", NativeIndexes(), DbRef()},
+		RefV{"cls", NativeClasses(), DbRef()},
+		RefV{"db", NativeDatabases(), DbRef()},
+		RefV{"fn", NativeFunctions(), DbRef()},
 	}, refs)
 }
 
 func (s *ClientTestSuite) TestNestedClassRef() {
-	parentDb := f.RandomStartingWith("parent_")
-	childDb := f.RandomStartingWith("child_")
-	aClass := f.RandomStartingWith("class_")
+	parentDb := RandomStartingWith("parent_")
+	childDb := RandomStartingWith("child_")
+	aClass := RandomStartingWith("class_")
 
-	key, err := f.CreateKeyWithRole("admin")
+	key, err := CreateKeyWithRole("admin")
 	s.Require().NoError(err)
 
-	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+	adminClient := s.client.NewSessionClient(GetSecret(key))
 
 	client1 := s.createNewDatabase(adminClient, parentDb)
 	_ = s.createNewDatabase(client1, childDb)
 
-	key, err = client1.Query(f.CreateKey(f.Obj{"database": f.Database(childDb), "role": "server"}))
+	key, err = client1.Query(CreateKey(Obj{"database": Database(childDb), "role": "server"}))
 	s.Require().NoError(err)
 
-	client2 := client1.NewSessionClient(f.GetSecret(key))
+	client2 := client1.NewSessionClient(GetSecret(key))
 
-	_, err = client2.Query(f.CreateClass(f.Obj{"name": aClass}))
+	_, err = client2.Query(CreateClass(Obj{"name": aClass}))
 	s.Require().NoError(err)
 
 	var exists bool
-	s.queryAndDecode(f.Exists(f.ScopedClass(aClass, f.ScopedDatabase(childDb, f.Database(parentDb)))), &exists)
+	s.queryAndDecode(Exists(ScopedClass(aClass, ScopedDatabase(childDb, Database(parentDb)))), &exists)
 	s.Require().True(exists)
 
-	var data map[string]f.Value
-	var classes []f.RefV
+	var data map[string]Value
+	var classes []RefV
 
-	s.queryAndDecode(f.Paginate(f.ScopedClasses(f.ScopedDatabase(childDb, f.Database(parentDb)))), &data)
+	s.queryAndDecode(Paginate(ScopedClasses(ScopedDatabase(childDb, Database(parentDb)))), &data)
 	data["data"].Get(&classes)
 
 	s.Require().Equal(
 		classes,
-		[]f.RefV{f.RefV{aClass, f.NativeClasses(), &f.RefV{childDb, f.NativeDatabases(), &f.RefV{parentDb, f.NativeDatabases(), nil}}}},
+		[]RefV{RefV{aClass, NativeClasses(), &RefV{childDb, NativeDatabases(), &RefV{parentDb, NativeDatabases(), nil}}}},
 	)
 }
 
 func (s *ClientTestSuite) TestNestedKeyRef() {
-	parentDb := f.RandomStartingWith("parent_")
-	childDb := f.RandomStartingWith("child_")
+	parentDb := RandomStartingWith("parent_")
+	childDb := RandomStartingWith("child_")
 
-	key, err := f.CreateKeyWithRole("admin")
+	key, err := CreateKeyWithRole("admin")
 	s.Require().NoError(err)
 
-	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+	adminClient := s.client.NewSessionClient(GetSecret(key))
 
 	client := s.createNewDatabase(adminClient, parentDb)
 
-	_, err = client.Query(f.CreateDatabase(f.Obj{"name": childDb}))
+	_, err = client.Query(CreateDatabase(Obj{"name": childDb}))
 	s.Require().NoError(err)
 
-	var serverKey, adminKey f.RefV
+	var serverKey, adminKey RefV
 
-	result, err := client.Query(f.CreateKey(f.Obj{"database": f.Database(childDb), "role": "server"}))
+	result, err := client.Query(CreateKey(Obj{"database": Database(childDb), "role": "server"}))
 	s.Require().NoError(err)
 	result.At(refField).Get(&serverKey)
 
-	result, err = client.Query(f.CreateKey(f.Obj{"database": f.Database(childDb), "role": "admin"}))
+	result, err = client.Query(CreateKey(Obj{"database": Database(childDb), "role": "admin"}))
 	s.Require().NoError(err)
 	result.At(refField).Get(&adminKey)
 
-	var keys []f.RefV
+	var keys []RefV
 
-	result, err = client.Query(f.Paginate(f.Keys()))
+	result, err = client.Query(Paginate(Keys()))
 	s.Require().NoError(err)
 	result.At(dataField).Get(&keys)
 
 	s.Require().Equal(
 		keys,
-		[]f.RefV{serverKey, adminKey},
+		[]RefV{serverKey, adminKey},
 	)
 
-	result, err = adminClient.Query(f.Paginate(f.ScopedKeys(f.Database(parentDb))))
+	result, err = adminClient.Query(Paginate(ScopedKeys(Database(parentDb))))
 	s.Require().NoError(err)
 	result.At(dataField).Get(&keys)
 
 	s.Require().Equal(
 		keys,
-		[]f.RefV{serverKey, adminKey},
+		[]RefV{serverKey, adminKey},
 	)
 }
 
 func (s *ClientTestSuite) TestEvalEqualsExpression() {
 	var isEqual bool
 
-	s.queryAndDecode(f.Equals("fire", "fire"), &isEqual)
+	s.queryAndDecode(Equals("fire", "fire"), &isEqual)
 	s.Require().True(isEqual)
 }
 
@@ -1176,10 +1175,10 @@ func (s *ClientTestSuite) TestEvalContainsExpression() {
 	var contains bool
 
 	s.queryAndDecode(
-		f.Contains(
-			f.Arr{"favorites", "foods"},
-			f.Obj{"favorites": f.Obj{
-				"foods": f.Arr{"crunchings", "munchings"},
+		Contains(
+			Arr{"favorites", "foods"},
+			Obj{"favorites": Obj{
+				"foods": Arr{"crunchings", "munchings"},
 			}},
 		),
 		&contains,
@@ -1192,10 +1191,10 @@ func (s *ClientTestSuite) TestEvalSelectExpression() {
 	var food string
 
 	s.queryAndDecode(
-		f.Select(
-			f.Arr{"favorites", "foods", 1},
-			f.Obj{"favorites": f.Obj{
-				"foods": f.Arr{"crunchings", "munchings"},
+		Select(
+			Arr{"favorites", "foods", 1},
+			Obj{"favorites": Obj{
+				"foods": Arr{"crunchings", "munchings"},
 			}},
 		),
 		&food,
@@ -1204,12 +1203,12 @@ func (s *ClientTestSuite) TestEvalSelectExpression() {
 	s.Require().Equal("munchings", food)
 
 	s.queryAndDecode(
-		f.Select(
-			f.Arr{"favorites", "foods", 2},
-			f.Obj{"favorites": f.Obj{
-				"foods": f.Arr{"crunchings", "munchings"},
+		Select(
+			Arr{"favorites", "foods", 2},
+			Obj{"favorites": Obj{
+				"foods": Arr{"crunchings", "munchings"},
 			}},
-			f.Default("no food"),
+			Default("no food"),
 		),
 		&food,
 	)
@@ -1221,11 +1220,11 @@ func (s *ClientTestSuite) TestEvalSelectAllExpression() {
 	var foo []string
 
 	s.queryAndDecode(
-		f.SelectAll(
+		SelectAll(
 			"foo",
-			f.Arr{
-				f.Obj{"foo": "bar"},
-				f.Obj{"foo": "baz"},
+			Arr{
+				Obj{"foo": "bar"},
+				Obj{"foo": "baz"},
 			},
 		),
 		&foo,
@@ -1236,11 +1235,11 @@ func (s *ClientTestSuite) TestEvalSelectAllExpression() {
 	var numbers []int
 
 	s.queryAndDecode(
-		f.SelectAll(
-			f.Arr{"foo", 0},
-			f.Arr{
-				f.Obj{"foo": f.Arr{0, 1}},
-				f.Obj{"foo": f.Arr{2, 3}},
+		SelectAll(
+			Arr{"foo", 0},
+			Arr{
+				Obj{"foo": Arr{0, 1}},
+				Obj{"foo": Arr{2, 3}},
 			},
 		),
 		&numbers,
@@ -1252,161 +1251,161 @@ func (s *ClientTestSuite) TestEvalSelectAllExpression() {
 func (s *ClientTestSuite) TestEvalAbsExpression() {
 	var num int
 
-	s.queryAndDecode(f.Abs(-2), &num)
+	s.queryAndDecode(Abs(-2), &num)
 	s.Require().Equal(2, num)
 }
 
 func (s *ClientTestSuite) TestEvalAcosExpression() {
 	var num int
 
-	s.queryAndDecode(f.Acos(1), &num)
+	s.queryAndDecode(Acos(1), &num)
 	s.Require().Equal(0, num)
 }
 
 func (s *ClientTestSuite) TestEvalAsinExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Asin(0.5)), &num)
+	s.queryAndDecode(Trunc(Asin(0.5)), &num)
 	s.Require().Equal(0.52, num)
 }
 
 func (s *ClientTestSuite) TestEvalAtanExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Atan(0.5)), &num)
+	s.queryAndDecode(Trunc(Atan(0.5)), &num)
 	s.Require().Equal(0.46, num)
 }
 
 func (s *ClientTestSuite) TestEvalAddExpression() {
 	var num int
 
-	s.queryAndDecode(f.Add(2, 3), &num)
+	s.queryAndDecode(Add(2, 3), &num)
 	s.Require().Equal(5, num)
 }
 
 func (s *ClientTestSuite) TestEvalBitAndExpression() {
 	var num int
 
-	s.queryAndDecode(f.BitAnd(2, 3), &num)
+	s.queryAndDecode(BitAnd(2, 3), &num)
 	s.Require().Equal(2, num)
 }
 
 func (s *ClientTestSuite) TestEvalBitNotExpression() {
 	var num int
 
-	s.queryAndDecode(f.BitNot(2), &num)
+	s.queryAndDecode(BitNot(2), &num)
 	s.Require().Equal(-3, num)
 }
 
 func (s *ClientTestSuite) TestEvalBitOrExpression() {
 	var num int
 
-	s.queryAndDecode(f.BitOr(2, 1), &num)
+	s.queryAndDecode(BitOr(2, 1), &num)
 	s.Require().Equal(3, num)
 }
 
 func (s *ClientTestSuite) TestEvalBitXorExpression() {
 	var num int
 
-	s.queryAndDecode(f.BitXor(2, 3), &num)
+	s.queryAndDecode(BitXor(2, 3), &num)
 	s.Require().Equal(1, num)
 }
 
 func (s *ClientTestSuite) TestEvalCeilExpression() {
 	var num int
 
-	s.queryAndDecode(f.Ceil(1.8), &num)
+	s.queryAndDecode(Ceil(1.8), &num)
 	s.Require().Equal(2, num)
 }
 
 func (s *ClientTestSuite) TestEvalCosExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Cos(0.5)), &num)
+	s.queryAndDecode(Trunc(Cos(0.5)), &num)
 	s.Require().Equal(0.87, num)
 }
 
 func (s *ClientTestSuite) TestEvalCoshExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Cosh(0.5)), &num)
+	s.queryAndDecode(Trunc(Cosh(0.5)), &num)
 	s.Require().Equal(1.12, num)
 }
 
 func (s *ClientTestSuite) TestEvalDegreesExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Degrees(0.5)), &num)
+	s.queryAndDecode(Trunc(Degrees(0.5)), &num)
 	s.Require().Equal(28.64, num)
 }
 
 func (s *ClientTestSuite) TestEvalDivideExpression() {
 	var num int
 
-	s.queryAndDecode(f.Divide(10, 2), &num)
+	s.queryAndDecode(Divide(10, 2), &num)
 	s.Require().Equal(5, num)
 }
 
 func (s *ClientTestSuite) TestEvalExpExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Exp(2)), &num)
+	s.queryAndDecode(Trunc(Exp(2)), &num)
 	s.Require().Equal(7.38, num)
 }
 
 func (s *ClientTestSuite) TestEvalFloorExpression() {
 	var num int
 
-	s.queryAndDecode(f.Floor(2.99), &num)
+	s.queryAndDecode(Floor(2.99), &num)
 	s.Require().Equal(2, num)
 }
 
 func (s *ClientTestSuite) TestEvalHypotExpression() {
 	var num int
 
-	s.queryAndDecode(f.Hypot(3,4), &num)
+	s.queryAndDecode(Hypot(3,4), &num)
 	s.Require().Equal(5, num)
 }
 
 func (s *ClientTestSuite) TestEvalLnExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Ln(2)), &num)
+	s.queryAndDecode(Trunc(Ln(2)), &num)
 	s.Require().Equal(0.69, num)
 }
 
 func (s *ClientTestSuite) TestEvalLogExpression() {
 	var num int
 
-	s.queryAndDecode(f.Log(100), &num)
+	s.queryAndDecode(Log(100), &num)
 	s.Require().Equal(2, num)
 }
 
 func (s *ClientTestSuite) TestEvalMaxExpression() {
 	var num int
 
-	s.queryAndDecode(f.Max(2, 3), &num)
+	s.queryAndDecode(Max(2, 3), &num)
 	s.Require().Equal(3, num)
 }
 
 func (s *ClientTestSuite) TestEvalMinExpression() {
 	var num int
 
-	s.queryAndDecode(f.Min(4, 3), &num)
+	s.queryAndDecode(Min(4, 3), &num)
 	s.Require().Equal(3, num)
 }
 
 func (s *ClientTestSuite) TestEvalModuloExpression() {
 	var num int
 
-	s.queryAndDecode(f.Modulo(10, 2), &num)
+	s.queryAndDecode(Modulo(10, 2), &num)
 	s.Require().Equal(0, num)
 }
 
 func (s *ClientTestSuite) TestEvalMultiplyExpression() {
 	var num int
 
-	s.queryAndDecode(f.Multiply(2, 3), &num)
+	s.queryAndDecode(Multiply(2, 3), &num)
 	s.Require().Equal(6, num)
 }
 
@@ -1414,147 +1413,147 @@ func (s *ClientTestSuite) TestEvalMultiplyExpression() {
 func (s *ClientTestSuite) TestEvalPowExpression() {
 	var num int
 
-	s.queryAndDecode(f.Pow(2,3), &num)
+	s.queryAndDecode(Pow(2,3), &num)
 	s.Require().Equal(8, num)
 }
 
 func (s *ClientTestSuite) TestEvalRadiansExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Radians(2)), &num)
+	s.queryAndDecode(Trunc(Radians(2)), &num)
 	s.Require().Equal(0.03, num)
 }
 
 func (s *ClientTestSuite) TestEvalRoundExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Round(1.666666, f.Precision(3)), &num)
+	s.queryAndDecode(Round(1.666666, Precision(3)), &num)
 	s.Require().Equal(1.667, num)
 }
 
 func (s *ClientTestSuite) TestEvalSignExpression() {
 	var num int
 
-	s.queryAndDecode(f.Sign(-1), &num)
+	s.queryAndDecode(Sign(-1), &num)
 	s.Require().Equal(-1, num)
 }
 
 func (s *ClientTestSuite) TestEvalSinExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Sin(20)), &num)
+	s.queryAndDecode(Trunc(Sin(20)), &num)
 	s.Require().Equal(0.91, num)
 }
 
 func (s *ClientTestSuite) TestEvalSinhExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Sinh(0.5)), &num)
+	s.queryAndDecode(Trunc(Sinh(0.5)), &num)
 	s.Require().Equal(0.52, num)
 }
 
 func (s *ClientTestSuite) TestEvalSqrtExpression() {
 	var num int
 
-	s.queryAndDecode(f.Sqrt(16), &num)
+	s.queryAndDecode(Sqrt(16), &num)
 	s.Require().Equal(4, num)
 }
 
 func (s *ClientTestSuite) TestEvalSubtractExpression() {
 	var num int
 
-	s.queryAndDecode(f.Subtract(2, 3), &num)
+	s.queryAndDecode(Subtract(2, 3), &num)
 	s.Require().Equal(-1, num)
 }
 
 func (s *ClientTestSuite) TestEvalTanExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Tan(20)), &num)
+	s.queryAndDecode(Trunc(Tan(20)), &num)
 	s.Require().Equal(2.23, num)
 }
 
 func (s *ClientTestSuite) TestEvalTanhExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(f.Tanh(0.5)), &num)
+	s.queryAndDecode(Trunc(Tanh(0.5)), &num)
 	s.Require().Equal(0.46, num)
 }
 
 func (s *ClientTestSuite) TestEvalTruncExpression() {
 	var num float64
 
-	s.queryAndDecode(f.Trunc(1.234567), &num)
+	s.queryAndDecode(Trunc(1.234567), &num)
 	s.Require().Equal(1.23, num)
 }
 
 func (s *ClientTestSuite) TestEvalLTExpression() {
 	var b bool
 
-	s.queryAndDecode(f.LT(2, 3), &b)
+	s.queryAndDecode(LT(2, 3), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalLTEExpression() {
 	var b bool
 
-	s.queryAndDecode(f.LTE(2, 2), &b)
+	s.queryAndDecode(LTE(2, 2), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalGTExpression() {
 	var b bool
 
-	s.queryAndDecode(f.GT(3, 2), &b)
+	s.queryAndDecode(GT(3, 2), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalGTEExpression() {
 	var b bool
 
-	s.queryAndDecode(f.GTE(2, 2), &b)
+	s.queryAndDecode(GTE(2, 2), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalAndExpression() {
 	var b bool
 
-	s.queryAndDecode(f.And(true, true), &b)
+	s.queryAndDecode(And(true, true), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalOrExpression() {
 	var b bool
 
-	s.queryAndDecode(f.Or(false, true), &b)
+	s.queryAndDecode(Or(false, true), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalNotExpression() {
 	var b bool
 
-	s.queryAndDecode(f.Not(false), &b)
+	s.queryAndDecode(Not(false), &b)
 	s.Require().True(b)
 }
 
 func (s *ClientTestSuite) TestEvalToStringExpression() {
 	var str string
 
-	s.queryAndDecode(f.ToString(42), &str)
+	s.queryAndDecode(ToString(42), &str)
 	s.Require().Equal("42", str)
 }
 
 func (s *ClientTestSuite) TestEvalToNumberExpression() {
 	var num int
 
-	s.queryAndDecode(f.ToNumber("42"), &num)
+	s.queryAndDecode(ToNumber("42"), &num)
 	s.Require().Equal(42, num)
 }
 
 func (s *ClientTestSuite) TestEvalToTimeExpression() {
 	var t time.Time
 
-	s.queryAndDecode(f.ToTime("1970-01-01T00:00:00-04:00"), &t)
+	s.queryAndDecode(ToTime("1970-01-01T00:00:00-04:00"), &t)
 
 	s.Require().Equal(t,
 		time.Unix(0, 0).UTC().
@@ -1565,7 +1564,7 @@ func (s *ClientTestSuite) TestEvalToTimeExpression() {
 func (s *ClientTestSuite) TestEvalToDateExpression() {
 	var t time.Time
 
-	s.queryAndDecode(f.ToDate("1970-01-02"), &t)
+	s.queryAndDecode(ToDate("1970-01-02"), &t)
 
 	s.Require().Equal(t,
 		time.Unix(0, 0).UTC().
@@ -1574,12 +1573,12 @@ func (s *ClientTestSuite) TestEvalToDateExpression() {
 }
 
 func (s *ClientTestSuite) TestSetRef() {
-	var set f.SetRefV
-	var match f.RefV
+	var set SetRefV
+	var match RefV
 	var terms string
 
 	s.queryAndDecode(
-		f.MatchTerm(
+		MatchTerm(
 			spellsByElement,
 			"arcane",
 		),
@@ -1596,40 +1595,40 @@ func (s *ClientTestSuite) TestSetRef() {
 func (s *ClientTestSuite) TestEchoAnObjectBack() {
 	var obj map[string]string
 
-	s.queryAndDecode(f.Obj{"key": "value"}, &obj)
+	s.queryAndDecode(Obj{"key": "value"}, &obj)
 	s.Require().Equal(map[string]string{"key": "value"}, obj)
 }
 
 func (s *ClientTestSuite) TestCreateFunction() {
-	body := f.Query(f.Lambda("x", f.Var("x")))
+	body := Query(Lambda("x", Var("x")))
 
-	s.query(f.CreateFunction(f.Obj{"name": "a_function", "body": body}))
+	s.query(CreateFunction(Obj{"name": "a_function", "body": body}))
 
 	var exists bool
 
-	s.queryAndDecode(f.Exists(f.Function("a_function")), &exists)
+	s.queryAndDecode(Exists(Function("a_function")), &exists)
 
 	s.Require().True(exists)
 }
 
 func (s *ClientTestSuite) TestCallFunction() {
-	body := f.Query(
-		f.Lambda(
-			f.Arr{"x", "y"},
-			f.Concat(
-				f.Arr{f.Var("x"), f.Var("y")},
-				f.Separator("/"),
+	body := Query(
+		Lambda(
+			Arr{"x", "y"},
+			Concat(
+				Arr{Var("x"), Var("y")},
+				Separator("/"),
 			),
 		),
 	)
 
-	s.query(f.CreateFunction(f.Obj{"name": "concat_with_slash", "body": body}))
+	s.query(CreateFunction(Obj{"name": "concat_with_slash", "body": body}))
 
 	var output string
 
 	s.queryAndDecode(
-		f.Call(
-			f.Function("concat_with_slash"),
+		Call(
+			Function("concat_with_slash"),
 			"a",
 			"b",
 		),
@@ -1642,7 +1641,7 @@ func (s *ClientTestSuite) TestCallFunction() {
 func (s *ClientTestSuite) TestEchoQuery() {
 	firstSeen := s.client.GetLastTxnTime()
 
-	body := s.query(f.Query(f.Lambda("x", f.Var("x"))))
+	body := s.query(Query(Lambda("x", Var("x"))))
 
 	bodyEchoed := s.query(body)
 
@@ -1671,33 +1670,33 @@ func (s *ClientTestSuite) assertMetrics(headers map[string][]string) {
 }
 
 func (s *ClientTestSuite) TestMetrics() {
-	newClient := s.client.NewWithObserver(func(queryResult *f.QueryResult) {
+	newClient := s.client.NewWithObserver(func(queryResult *QueryResult) {
 		s.assertMetrics(queryResult.Headers)
 	})
-	_, err := newClient.Query(f.NewId())
+	_, err := newClient.Query(NewId())
 	s.Require().NoError(err)
 }
 
 func (s *ClientTestSuite) TestMetricsWithQueryResult() {
-	_, headers, err := s.client.QueryResult(f.NewId())
+	_, headers, err := s.client.QueryResult(NewId())
 	s.Require().NoError(err)
 	s.assertMetrics(headers)
 }
 
 func (s *ClientTestSuite) TestMetricsWithBatchQueryResult() {
-	_, headers, err := s.client.BatchQueryResult([]f.Expr{f.NewId(), f.NewId()})
+	_, headers, err := s.client.BatchQueryResult([]Expr{NewId(), NewId()})
 	s.Require().NoError(err)
 	s.assertMetrics(headers)
 }
 
-func (s *ClientTestSuite) query(expr f.Expr) f.Value {
+func (s *ClientTestSuite) query(expr Expr) Value {
 	value, err := s.client.Query(expr)
 	s.Require().NoError(err)
 
 	return value
 }
 
-func (s *ClientTestSuite) queryForRef(expr f.Expr) (ref f.RefV) {
+func (s *ClientTestSuite) queryForRef(expr Expr) (ref RefV) {
 	value := s.query(expr)
 
 	s.Require().NoError(
@@ -1707,7 +1706,7 @@ func (s *ClientTestSuite) queryForRef(expr f.Expr) (ref f.RefV) {
 	return
 }
 
-func (s *ClientTestSuite) queryForSecret(expr f.Expr) (secret string) {
+func (s *ClientTestSuite) queryForSecret(expr Expr) (secret string) {
 	auth, err := s.client.Query(expr)
 	s.Require().NoError(err)
 
@@ -1718,27 +1717,27 @@ func (s *ClientTestSuite) queryForSecret(expr f.Expr) (secret string) {
 	return
 }
 
-func (s *ClientTestSuite) queryAndDecode(expr f.Expr, i interface{}) {
+func (s *ClientTestSuite) queryAndDecode(expr Expr, i interface{}) {
 	value := s.query(expr)
 	s.Require().NoError(value.Get(i))
 }
 
-func (s *ClientTestSuite) adminQuery(expr f.Expr) (value f.Value) {
-	value, err := f.AdminQuery(expr)
+func (s *ClientTestSuite) adminQuery(expr Expr) (value Value) {
+	value, err := AdminQuery(expr)
 	s.Require().NoError(err)
 
 	return
 }
 
-func (s *ClientTestSuite) createNewDatabase(client *f.FaunaClient, name string) *f.FaunaClient {
+func (s *ClientTestSuite) createNewDatabase(client *FaunaClient, name string) *FaunaClient {
 	var err error
 
-	_, err = client.Query(f.CreateDatabase(f.Obj{"name": name}))
+	_, err = client.Query(CreateDatabase(Obj{"name": name}))
 	s.Require().NoError(err)
 
-	var key f.Value
-	key, err = client.Query(f.CreateKey(f.Obj{"database": f.Database(name), "role": "admin"}))
+	var key Value
+	key, err = client.Query(CreateKey(Obj{"database": Database(name), "role": "admin"}))
 	s.Require().NoError(err)
 
-	return client.NewSessionClient(f.GetSecret(key))
+	return client.NewSessionClient(GetSecret(key))
 }
