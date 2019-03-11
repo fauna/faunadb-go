@@ -605,6 +605,34 @@ type PaginateEvent struct {
 	Instance f.RefV `fauna:"instance"`
 }
 
+func (s *ClientTestSuite) TestIsEmptyOnEmpty() {
+	var empty bool
+
+	s.queryAndDecode(f.IsEmpty(f.Arr{}), &empty)
+	s.Require().Equal(empty, true)
+}
+
+func (s *ClientTestSuite) TestIsEmptyOnNonEmpty() {
+	var empty bool
+
+	s.queryAndDecode(f.IsEmpty(f.Arr{1}), &empty)
+	s.Require().Equal(empty, false)
+}
+
+func (s *ClientTestSuite) TestIsNonEmptyOnEmpty() {
+	var empty bool
+
+	s.queryAndDecode(f.IsNonEmpty(f.Arr{}), &empty)
+	s.Require().Equal(empty, false)
+}
+
+func (s *ClientTestSuite) TestIsNonEmptyOnNonEmpty() {
+	var empty bool
+
+	s.queryAndDecode(f.IsNonEmpty(f.Arr{1, 2}), &empty)
+	s.Require().Equal(empty, true)
+}
+
 func (s *ClientTestSuite) TestEvents() {
 	firstSeen := s.client.GetLastTxnTime()
 
