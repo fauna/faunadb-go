@@ -10,11 +10,11 @@ A Go lang driver for [FaunaDB](https://fauna.com/).
 ## Supported Go Versions
 
 Currently, the driver is tested on:
-- 1.5
-- 1.6
-- 1.7
 - 1.8
 - 1.9
+- 1.10
+- 1.11
+- 1.12
 
 ## Using the Driver
 

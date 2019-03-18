@@ -183,7 +183,7 @@ func (client *FaunaClient) NewSessionClient(secret string) *FaunaClient {
 func (client *FaunaClient) NewWithObserver(observer ObserverCallback) *FaunaClient {
 	return client.newClient(client.basicAuth, observer)
 }
- 
+
 // GetLastTxnTime gets the freshest timestamp reported to this client.
 func (client *FaunaClient) GetLastTxnTime() int64 {
 	if client.isTxnTimeEnabled {
