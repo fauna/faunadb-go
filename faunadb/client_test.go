@@ -84,6 +84,7 @@ func (s *ClientTestSuite) setupSchema() {
 	allSpells = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "all_spells",
+			"active": true,
 			"source": spells,
 		}),
 	)
@@ -91,6 +92,7 @@ func (s *ClientTestSuite) setupSchema() {
 	spellsByElement = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "spells_by_name",
+			"active": true,
 			"source": spells,
 			"terms": f.Arr{f.Obj{
 				"field": f.Arr{"data", "elements"},
@@ -101,6 +103,7 @@ func (s *ClientTestSuite) setupSchema() {
 	elementsOfSpells = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "elements_of_spells",
+			"active": true,
 			"source": spells,
 			"values": f.Arr{f.Obj{
 				"field": f.Arr{"data", "elements"},
@@ -111,6 +114,7 @@ func (s *ClientTestSuite) setupSchema() {
 	spellbookByOwner = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "spellbook_by_owner",
+			"active": true,
 			"source": spellbook,
 			"terms": f.Arr{f.Obj{
 				"field": f.Arr{"data", "owner"},
@@ -121,6 +125,7 @@ func (s *ClientTestSuite) setupSchema() {
 	spellBySpellbook = s.queryForRef(
 		f.CreateIndex(f.Obj{
 			"name":   "spell_by_spellbook",
+			"active": true,
 			"source": spells,
 			"terms": f.Arr{f.Obj{
 				"field": f.Arr{"data", "book"},
