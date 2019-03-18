@@ -435,7 +435,7 @@ func IsEmpty(coll interface{}) Expr { return fn1("is_empty", coll) }
 //   bool - True if the collection is not empty, else false.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#collections
-func IsNonEmpty(coll interface{}) Expr { return Not(fn1("is_empty", coll)) }
+func IsNonEmpty(coll interface{}) Expr { return fn1("is_nonempty", coll) }
 
 // Read
 
