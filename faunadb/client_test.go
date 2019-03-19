@@ -980,6 +980,160 @@ func (s *ClientTestSuite) TestEvalEpochExpression() {
 	})
 }
 
+func (s *ClientTestSuite) TestToSecond() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.ToSeconds(0), &n1)
+	s.queryAndDecode(f.ToSeconds(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.ToSeconds(0), &n3)
+	s.queryAndDecode(f.ToSeconds(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(0))
+	s.Require().Equal(n2, int64(2147483648))
+	s.Require().Equal(n3, int64(0))
+	s.Require().Equal(n4, int64(2147483648))
+}
+
+func (s *ClientTestSuite) TestToMillis() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.ToMillis(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.ToMillis(f.Epoch(2147483648000, "millisecond")), &n2)
+	s.queryAndDecode(f.ToMillis(0), &n3)
+	s.queryAndDecode(f.ToMillis(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(0))
+	s.Require().Equal(n2, int64(2147483648000))
+	s.Require().Equal(n3, int64(0))
+	s.Require().Equal(n4, int64(2147483648000))
+}
+
+func (s *ClientTestSuite) TestToMicros() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.ToMillis(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.ToMillis(f.Epoch(2147483648000000, "microsecond")), &n2)
+	s.queryAndDecode(f.ToMillis(0), &n3)
+	s.queryAndDecode(f.ToMillis(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(0))
+	s.Require().Equal(n2, int64(2147483648000))
+	s.Require().Equal(n3, int64(0))
+	s.Require().Equal(n4, int64(2147483648000))
+}
+
+func (s *ClientTestSuite) TestDayOfWeek() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.DayOfWeek(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.DayOfWeek(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.DayOfWeek(0), &n3)
+	s.queryAndDecode(f.DayOfWeek(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(4))
+	s.Require().Equal(n2, int64(2))
+	s.Require().Equal(n3, int64(4))
+	s.Require().Equal(n4, int64(2))
+}
+
+func (s *ClientTestSuite) TestDayOfMonth() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.DayOfMonth(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.DayOfMonth(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.DayOfMonth(0), &n3)
+	s.queryAndDecode(f.DayOfMonth(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(1))
+	s.Require().Equal(n2, int64(19))
+	s.Require().Equal(n3, int64(1))
+	s.Require().Equal(n4, int64(19))
+}
+
+func (s *ClientTestSuite) TestDayOfYear() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.DayOfYear(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.DayOfYear(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.DayOfYear(0), &n3)
+	s.queryAndDecode(f.DayOfYear(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(1))
+	s.Require().Equal(n2, int64(19))
+	s.Require().Equal(n3, int64(1))
+	s.Require().Equal(n4, int64(19))
+}
+
+func (s *ClientTestSuite) TestMonth() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.Month(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.Month(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.Month(0), &n3)
+	s.queryAndDecode(f.Month(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(1))
+	s.Require().Equal(n2, int64(1))
+	s.Require().Equal(n3, int64(1))
+	s.Require().Equal(n4, int64(1))
+}
+
+func (s *ClientTestSuite) TestYear() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.Year(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.Year(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.Year(0), &n3)
+	s.queryAndDecode(f.Year(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(1970))
+	s.Require().Equal(n2, int64(2038))
+	s.Require().Equal(n3, int64(1970))
+	s.Require().Equal(n4, int64(2038))
+}
+
+func (s *ClientTestSuite) TestHour() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.Hour(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.Hour(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.Hour(0), &n3)
+	s.queryAndDecode(f.Hour(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(0))
+	s.Require().Equal(n2, int64(3))
+	s.Require().Equal(n3, int64(0))
+	s.Require().Equal(n4, int64(3))
+}
+
+func (s *ClientTestSuite) TestMinute() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.Minute(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.Minute(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.Minute(0), &n3)
+	s.queryAndDecode(f.Minute(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(0))
+	s.Require().Equal(n2, int64(14))
+	s.Require().Equal(n3, int64(0))
+	s.Require().Equal(n4, int64(14))
+}
+
+func (s *ClientTestSuite) TestSecond() {
+	var n1, n2, n3, n4 int64
+
+	s.queryAndDecode(f.Second(f.Epoch(0, "second")), &n1)
+	s.queryAndDecode(f.Second(f.Epoch(2147483648, "second")), &n2)
+	s.queryAndDecode(f.Second(0), &n3)
+	s.queryAndDecode(f.Second(2147483648000000), &n4)
+
+	s.Require().Equal(n1, int64(0))
+	s.Require().Equal(n2, int64(8))
+	s.Require().Equal(n3, int64(0))
+	s.Require().Equal(n4, int64(8))
+}
+
 func (s *ClientTestSuite) TestEvalDateExpression() {
 	var t time.Time
 

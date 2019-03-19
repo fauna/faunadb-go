@@ -1895,6 +1895,127 @@ func ToTime(value interface{}) Expr {
 	return fn1("to_time", value)
 }
 
+// Converts a time expression to seconds since the UNIX epoch.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToSeconds(value interface{}) Expr {
+	return fn1("to_seconds", value)
+}
+
+// Converts a time expression to milliseconds since the UNIX epoch.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToMillis(value interface{}) Expr {
+	return fn1("to_millis", value)
+}
+
+// Converts a time expression to microseconds since the UNIX epoch.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToMicros(value interface{}) Expr {
+	return fn1("to_micros", value)
+}
+
+// Returns the time expression's year, following the ISO-8601 standard.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Year(value interface{}) Expr {
+	return fn1("year", value)
+}
+
+// Returns a time expression's month of the year, from 1 to 12.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - Month.
+func Month(value interface{}) Expr {
+	return fn1("month", value)
+}
+
+// Returns a time expression's hour of the day, from 0 to 23.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Hour(value interface{}) Expr {
+	return fn1("hour", value)
+}
+
+// Returns a time expression's minute of the hour, from 0 to 59.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Minute(value interface{}) Expr {
+	return fn1("minute", value)
+}
+
+// Returns a time expression's second of the minute, from 0 to 59.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Second(value interface{}) Expr {
+	return fn1("second", value)
+}
+
+// Returns a time expression's day of the month, from 1 to 31.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - day of month.
+func DayOfMonth(value interface{}) Expr {
+	return fn1("day_of_month", value)
+}
+
+// Returns a time expression's day of the week following ISO-8601 convention, from 1 (Monday) to 7 (Sunday).
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - day of week.
+func DayOfWeek(value interface{}) Expr {
+	return fn1("day_of_week", value)
+}
+
+// Returns a time expression's day of the year, from 1 to 365, or 366 in a leap year.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - Day of the year.
+func DayOfYear(value interface{}) Expr {
+	return fn1("day_of_year", value)
+}
+
 // ToDate attempts to convert an expression to a date literal.
 //
 // Parameters:
