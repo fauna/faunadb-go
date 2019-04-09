@@ -19,10 +19,10 @@ var (
 	beforeField   = f.ObjKey("before")
 	afterField    = f.ObjKey("after")
 	secretField   = f.ObjKey("secret")
-	instanceField = f.ObjKey("instance")
+	documentField = f.ObjKey("document")
 )
 
-var randomClass,
+var randomCollection,
 	spells,
 	spellbook,
 	characters,
@@ -65,20 +65,20 @@ func (s *ClientTestSuite) SetupSuite() {
 }
 
 func (s *ClientTestSuite) setupSchema() {
-	randomClass = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "some_random_class"}),
+	randomCollection = s.queryForRef(
+		f.CreateCollection(f.Obj{"name": "some_random_collection"}),
 	)
 
 	spells = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "spells"}),
+		f.CreateCollection(f.Obj{"name": "spells"}),
 	)
 
 	characters = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "characters"}),
+		f.CreateCollection(f.Obj{"name": "characters"}),
 	)
 
 	spellbook = s.queryForRef(
-		f.CreateClass(f.Obj{"name": "spellbook"}),
+		f.CreateCollection(f.Obj{"name": "spellbook"}),
 	)
 
 	allSpells = s.queryForRef(
@@ -211,7 +211,7 @@ func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 	invalidClient := s.client.NewSessionClient("invalid-secret")
 
 	_, err := invalidClient.Query(
-		f.Get(f.Ref("classes/spells/1234")),
+		f.Get(f.Ref("collections/spells/1234")),
 	)
 
 	if _, ok := err.(f.Unauthorized); !ok {
@@ -233,9 +233,9 @@ func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResou
 	}
 }
 
-func (s *ClientTestSuite) TestReturnNotFoundForNonExistingInstance() {
+func (s *ClientTestSuite) TestReturnNotFoundForNonExistingDocument() {
 	_, err := s.client.Query(
-		f.Get(f.Ref("classes/spells/1234")),
+		f.Get(f.Ref("collections/spells/1234")),
 	)
 
 	if _, ok := err.(f.NotFound); !ok {
@@ -244,8 +244,8 @@ func (s *ClientTestSuite) TestReturnNotFoundForNonExistingInstance() {
 }
 
 func (s *ClientTestSuite) TestCreateAComplexInstante() {
-	instance := s.query(
-		f.Create(randomClass,
+	document := s.query(
+		f.Create(randomCollection,
 			f.Obj{"data": f.Obj{
 				"testField": f.Obj{
 					"array":  f.Arr{1, 2, 3},
@@ -271,7 +271,7 @@ func (s *ClientTestSuite) TestCreateAComplexInstante() {
 	var testField complexStruct
 
 	s.Require().NoError(
-		instance.At(dataField.AtKey("testField")).Get(&testField),
+		document.At(dataField.AtKey("testField")).Get(&testField),
 	)
 
 	s.Require().Equal(
@@ -289,7 +289,7 @@ func (s *ClientTestSuite) TestCreateAComplexInstante() {
 
 func (s *ClientTestSuite) TestCreateAnNonUniformArray() {
 	value := s.query(
-		f.Create(randomClass,
+		f.Create(randomCollection,
 			f.Obj{"data": f.Obj{
 				"array": f.Arr{"1", 2, 3.5, struct{ Data int }{4}},
 			}},
@@ -313,7 +313,7 @@ func (s *ClientTestSuite) TestCreateAnNonUniformArray() {
 	s.Require().Equal(data, 4)
 }
 
-func (s *ClientTestSuite) TestGetAnInstance() {
+func (s *ClientTestSuite) TestGetADocument() {
 	var spell Spell
 
 	value := s.query(
@@ -363,7 +363,7 @@ func (s *ClientTestSuite) TestUpdateAnInstaceData() {
 	var updated Spell
 
 	ref := s.queryForRef(
-		f.Create(randomClass,
+		f.Create(randomCollection,
 			f.Obj{"data": Spell{
 				Name:     "Magic Missile",
 				Elements: []string{"arcane"},
@@ -395,11 +395,11 @@ func (s *ClientTestSuite) TestUpdateAnInstaceData() {
 	)
 }
 
-func (s *ClientTestSuite) TestReplaceAnInstanceData() {
+func (s *ClientTestSuite) TestReplaceADocumentData() {
 	var replaced Spell
 
 	ref := s.queryForRef(
-		f.Create(randomClass,
+		f.Create(randomCollection,
 			f.Obj{"data": Spell{
 				Name:     "Magic Missile",
 				Elements: []string{"arcane"},
@@ -431,11 +431,11 @@ func (s *ClientTestSuite) TestReplaceAnInstanceData() {
 	)
 }
 
-func (s *ClientTestSuite) TestDeleteAnInstance() {
+func (s *ClientTestSuite) TestDeleteADocument() {
 	var exists bool
 
 	ref := s.queryForRef(
-		f.Create(randomClass,
+		f.Create(randomCollection,
 			f.Obj{"data": Spell{
 				Name: "Magic Missile",
 			}},
@@ -452,7 +452,7 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 
 	res := s.query(
 		f.Create(
-			randomClass,
+			randomCollection,
 			f.Obj{"data": f.Obj{
 				"name": "Magic Missile",
 			}},
@@ -466,7 +466,7 @@ func (s *ClientTestSuite) TestInsertAndRemoveEvents() {
 		}),
 	)
 
-	s.Require().NoError(res.At(instanceField).Get(&inserted))
+	s.Require().NoError(res.At(documentField).Get(&inserted))
 	s.Require().Equal(inserted, created)
 
 	res = s.query(f.Remove(created, 2, f.ActionDelete))
@@ -525,7 +525,7 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	var ref f.RefV
 
 	randomID := f.RandomStartingWith()
-	refToCreate := f.RefClass(randomClass, randomID)
+	refToCreate := f.RefCollection(randomCollection, randomID)
 
 	res := s.queryForRef(
 		f.Do(
@@ -535,7 +535,7 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	)
 
 	s.Require().NoError(res.Get(&ref))
-	s.Require().Equal(ref, f.RefV{randomID, &randomClass, nil})
+	s.Require().Equal(ref, f.RefV{randomID, &randomCollection, &randomCollection, nil})
 
 	var array []int
 	err := s.query(f.Do(f.Arr{1, 2, 3})).Get(&array)
@@ -565,7 +565,7 @@ func (s *ClientTestSuite) TestExecuteForeachExpression() {
 		f.Foreach(
 			f.Arr{"Fireball Level 1", "Fireball Level 2"},
 			f.Lambda("x",
-				f.Create(randomClass, f.Obj{"data": f.Obj{"name": f.Var("x")}})),
+				f.Create(randomCollection, f.Obj{"data": f.Obj{"name": f.Var("x")}})),
 		),
 		&arr,
 	)
@@ -632,7 +632,7 @@ func (s *ClientTestSuite) TestAppendElementsInACollection() {
 
 type PaginateEvent struct {
 	Action   string `fauna:"action"`
-	Instance f.RefV `fauna:"instance"`
+	Document f.RefV `fauna:"document"`
 }
 
 func (s *ClientTestSuite) TestIsEmptyOnEmpty() {
@@ -667,7 +667,7 @@ func (s *ClientTestSuite) TestEvents() {
 	firstSeen := s.client.GetLastTxnTime()
 
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{}),
+		f.Create(randomCollection, f.Obj{}),
 	)
 
 	_ = s.query(f.Update(ref, f.Obj{}))
@@ -688,7 +688,7 @@ func (s *ClientTestSuite) TestEvents() {
 
 func (s *ClientTestSuite) TestSingleton() {
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{}),
+		f.Create(randomCollection, f.Obj{}),
 	)
 
 	_ = s.query(f.Update(ref, f.Obj{}))
@@ -737,7 +737,7 @@ func (s *ClientTestSuite) TestPaginatesOverAnIndex() {
 	s.Require().NotNil(before)
 }
 
-func (s *ClientTestSuite) TestFindASingleInstanceOnAIndex() {
+func (s *ClientTestSuite) TestFindASingleDocumentOnAIndex() {
 	var spells []f.RefV
 
 	res := s.query(
@@ -1174,7 +1174,7 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 	var loggedOut, identified bool
 
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{
+		f.Create(randomCollection, f.Obj{
 			"credentials": f.Obj{
 				"password": "abcdefg",
 			},
@@ -1201,7 +1201,7 @@ func (s *ClientTestSuite) TestAuthenticateSession() {
 
 func (s *ClientTestSuite) TestHasIdentityExpression() {
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{
+		f.Create(randomCollection, f.Obj{
 			"credentials": f.Obj{
 				"password": "sekrit",
 			},
@@ -1234,7 +1234,7 @@ func (s *ClientTestSuite) TestLetBindingOrdering() {
 
 func (s *ClientTestSuite) TestIdentityExpression() {
 	ref := s.queryForRef(
-		f.Create(randomClass, f.Obj{
+		f.Create(randomCollection, f.Obj{
 			"credentials": f.Obj{
 				"password": "sekrit",
 			},
@@ -1265,10 +1265,10 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 
 	s.queryAndDecode(
 		f.Arr{
-			f.Ref("classes/thing/123"),
-			f.RefClass(f.Class("thing"), "123"),
+			f.Ref("collections/thing/123"),
+			f.RefCollection(f.Collection("thing"), "123"),
 			f.Index("idx"),
-			f.Class("cls"),
+			f.Collection("cls"),
 			f.Database("db"),
 			f.Function("fn"),
 			f.Role("role"),
@@ -1276,14 +1276,17 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 		&refs,
 	)
 
+	n1 := &f.RefV{"thing", f.NativeCollections(), f.NativeCollections(), nil}
+	n2 := &f.RefV{"thing", f.NativeCollections(), f.NativeCollections(), nil}
+
 	s.Require().Equal([]f.RefV{
-		f.RefV{"123", &f.RefV{"thing", f.NativeClasses(), nil}, nil},
-		f.RefV{"123", &f.RefV{"thing", f.NativeClasses(), nil}, nil},
-		f.RefV{"idx", f.NativeIndexes(), nil},
-		f.RefV{"cls", f.NativeClasses(), nil},
-		f.RefV{"db", f.NativeDatabases(), nil},
-		f.RefV{"fn", f.NativeFunctions(), nil},
-		f.RefV{"role", f.NativeRoles(), nil},
+		f.RefV{"123", n1, n1, nil},
+		f.RefV{"123", n2, n2, nil},
+		f.RefV{"idx", f.NativeIndexes(), f.NativeIndexes(), nil},
+		f.RefV{"cls", f.NativeCollections(), f.NativeCollections(), nil},
+		f.RefV{"db", f.NativeDatabases(), f.NativeDatabases(), nil},
+		f.RefV{"fn", f.NativeFunctions(), f.NativeFunctions(), nil},
+		f.RefV{"role", f.NativeRoles(), f.NativeRoles(), nil},
 	}, refs)
 }
 
@@ -1293,7 +1296,7 @@ func (s *ClientTestSuite) TestEvalScopedRefFunctions() {
 	s.adminQueryAndDecode(
 		f.Arr{
 			f.ScopedIndex("idx", f.DbRef()),
-			f.ScopedClass("cls", f.DbRef()),
+			f.ScopedCollection("cls", f.DbRef()),
 			f.ScopedDatabase("db", f.DbRef()),
 			f.ScopedFunction("fn", f.DbRef()),
 			f.ScopedRole("role", f.DbRef()),
@@ -1302,18 +1305,18 @@ func (s *ClientTestSuite) TestEvalScopedRefFunctions() {
 	)
 
 	s.Require().Equal([]f.RefV{
-		f.RefV{"idx", f.NativeIndexes(), f.DbRef()},
-		f.RefV{"cls", f.NativeClasses(), f.DbRef()},
-		f.RefV{"db", f.NativeDatabases(), f.DbRef()},
-		f.RefV{"fn", f.NativeFunctions(), f.DbRef()},
-		f.RefV{"role", f.NativeRoles(), f.DbRef()},
+		f.RefV{"idx", f.NativeIndexes(), f.NativeIndexes(), f.DbRef()},
+		f.RefV{"cls", f.NativeCollections(), f.NativeCollections(), f.DbRef()},
+		f.RefV{"db", f.NativeDatabases(), f.NativeDatabases(), f.DbRef()},
+		f.RefV{"fn", f.NativeFunctions(), f.NativeFunctions(), f.DbRef()},
+		f.RefV{"role", f.NativeRoles(), f.NativeRoles(), f.DbRef()},
 	}, refs)
 }
 
-func (s *ClientTestSuite) TestNestedClassRef() {
+func (s *ClientTestSuite) TestNestedCollectionRef() {
 	parentDb := f.RandomStartingWith("parent_")
 	childDb := f.RandomStartingWith("child_")
-	aClass := f.RandomStartingWith("class_")
+	aCollection := f.RandomStartingWith("collection_")
 
 	key, err := f.CreateKeyWithRole("admin")
 	s.Require().NoError(err)
@@ -1328,22 +1331,39 @@ func (s *ClientTestSuite) TestNestedClassRef() {
 
 	client2 := client1.NewSessionClient(f.GetSecret(key))
 
-	_, err = client2.Query(f.CreateClass(f.Obj{"name": aClass}))
+	_, err = client2.Query(f.CreateCollection(f.Obj{"name": aCollection}))
 	s.Require().NoError(err)
 
 	var exists bool
-	s.queryAndDecode(f.Exists(f.ScopedClass(aClass, f.ScopedDatabase(childDb, f.Database(parentDb)))), &exists)
+	s.queryAndDecode(f.Exists(f.ScopedCollection(aCollection, f.ScopedDatabase(childDb, f.Database(parentDb)))), &exists)
 	s.Require().True(exists)
 
 	var data map[string]f.Value
-	var classes []f.RefV
+	var collections []f.RefV
 
-	s.queryAndDecode(f.Paginate(f.ScopedClasses(f.ScopedDatabase(childDb, f.Database(parentDb)))), &data)
-	data["data"].Get(&classes)
+	s.queryAndDecode(f.Paginate(f.ScopedCollections(f.ScopedDatabase(childDb, f.Database(parentDb)))), &data)
+	data["data"].Get(&collections)
 
 	s.Require().Equal(
-		classes,
-		[]f.RefV{f.RefV{aClass, f.NativeClasses(), &f.RefV{childDb, f.NativeDatabases(), &f.RefV{parentDb, f.NativeDatabases(), nil}}}},
+		collections,
+		[]f.RefV{
+			f.RefV{
+				aCollection,
+				f.NativeCollections(),
+				f.NativeCollections(),
+				&f.RefV{
+					childDb,
+					f.NativeDatabases(),
+					f.NativeDatabases(),
+					&f.RefV{
+						parentDb,
+						f.NativeDatabases(),
+						f.NativeDatabases(),
+						nil,
+					},
+				},
+			},
+		},
 	)
 }
 

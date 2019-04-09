@@ -83,7 +83,7 @@ type User struct {
 func main() {
 	client := f.NewFaunaClient("your-secret-here")
 
-	res, err := client.Query(f.Get(f.RefClass(f.Class("user"), "42")))
+	res, err := client.Query(f.Get(f.RefCollection(f.Collection("user"), "42")))
 	if err != nil {
 		panic(err)
 	}

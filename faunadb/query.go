@@ -205,13 +205,27 @@ func Ref(id string) Expr { return fn1("@ref", id) }
 //
 // Parameters:
 //  classRef Ref - A class reference.
-//  id string|int64 - The instance ID.
+//  id string|int64 - The document ID.
+//
+// Deprecated: Use RefCollection instead, RefClass is kept for backwards compatibility
 //
 // Returns:
 //  Ref - A new reference type.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#special-type
 func RefClass(classRef, id interface{}) Expr { return fn2("ref", classRef, "id", id) }
+
+// RefCollection creates a new Ref based on the provided collection and ID.
+//
+// Parameters:
+//  collectionRef Ref - A collection reference.
+//  id string|int64 - The document ID.
+//
+// Returns:
+//  Ref - A new reference type.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#special-type
+func RefCollection(collectionRef, id interface{}) Expr { return fn2("ref", collectionRef, "id", id) }
 
 // Null creates a NullV value.
 //
@@ -443,13 +457,13 @@ func IsNonEmpty(coll interface{}) Expr { return fn1("is_nonempty", coll) }
 
 // Read
 
-// Get retrieves the instance identified by the provided ref. Optional parameters: TS.
+// Get retrieves the document identified by the provided ref. Optional parameters: TS.
 //
 // Parameters:
 //  ref Ref|SetRef - The reference to the object or a set reference.
 //
 // Optional parameters:
-//  ts time - The snapshot time at which to get the instance. See TS() function.
+//  ts time - The snapshot time at which to get the document. See TS() function.
 //
 // Returns:
 //  Object - The object requested.
@@ -468,14 +482,14 @@ func Get(ref interface{}, options ...OptionalParameter) Expr { return fn1("get",
 // See: https://app.fauna.com/documentation/reference/queryapi#read-functions
 func KeyFromSecret(secret interface{}) Expr { return fn1("key_from_secret", secret) }
 
-// Exists returns boolean true if the provided ref exists (in the case of an instance),
+// Exists returns boolean true if the provided ref exists (in the case of an document),
 // or is non-empty (in the case of a set), and false otherwise. Optional parameters: TS.
 //
 // Parameters:
-//  ref Ref - The reference to the object. It could be an instance reference of a object reference like a class.
+//  ref Ref - The reference to the object. It could be a document reference of a object reference like a collection.
 //
 // Optional parameters:
-//  ts time - The snapshot time at which to check for the instance's existence. See TS() function.
+//  ts time - The snapshot time at which to check for the document's existence. See TS() function.
 //
 // Returns:
 //  bool - true if the reference exists, false otherwise.
@@ -492,7 +506,7 @@ func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("ex
 //  after Cursor - Return the next page of results after this cursor (inclusive). See After() function.
 //  before Cursor - Return the previous page of results before this cursor (exclusive). See Before() function.
 //  sources bool - If true, include the source sets along with each element. See Sources() function.
-//  ts time - The snapshot time at which to get the instance. See TS() function.
+//  ts time - The snapshot time at which to get the document. See TS() function.
 //
 // Returns:
 //  Page - A page of elements.
@@ -504,14 +518,14 @@ func Paginate(set interface{}, options ...OptionalParameter) Expr {
 
 // Write
 
-// Create creates an instance of the specified class.
+// Create creates an document of the specified collection.
 //
 // Parameters:
-//  ref Ref - A class reference.
-//  params Object - An object with attributes of the instance created.
+//  ref Ref - A collection reference.
+//  params Object - An object with attributes of the document created.
 //
 // Returns:
-//  Object - A new instance of the class referenced.
+//  Object - A new document of the collection referenced.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Create(ref, params interface{}) Expr { return fn2("create", ref, "params", params) }
@@ -521,11 +535,24 @@ func Create(ref, params interface{}) Expr { return fn2("create", ref, "params", 
 // Parameters:
 //  params Object - An object with attributes of the class.
 //
+// Deprecated: Use CreateCollection instead, CreateClass is kept for backwards compatibility
+//
 // Returns:
 //  Object - The new created class object.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func CreateClass(params interface{}) Expr { return fn1("create_class", params) }
+
+// CreateCollection creates a new collection.
+//
+// Parameters:
+//  params Object - An object with attributes of the collection.
+//
+// Returns:
+//  Object - The new created collection object.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+func CreateCollection(params interface{}) Expr { return fn1("create_collection", params) }
 
 // CreateDatabase creates an new database.
 //
@@ -582,11 +609,11 @@ func CreateFunction(params interface{}) Expr { return fn1("create_function", par
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func CreateRole(params interface{}) Expr { return fn1("create_role", params) }
 
-// Update updates the provided instance.
+// Update updates the provided document.
 //
 // Parameters:
 //  ref Ref - The reference to update.
-//  params Object - An object representing the parameters of the instance.
+//  params Object - An object representing the parameters of the document.
 //
 // Returns:
 //  Object - The updated object.
@@ -594,11 +621,11 @@ func CreateRole(params interface{}) Expr { return fn1("create_role", params) }
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Update(ref, params interface{}) Expr { return fn2("update", ref, "params", params) }
 
-// Replace replaces the provided instance.
+// Replace replaces the provided document.
 //
 // Parameters:
 //  ref Ref - The reference to replace.
-//  params Object - An object representing the parameters of the instance.
+//  params Object - An object representing the parameters of the document.
 //
 // Returns:
 //  Object - The replaced object.
@@ -606,7 +633,7 @@ func Update(ref, params interface{}) Expr { return fn2("update", ref, "params", 
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Replace(ref, params interface{}) Expr { return fn2("replace", ref, "params", params) }
 
-// Delete deletes the provided instance.
+// Delete deletes the provided document.
 //
 // Parameters:
 //  ref Ref - The reference to delete.
@@ -617,7 +644,7 @@ func Replace(ref, params interface{}) Expr { return fn2("replace", ref, "params"
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Delete(ref interface{}) Expr { return fn1("delete", ref) }
 
-// Insert adds an event to the provided instance's history.
+// Insert adds an event to the provided document's history.
 //
 // Parameters:
 //  ref Ref - The reference to insert against.
@@ -632,10 +659,10 @@ func Insert(ref, ts, action, params interface{}) Expr {
 	return fn4("insert", ref, "ts", ts, "action", action, "params", params)
 }
 
-// Remove deletes an event from the provided instance's history.
+// Remove deletes an event from the provided document's history.
 //
 // Parameters:
-//  ref Ref - The reference of the instance whose event should be removed.
+//  ref Ref - The reference of the document whose event should be removed.
 //  ts time - The valid time of the inserted event.
 //  action string - The event action (ActionCreate, ActionUpdate or ActionDelete) that should be removed.
 //
@@ -901,10 +928,10 @@ func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) 
 
 // Set
 
-// Singleton returns the history of the instance's presence of the provided ref.
+// Singleton returns the history of the document's presence of the provided ref.
 //
 // Parameters:
-//  ref Ref - The reference of the instance for which to retrieve the singleton set.
+//  ref Ref - The reference of the document for which to retrieve the singleton set.
 //
 // Returns:
 //  SetRef - The singleton SetRef.
@@ -912,7 +939,7 @@ func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) 
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Singleton(ref interface{}) Expr { return fn1("singleton", ref) }
 
-// Events returns the history of instance's data of the provided ref.
+// Events returns the history of document's data of the provided ref.
 //
 // Parameters:
 //  refSet Ref|SetRef - A reference or set reference to retrieve an event set from.
@@ -923,7 +950,7 @@ func Singleton(ref interface{}) Expr { return fn1("singleton", ref) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Events(refSet interface{}) Expr { return fn1("events", refSet) }
 
-// Match returns the set of instances for the specified index.
+// Match returns the set of documents for the specified index.
 //
 // Parameters:
 //  ref Ref - The reference of the index to match against.
@@ -934,7 +961,7 @@ func Events(refSet interface{}) Expr { return fn1("events", refSet) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Match(ref interface{}) Expr { return fn1("match", ref) }
 
-// MatchTerm returns th set of instances that match the terms in an index.
+// MatchTerm returns th set of documents that match the terms in an index.
 //
 // Parameters:
 //  ref Ref - The reference of the index to match against.
@@ -946,7 +973,7 @@ func Match(ref interface{}) Expr { return fn1("match", ref) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", terms) }
 
-// Union returns the set of instances that are present in at least one of the specified sets.
+// Union returns the set of documents that are present in at least one of the specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to union together.
@@ -957,7 +984,7 @@ func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", 
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Union(sets ...interface{}) Expr { return fn1("union", varargs(sets...)) }
 
-// Intersection returns the set of instances that are present in all of the specified sets.
+// Intersection returns the set of documents that are present in all of the specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to intersect.
@@ -968,7 +995,7 @@ func Union(sets ...interface{}) Expr { return fn1("union", varargs(sets...)) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Intersection(sets ...interface{}) Expr { return fn1("intersection", varargs(sets...)) }
 
-// Difference returns the set of instances that are present in the first set but not in
+// Difference returns the set of documents that are present in the first set but not in
 // any of the other specified sets.
 //
 // Parameters:
@@ -980,7 +1007,7 @@ func Intersection(sets ...interface{}) Expr { return fn1("intersection", varargs
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Difference(sets ...interface{}) Expr { return fn1("difference", varargs(sets...)) }
 
-// Distinct returns the set of instances with duplicates removed.
+// Distinct returns the set of documents with duplicates removed.
 //
 // Parameters:
 //  set []SetRef - A list of SetRef to remove duplicates from.
@@ -991,7 +1018,7 @@ func Difference(sets ...interface{}) Expr { return fn1("difference", varargs(set
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Distinct(set interface{}) Expr { return fn1("distinct", set) }
 
-// Join derives a set of resources by applying each instance in the source set to the target set.
+// Join derives a set of resources by applying each document in the source set to the target set.
 //
 // Parameters:
 //  source SetRef - A SetRef of the source set.
@@ -1038,10 +1065,10 @@ func Logout(invalidateAll interface{}) Expr { return fn1("logout", invalidateAll
 // See: https://app.fauna.com/documentation/reference/queryapi#authentication
 func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "password", password) }
 
-// Identity returns the instance reference associated with the current key.
+// Identity returns the document reference associated with the current key.
 //
 // For example, the current key token created using:
-//	Create(Tokens(), Obj{"instance": someRef})
+//	Create(Tokens(), Obj{"document": someRef})
 // or via:
 //	Login(someRef, Obj{"password":"sekrit"})
 // will return "someRef" as the result of this function.
@@ -1133,11 +1160,24 @@ func ScopedIndex(name interface{}, scope interface{}) Expr { return fn2("index",
 // Parameters:
 //  name string - The name of the class.
 //
+// Deprecated: Use Collection instead, Class is kept for backwards compatibility
+//
 // Returns:
 //  Ref - The class reference.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Class(name interface{}) Expr { return fn1("class", name) }
+
+// Collection creates a new collection ref.
+//
+// Parameters:
+//  name string - The name of the collection.
+//
+// Returns:
+//  Ref - The collection reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Collection(name interface{}) Expr { return fn1("collection", name) }
 
 // ScopedClass creates a new class ref inside a database.
 //
@@ -1145,11 +1185,29 @@ func Class(name interface{}) Expr { return fn1("class", name) }
 //  name string - The name of the class.
 //  scope Ref - The reference of the class's scope.
 //
+// Deprecated: Use ScopedCollection instead, ScopedClass is kept for backwards compatibility
+//
 // Returns:
-//  Ref - The class reference.
+//  Ref - The collection reference.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func ScopedClass(name interface{}, scope interface{}) Expr { return fn2("class", name, "scope", scope) }
+func ScopedClass(name interface{}, scope interface{}) Expr {
+	return fn2("class", name, "scope", scope)
+}
+
+// ScopedCollection creates a new collection ref inside a database.
+//
+// Parameters:
+//  name string - The name of the collection.
+//  scope Ref - The reference of the collection's scope.
+//
+// Returns:
+//  Ref - The collection reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedCollection(name interface{}, scope interface{}) Expr {
+	return fn2("collection", name, "scope", scope)
+}
 
 // Function create a new function ref.
 //
@@ -1201,22 +1259,45 @@ func ScopedRole(name, scope interface{}) Expr { return fn2("role", name, "scope"
 
 // Classes creates a native ref for classes.
 //
+// Deprecated: Use Collections instead, Classes is kept for backwards compatibility
+//
 // Returns:
 //  Ref - The reference of the class set.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Classes() Expr { return fn1("classes", NullV{}) }
 
+// Collections creates a native ref for collections.
+//
+// Returns:
+//  Ref - The reference of the collections set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Collections() Expr { return fn1("collections", NullV{}) }
+
 // ScopedClasses creates a native ref for classes inside a database.
 //
 // Parameters:
 //  scope Ref - The reference of the class set's scope.
+//
+// Deprecated: Use ScopedCollections instead, ScopedClasses is kept for backwards compatibility
 //
 // Returns:
 //  Ref - The reference of the class set.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func ScopedClasses(scope interface{}) Expr { return fn1("classes", scope) }
+
+// ScopedCollections creates a native ref for collections inside a database.
+//
+// Parameters:
+//  scope Ref - The reference of the collections set's scope.
+//
+// Returns:
+//  Ref - The reference of the collections set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedCollections(scope interface{}) Expr { return fn1("collections", scope) }
 
 // Indexes creates a native ref for indexes.
 //

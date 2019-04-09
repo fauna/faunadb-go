@@ -14,7 +14,7 @@ custom data structures. For example:
 
 	_, _ := client.Query(
 		Create(
-			Ref("classes/users"),
+			Collection("users"),
 			Obj{"data": User{"John"}},
 		),
 	)

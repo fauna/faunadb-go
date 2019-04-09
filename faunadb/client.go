@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	apiVersion        = "2.7"
 	defaultEndpoint   = "https://db.fauna.com"
 	requestTimeout    = 60 * time.Second
 	headerTxnTime     = "X-Txn-Time"
@@ -237,7 +238,7 @@ func (client *FaunaClient) prepareRequest(expr Expr) (request *http.Request, err
 		if request, err = http.NewRequest("POST", client.endpoint, bytes.NewReader(body)); err == nil {
 			request.Header.Add("Authorization", client.basicAuth)
 			request.Header.Add("Content-Type", "application/json; charset=utf-8")
-			request.Header.Add("X-FaunaDB-API-Version", "2.1")
+			request.Header.Add("X-FaunaDB-API-Version", apiVersion)
 			client.addLastTxnTimeHeader(request)
 		}
 	}
