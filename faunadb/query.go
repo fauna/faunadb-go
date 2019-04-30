@@ -42,16 +42,6 @@ func varargs(expr ...interface{}) interface{} {
 	return expr
 }
 
-func unescapedBindings(obj Obj) unescapedObj {
-	res := make(unescapedObj, len(obj))
-
-	for k, v := range obj {
-		res[k] = wrap(v)
-	}
-
-	return res
-}
-
 // Optional parameters
 
 // EventsOpt is an boolean optional parameter that describes if the query should include historical events.
@@ -180,6 +170,24 @@ func Normalizer(norm interface{}) OptionalParameter {
 	}
 }
 
+// LetBuilder builds Let expressions
+type LetBuilder struct {
+	bindings unescapedArr
+}
+
+// Bind binds a variable name to a value and returns a LetBuilder
+func (lb *LetBuilder) Bind(key string, in interface{}) *LetBuilder {
+	binding := make(unescapedObj, 1)
+	binding[key] = wrap(in)
+	lb.bindings = append(lb.bindings, binding)
+	return lb
+}
+
+// In sets the expression to be evaluated and returns the prepared Let.
+func (lb *LetBuilder) In(in Expr) Expr {
+	return fn2("let", lb.bindings, "in", in)
+}
+
 // Values
 
 // Ref creates a new RefV value with the provided ID.
@@ -278,15 +286,11 @@ func At(timestamp, expr interface{}) Expr { return fn2("at", timestamp, "expr", 
 
 // Let binds values to one or more variables.
 //
-// Parameters:
-//  bindings Object - An object binding a variable name to a value.
-//  in Expr - An expression to be evaluated.
-//
 // Returns:
-//  Value - The result of the given expression.
+//  *LetBuilder - Returns a LetBuilder.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
-func Let(bindings Obj, in interface{}) Expr { return fn2("let", unescapedBindings(bindings), "in", in) }
+func Let() *LetBuilder { return &LetBuilder{nil} }
 
 // Var refers to a value of a variable on the current lexical scope.
 //

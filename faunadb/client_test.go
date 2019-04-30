@@ -469,10 +469,7 @@ func (s *ClientTestSuite) TestEvalLetExpression() {
 	var arr []int
 
 	s.queryAndDecode(
-		f.Let(
-			f.Obj{"x": 1, "y": 2},
-			f.Arr{f.Var("x"), f.Var("y")},
-		),
+		f.Let().Bind("x", 1).Bind("y", 2).In(f.Arr{f.Var("x"), f.Var("y")}),
 		&arr,
 	)
 
@@ -1195,6 +1192,16 @@ func (s *ClientTestSuite) TestHasIdentityExpression() {
 	s.Require().NoError(err)
 	s.Require().NoError(res.Get(&hasIdentity))
 	s.Require().True(hasIdentity)
+}
+
+func (s *ClientTestSuite) TestLetBindingOrdering() {
+	var expected int
+	query := f.Add(f.Map(f.Arr{1, 2, 3, 4}, f.Lambda(
+		"x",
+		f.Let().Bind("o", "hey").Bind("c", 2).Bind("a", f.Multiply(f.Var("c"), 10)).Bind("b", f.Multiply(f.Var("a"), f.Var("x"))).In(f.Var("b")),
+	)))
+	s.queryAndDecode(query, &expected)
+	s.Require().Equal(expected, 200)
 }
 
 func (s *ClientTestSuite) TestIdentityExpression() {
