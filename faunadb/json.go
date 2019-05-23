@@ -1,6 +1,7 @@
 package faunadb
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,49 @@ import (
 	"strings"
 	"time"
 )
+
+// Unmarshal json string into a FaunaDB value.
+func UnmarshalJSON(buffer []byte, outValue *Value) error {
+	reader := bytes.NewReader(buffer)
+
+	if value, err := parseJSON(reader); err != nil {
+		return err
+	} else {
+		*outValue = value
+	}
+
+	return nil
+}
+
+// Marshal a FaunaDB value into a json string.
+func MarshalJSON(value Value) ([]byte, error) {
+	return json.Marshal(unwrap(value))
+}
+
+func unwrap(value Value) interface{} {
+	switch v := value.(type) {
+	case ArrayV:
+		array := make([]interface{}, len(v))
+
+		for i, elem := range v {
+			array[i] = unwrap(elem)
+		}
+
+		return array
+
+	case ObjectV:
+		object := make(map[string]interface{}, len(v))
+
+		for key, elem := range v {
+			object[key] = unwrap(elem)
+		}
+
+		return object
+
+	default:
+		return value
+	}
+}
 
 func parseJSON(reader io.Reader) (Value, error) {
 	decoder := json.NewDecoder(reader)

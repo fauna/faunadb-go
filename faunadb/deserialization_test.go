@@ -10,6 +10,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestUnmarshal(t *testing.T) {
+	var value Value
+
+	require.NoError(t, UnmarshalJSON([]byte(`{"@ts":"2019-01-01T01:30:20.000000005Z"}`), &value))
+	require.Equal(t, TimeV(time.Date(2019, time.January, 1, 1, 30, 20, 5, time.UTC)), value)
+
+	require.NoError(t, UnmarshalJSON([]byte(`["str", 10]`), &value))
+	require.Equal(t, ArrayV{StringV("str"), LongV(10)}, value)
+
+	require.NoError(t, UnmarshalJSON([]byte(`{"x":10, "y": 20}`), &value))
+	require.Equal(t, ObjectV{"x": LongV(10), "y": LongV(20)}, value)
+
+	require.NoError(t, UnmarshalJSON([]byte(`{"x":10, "y": 20, "z": ["str", {"w": 30}]}`), &value))
+	require.Equal(t, ObjectV{"x": LongV(10), "y": LongV(20), "z": ArrayV{StringV("str"), ObjectV{"w": LongV(30)}}}, value)
+}
+
 func TestDeserializeStringV(t *testing.T) {
 	var str StringV
 

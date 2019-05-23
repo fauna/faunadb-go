@@ -9,6 +9,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestMarshal(t *testing.T) {
+	assertMarshal(t, LongV(10), "10")
+	assertMarshal(t, StringV("str"), `"str"`)
+	assertMarshal(t, ArrayV{StringV("str"), LongV(10)}, `["str",10]`)
+	assertMarshal(t, ObjectV{"x": LongV(10), "y": LongV(20)}, `{"x":10,"y":20}`)
+	assertMarshal(t,
+		ObjectV{"x": LongV(10), "y": LongV(20), "z": ArrayV{StringV("str"), ObjectV{"w": LongV(10)}}},
+		`{"x":10,"y":20,"z":["str",{"w":10}]}`,
+	)
+	assertMarshal(t,
+		TimeV(time.Date(2019, time.January, 1, 1, 30, 20, 5, time.UTC)),
+		`{"@ts":"2019-01-01T01:30:20.000000005Z"}`,
+	)
+	assertMarshal(t,
+		ObjectV{"ts": TimeV(time.Date(2019, time.January, 1, 1, 30, 20, 5, time.UTC))},
+		`{"ts":{"@ts":"2019-01-01T01:30:20.000000005Z"}}`,
+	)
+}
+
 func TestSerializeObjectV(t *testing.T) {
 	assertJSON(t,
 		ObjectV{
@@ -1451,4 +1470,16 @@ func assertJSON(t *testing.T, expr Expr, expected string) {
 
 	require.NoError(t, err)
 	require.Equal(t, expected, string(bytes))
+}
+
+func assertMarshal(t *testing.T, value Value, expected string) {
+	bytes, err := MarshalJSON(value)
+	require.NoError(t, err)
+
+	var valueUnmarshal, expectedUnmarshal interface{}
+
+	require.NoError(t, json.Unmarshal(bytes, &valueUnmarshal))
+	require.NoError(t, json.Unmarshal([]byte(expected), &expectedUnmarshal))
+
+	require.Equal(t, expectedUnmarshal, valueUnmarshal)
 }
