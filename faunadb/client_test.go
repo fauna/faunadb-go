@@ -179,6 +179,34 @@ func (s *ClientTestSuite) TearDownSuite() {
 	f.DeleteTestDB()
 }
 
+func (s *ClientTestSuite) TestMarshal() {
+	res := s.query(
+		f.Paginate(f.Match(allSpells), f.Size(2)),
+	)
+
+	var data []f.Value
+	s.Require().NoError(res.At(dataField).Get(&data))
+	s.Require().Len(data, 2)
+
+	var after f.Value
+	s.Require().NoError(res.At(afterField).Get(&after))
+
+	//marshal cursor to json
+	afterJson, err := f.MarshalJSON(after)
+	s.Require().NoError(err)
+
+	//unmarshal cursor to Value
+	s.Require().NoError(f.UnmarshalJSON(afterJson, &after))
+
+	//run the query with the unmarshaled cursor
+	res = s.query(
+		f.Paginate(f.Match(allSpells), f.After(after)),
+	)
+
+	s.Require().NoError(res.At(dataField).Get(&data))
+	s.Require().Len(data, 1)
+}
+
 func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 	invalidClient := s.client.NewSessionClient("invalid-secret")
 
