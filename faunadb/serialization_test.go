@@ -402,12 +402,9 @@ func TestSerializeAt(t *testing.T) {
 }
 
 func TestSerializeLet(t *testing.T) {
-	assertJSON(t,
-		Let(
-			Obj{"v1": Ref("classes/spells/42")},
-			Exists(Var("v1")),
-		),
-		`{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`,
+	query := Let().Bind("v1", Ref("classes/spells/42")).Bind("v2", Index("spells")).Bind("a1", Index("all_things")).In(Exists(Var("v1")))
+	assertJSON(t, query,
+		`{"in":{"exists":{"var":"v1"}},"let":[{"v1":{"@ref":"classes/spells/42"}},{"v2":{"index":"spells"}},{"a1":{"index":"all_things"}}]}`,
 	)
 }
 
