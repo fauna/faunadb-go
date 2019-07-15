@@ -823,6 +823,24 @@ func (s *ClientTestSuite) TestJoin() {
 	s.Require().Equal([]f.RefV{fireball}, spells)
 }
 
+func (s *ClientTestSuite) TestEvalFormatExpression() {
+	var str string
+
+	s.queryAndDecode(
+		f.Format("%2$s%1$s %3$s", "DB", "Fauna", "rocks"),
+		&str,
+	)
+
+	s.Require().Equal("FaunaDB rocks", str)
+
+	s.queryAndDecode(
+		f.Format("%d %s %.2f %%", 34, "tEsT ", 3.14159),
+		&str,
+	)
+
+	s.Require().Equal("34 tEsT  3.14 %", str)
+}
+
 func (s *ClientTestSuite) TestEvalConcatExpression() {
 	var str string
 

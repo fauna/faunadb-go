@@ -674,6 +674,22 @@ func Remove(ref, ts, action interface{}) Expr { return fn3("remove", ref, "ts", 
 
 // String
 
+// Format formats values into a string.
+//
+// Parameters:
+//  format string - format a string with format specifiers.
+//
+// Optional parameters:
+//  values []string - list of values to format into string.
+//
+// Returns:
+//  string - A string.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+func Format(format interface{}, values ...interface{}) Expr {
+	return fn2("format", format, "values", varargs(values...))
+}
+
 // Concat concatenates a list of strings into a single string.
 //
 // Parameters:

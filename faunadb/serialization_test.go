@@ -569,6 +569,13 @@ func TestSerializePaginateWithParameters(t *testing.T) {
 	)
 }
 
+func TestSerializeFormat(t *testing.T) {
+	assertJSON(t,
+		Format("You have %d points left", 89),
+		`{"format":"You have %d points left","values":89}`,
+	)
+}
+
 func TestSerializeConcat(t *testing.T) {
 	assertJSON(t,
 		Concat(Arr{"a", "b"}),
