@@ -306,6 +306,24 @@ func At(timestamp, expr interface{}) Expr { return fn2("at", timestamp, "expr", 
 // See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
 func Let() *LetBuilder { return &LetBuilder{nil} }
 
+// LetRef binds values to one or more variables as go pointer.
+//
+// Parameters:
+//  bindings Object - An object binding a variable name to a value.
+//  in Expr - An expression to be evaluated.
+//
+// Returns:
+//  Value - The result of the given expression.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+func LetPtr(bindings Obj, in *Obj) Expr {
+
+	return unescapedObj{
+		"let": wrap(unescapedBindings(bindings)),
+		"in":  in,
+	}
+}
+
 // Var refers to a value of a variable on the current lexical scope.
 //
 // Parameters:
