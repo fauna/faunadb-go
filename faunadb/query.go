@@ -288,6 +288,24 @@ func At(timestamp, expr interface{}) Expr { return fn2("at", timestamp, "expr", 
 // See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
 func Let(bindings Obj, in interface{}) Expr { return fn2("let", unescapedBindings(bindings), "in", in) }
 
+// LetRef binds values to one or more variables as go pointer.
+//
+// Parameters:
+//  bindings Object - An object binding a variable name to a value.
+//  in Expr - An expression to be evaluated.
+//
+// Returns:
+//  Value - The result of the given expression.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+func LetPtr(bindings Obj, in *Obj) Expr {
+
+	return unescapedObj{
+		"let": wrap(unescapedBindings(bindings)),
+		"in":  in,
+	}
+}
+
 // Var refers to a value of a variable on the current lexical scope.
 //
 // Parameters:
@@ -1383,7 +1401,6 @@ func BitNot(value interface{}) Expr { return fn1("bitnot", value) }
 // See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
 func BitOr(args ...interface{}) Expr { return fn1("bitor", varargs(args...)) }
 
-
 // BitXor computes the XOR of a list of numbers.
 //
 // Parameters:
@@ -1677,9 +1694,6 @@ func Tanh(value interface{}) Expr { return fn1("tanh", value) }
 func Trunc(value interface{}, options ...OptionalParameter) Expr {
 	return fn1("trunc", value, options...)
 }
-
-
-
 
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //
