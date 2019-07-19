@@ -274,6 +274,15 @@ func Do(exprs ...interface{}) Expr { return fn1("do", exprs) }
 // See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
 func If(cond, then, elze interface{}) Expr { return fn3("if", cond, "then", then, "else", elze) }
 
+// IfPtr is like if but preserves a pointer
+func IfPtr(cond, then interface{}, elze *Obj) Expr {
+	return unescapedObj{
+		"if":   wrap(cond),
+		"then": wrap(then),
+		"else": elze,
+	}
+}
+
 // Lambda creates an anonymous function. Mostly used with Collection functions.
 //
 // Parameters:
