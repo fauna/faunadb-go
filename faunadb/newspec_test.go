@@ -26,6 +26,25 @@ func TestSerializeRange(t *testing.T) {
 	)
 }
 
+func TestSerializeRangeComparisons(t *testing.T) {
+	assertJSON(t,
+		RangeLT(Match("coll_by_x"), 1),
+		`{"range_lt":{"match":"coll_by_x"},"value":1}`,
+	)
+	assertJSON(t,
+		RangeLTE(Match("coll_by_x"), 1),
+		`{"range_lte":{"match":"coll_by_x"},"value":1}`,
+	)
+	assertJSON(t,
+		RangeGT(Match("coll_by_x"), 1),
+		`{"range_gt":{"match":"coll_by_x"},"value":1}`,
+	)
+	assertJSON(t,
+		RangeGTE(Match("coll_by_x"), 1),
+		`{"range_gte":{"match":"coll_by_x"},"value":1}`,
+	)
+}
+
 // Filter(set/array/page, predicate)
 // Filter() currently takes an array or page and filters its elements based on a predicate function.
 // It will be enhanced to work on sets, in order to enable more ergonomic pagination and ability to compose it with other set modifiers.
