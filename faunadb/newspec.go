@@ -37,3 +37,9 @@ func Reduce(coll, init, lambda interface{}) Expr {
 func Count(coll interface{}) Expr   { return fn1("count", coll) }
 func Average(coll interface{}) Expr { return fn1("average", coll) }
 func Sum(coll interface{}) Expr     { return fn1("sum", coll) }
+
+// Reverse(set/array/page)
+// We will add a Reverse() function which can take an array, page, or set, and return the reversed version.
+func Reverse(coll interface{}) Expr {
+	return fn1("reduce", coll)
+}
