@@ -6,6 +6,7 @@ import (
 
 // Test with e.g.:
 // FAUNA_ROOT_KEY="dummy" go test -timeout 30s github.com/fauna/faunadb-go/faunadb -count=1 -run TestSerializeRange
+// FAUNA_ROOT_KEY="dummy" go test github.com/fauna/faunadb-go/faunadb -run TestSerialize
 
 // Range(set, lowerBound, upperBound)
 func TestSerializeRange(t *testing.T) {
