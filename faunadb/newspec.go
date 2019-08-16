@@ -31,3 +31,9 @@ func Range(set interface{}, options ...OptionalParameter) Expr {
 func Reduce(coll, init, lambda interface{}) Expr {
 	return fn3("reduce", lambda, "init", init, "collection", coll)
 }
+
+// Aliases for commonly used reducers, which may be used on arrays, pages or sets.
+// Note: Min, Max already exist
+func Count(coll interface{}) Expr   { return fn1("count", coll) }
+func Average(coll interface{}) Expr { return fn1("average", coll) }
+func Sum(coll interface{}) Expr     { return fn1("sum", coll) }

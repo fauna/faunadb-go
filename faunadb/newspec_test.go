@@ -8,8 +8,6 @@ import (
 // FAUNA_ROOT_KEY="dummy" go test -timeout 30s github.com/fauna/faunadb-go/faunadb -count=1 -run TestSerializeRange
 
 // Range(set, lowerBound, upperBound)
-//
-// Range() will provide the ability to limit a set based on lower and upper bounds of its natural order.
 func TestSerializeRange(t *testing.T) {
 	assertJSON(t,
 		Range(Ref("databases")),
@@ -54,5 +52,28 @@ func TestSerializeReduce(t *testing.T) {
 	assertJSON(t,
 		Reduce(Arr{1, 2, 3}, 0, Lambda("x", Var("x"))),
 		`{"collection":[1,2,3],"init":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
+}
+
+func TestReducerAliases(t *testing.T) {
+	assertJSON(t,
+		Min(Arr{1, 2, 3}),
+		`{"min":[1,2,3]}`,
+	)
+	assertJSON(t,
+		Max(Arr{1, 2, 3}),
+		`{"max":[1,2,3]}`,
+	)
+	assertJSON(t,
+		Count(Arr{1, 2, 3}),
+		`{"count":[1,2,3]}`,
+	)
+	assertJSON(t,
+		Average(Arr{1, 2, 3}),
+		`{"average":[1,2,3]}`,
+	)
+	assertJSON(t,
+		Sum(Arr{1, 2, 3}),
+		`{"sum":[1,2,3]}`,
 	)
 }
