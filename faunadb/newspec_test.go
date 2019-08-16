@@ -70,6 +70,24 @@ func TestSerializeReduce(t *testing.T) {
 		Reduce(Arr{1, 2, 3}, 0, Lambda("x", Var("x"))),
 		`{"collection":[1,2,3],"init":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
 	)
+
+	assertJSON(t,
+		Reduce(SetRefV{ObjectV{"name": StringV("a")}}, 0, Lambda("x", Var("x"))),
+		`{"collection":{"@set":{"name":"a"}},"init":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
+}
+
+// Reduce(set/array/page, init, fn)
+func TestSerializeReverse(t *testing.T) {
+	assertJSON(t,
+		Reverse(Arr{1, 2, 3}),
+		`{"reduce":[1,2,3]}`,
+	)
+
+	assertJSON(t,
+		Reverse(SetRefV{ObjectV{"name": StringV("a")}}),
+		`{"reduce":{"@set":{"name":"a"}}}`,
+	)
 }
 
 // Count(), Average(), Sum(), Min(), Max()
