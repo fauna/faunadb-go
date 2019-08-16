@@ -48,3 +48,11 @@ func TestSerializeMapSet(t *testing.T) {
 		`{"collection":{"@set":{"name":"a"}},"map":{"expr":{"var":"x"},"lambda":"x"}}`,
 	)
 }
+
+// Reduce(set/array/page, init, fn)
+func TestSerializeReduce(t *testing.T) {
+	assertJSON(t,
+		Reduce(Arr{1, 2, 3}, 0, Lambda("x", Var("x"))),
+		`{"collection":[1,2,3],"init":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
+}
