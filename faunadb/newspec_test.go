@@ -26,7 +26,6 @@ func TestSerializeRange(t *testing.T) {
 }
 
 // Filter(set/array/page, predicate)
-//
 // Filter() currently takes an array or page and filters its elements based on a predicate function.
 // It will be enhanced to work on sets, in order to enable more ergonomic pagination and ability to compose it with other set modifiers.
 func TestSerializeFilterSet(t *testing.T) {
@@ -37,13 +36,31 @@ func TestSerializeFilterSet(t *testing.T) {
 }
 
 // Map(set/array/page, fn)
-//
 // Map will be enhanced to work on sets in addition to pages and arrays.
 // This will allow for more ergonomic pagination and combination with functions like Take() and Drop().
 func TestSerializeMapSet(t *testing.T) {
 	assertJSON(t,
 		Map(SetRefV{ObjectV{"name": StringV("a")}}, Lambda("x", Var("x"))),
 		`{"collection":{"@set":{"name":"a"}},"map":{"expr":{"var":"x"},"lambda":"x"}}`,
+	)
+}
+
+// Drop(set/array/page, num)
+// We will enhance the Drop() function to be able to take a set and return a set-like object which excludes the first N elements. This is equivalent to OFFSET in MySQL.
+func TestSerializeDropSet(t *testing.T) {
+	assertJSON(t,
+		Drop(2, SetRefV{ObjectV{"name": StringV("a")}}),
+		`{"collection":{"@set":{"name":"a"}},"drop":2}`,
+	)
+}
+
+// Take(set/array/page, num)
+// We will enhance the Take() function to be able to take a set and return an array of the first N elements.
+// Combined with take() when used with drop(), can be used to simulate offset/limit style pagination.
+func TestSerializeTakeSet(t *testing.T) {
+	assertJSON(t,
+		Take(2, SetRefV{ObjectV{"name": StringV("a")}}),
+		`{"collection":{"@set":{"name":"a"}},"take":2}`,
 	)
 }
 
@@ -55,6 +72,7 @@ func TestSerializeReduce(t *testing.T) {
 	)
 }
 
+// Count(), Average(), Sum(), Min(), Max()
 func TestReducerAliases(t *testing.T) {
 	assertJSON(t,
 		Min(Arr{1, 2, 3}),
