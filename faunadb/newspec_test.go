@@ -91,7 +91,7 @@ func TestSerializeReverse(t *testing.T) {
 }
 
 // Count(), Average(), Sum(), Min(), Max()
-func TestReducerAliases(t *testing.T) {
+func TestSerializeReducerAliases(t *testing.T) {
 	assertJSON(t,
 		Min(Arr{1, 2, 3}),
 		`{"min":[1,2,3]}`,
@@ -111,5 +111,17 @@ func TestReducerAliases(t *testing.T) {
 	assertJSON(t,
 		Sum(Arr{1, 2, 3}),
 		`{"sum":[1,2,3]}`,
+	)
+}
+
+func TestSerializeDocuments(t *testing.T) {
+	assertJSON(t,
+		Documents(Arr{1, 2, 3}),
+		`{"documents":[1,2,3]}`,
+	)
+
+	assertJSON(t,
+		Documents(SetRefV{ObjectV{"name": StringV("a")}}),
+		`{"documents":{"@set":{"name":"a"}}}`,
 	)
 }

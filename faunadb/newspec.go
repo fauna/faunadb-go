@@ -43,3 +43,10 @@ func Sum(coll interface{}) Expr     { return fn1("sum", coll) }
 func Reverse(coll interface{}) Expr {
 	return fn1("reduce", coll)
 }
+
+// Documents(set/array/page)
+// We will add a Documents() built-in which will allow iterating through all of the documents in a collection. Combined with Filter(), Reduce(), Count(), etc.
+// This will allow for arbitrary querying of a collection without the need for indexes. Initially this functionality will be backed by a scan of the collection.
+func Documents(coll interface{}) Expr {
+	return fn1("documents", coll)
+}
