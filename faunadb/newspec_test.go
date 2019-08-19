@@ -120,12 +120,20 @@ func TestSerializeReducerAliases(t *testing.T) {
 		`{"count":[1,2,3]}`,
 	)
 	assertJSON(t,
-		Average(Arr{1, 2, 3}),
-		`{"average":[1,2,3]}`,
+		Mean(Arr{1, 2, 3}),
+		`{"mean":[1,2,3]}`,
 	)
 	assertJSON(t,
 		Sum(Arr{1, 2, 3}),
 		`{"sum":[1,2,3]}`,
+	)
+	assertJSON(t,
+		Any(Arr{1, 2, 3}),
+		`{"any":[1,2,3]}`,
+	)
+	assertJSON(t,
+		All(Arr{1, 2, 3}),
+		`{"all":[1,2,3]}`,
 	)
 }
 
