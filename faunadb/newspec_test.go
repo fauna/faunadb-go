@@ -11,18 +11,13 @@ import (
 // Range(set, lowerBound, upperBound)
 func TestSerializeRange(t *testing.T) {
 	assertJSON(t,
-		Range(Ref("databases")),
-		`{"range":{"@ref":"databases"}}`,
+		Range(Match("users_by_name"), "Brown", "Smith"),
+		`{"from":"Brown","range":{"match":"users_by_name"},"to":"Smith"}`,
 	)
 
 	assertJSON(t,
-		Range(Match("users_by_name"), LowerBound("Brown"), UpperBound("Smith")),
-		`{"lowerbound":"Brown","range":{"match":"users_by_name"},"upperbound":"Smith"}`,
-	)
-
-	assertJSON(t,
-		Range(Match("users_by_last_first"), LowerBound(Arr{"Brown", "A"}), UpperBound("Smith")),
-		`{"lowerbound":["Brown","A"],"range":{"match":"users_by_last_first"},"upperbound":"Smith"}`,
+		Range(Match("users_by_last_first"), Arr{"Brown", "A"}, "Smith"),
+		`{"from":["Brown","A"],"range":{"match":"users_by_last_first"},"to":"Smith"}`,
 	)
 }
 
@@ -88,12 +83,12 @@ func TestSerializeTakeSet(t *testing.T) {
 func TestSerializeReduce(t *testing.T) {
 	assertJSON(t,
 		Reduce(Arr{1, 2, 3}, 0, Lambda("x", Var("x"))),
-		`{"collection":[1,2,3],"init":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
+		`{"collection":[1,2,3],"initial":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
 	)
 
 	assertJSON(t,
 		Reduce(SetRefV{ObjectV{"name": StringV("a")}}, 0, Lambda("x", Var("x"))),
-		`{"collection":{"@set":{"name":"a"}},"init":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
+		`{"collection":{"@set":{"name":"a"}},"initial":0,"reduce":{"expr":{"var":"x"},"lambda":"x"}}`,
 	)
 }
 
@@ -125,12 +120,20 @@ func TestSerializeReducerAliases(t *testing.T) {
 		`{"count":[1,2,3]}`,
 	)
 	assertJSON(t,
-		Average(Arr{1, 2, 3}),
-		`{"average":[1,2,3]}`,
+		Mean(Arr{1, 2, 3}),
+		`{"mean":[1,2,3]}`,
 	)
 	assertJSON(t,
 		Sum(Arr{1, 2, 3}),
 		`{"sum":[1,2,3]}`,
+	)
+	assertJSON(t,
+		Any(Arr{1, 2, 3}),
+		`{"any":[1,2,3]}`,
+	)
+	assertJSON(t,
+		All(Arr{1, 2, 3}),
+		`{"all":[1,2,3]}`,
 	)
 }
 
