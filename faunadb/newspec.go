@@ -36,9 +36,11 @@ func Reduce(coll, init, lambda interface{}) Expr {
 
 // Aliases for commonly used reducers, which may be used on arrays, pages or sets.
 // Note: Min, Max already exist
-func Count(coll interface{}) Expr   { return fn1("count", coll) }
-func Average(coll interface{}) Expr { return fn1("average", coll) }
-func Sum(coll interface{}) Expr     { return fn1("sum", coll) }
+func Count(coll interface{}) Expr { return fn1("count", coll) }
+func Mean(coll interface{}) Expr  { return fn1("mean", coll) }
+func Sum(coll interface{}) Expr   { return fn1("sum", coll) }
+func Any(coll interface{}) Expr   { return fn1("any", coll) }
+func All(coll interface{}) Expr   { return fn1("all", coll) }
 
 // Reverse(set/array/page)
 // We will add a Reverse() function which can take an array, page, or set, and return the reversed version.
