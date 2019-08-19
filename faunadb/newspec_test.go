@@ -11,18 +11,13 @@ import (
 // Range(set, lowerBound, upperBound)
 func TestSerializeRange(t *testing.T) {
 	assertJSON(t,
-		Range(Ref("databases")),
-		`{"range":{"@ref":"databases"}}`,
+		Range(Match("users_by_name"), "Brown", "Smith"),
+		`{"from":"Brown","range":{"match":"users_by_name"},"to":"Smith"}`,
 	)
 
 	assertJSON(t,
-		Range(Match("users_by_name"), LowerBound("Brown"), UpperBound("Smith")),
-		`{"lowerbound":"Brown","range":{"match":"users_by_name"},"upperbound":"Smith"}`,
-	)
-
-	assertJSON(t,
-		Range(Match("users_by_last_first"), LowerBound(Arr{"Brown", "A"}), UpperBound("Smith")),
-		`{"lowerbound":["Brown","A"],"range":{"match":"users_by_last_first"},"upperbound":"Smith"}`,
+		Range(Match("users_by_last_first"), Arr{"Brown", "A"}, "Smith"),
+		`{"from":["Brown","A"],"range":{"match":"users_by_last_first"},"to":"Smith"}`,
 	)
 }
 
