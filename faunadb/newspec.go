@@ -31,7 +31,7 @@ func RangeGTE(set, value interface{}) Expr {
 // Reduce function which may be used on arrays, pages or sets. This will behave similarly to foldLeft or reduce in functional languages.
 // Reduce(set/array/page, init, fn)
 func Reduce(coll, init, lambda interface{}) Expr {
-	return fn3("reduce", lambda, "init", init, "collection", coll)
+	return fn3("reduce", lambda, "initial", init, "collection", coll)
 }
 
 // Aliases for commonly used reducers, which may be used on arrays, pages or sets.
