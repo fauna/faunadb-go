@@ -69,7 +69,7 @@ var (
 
 	benchmarkData = benchmarkStruct{
 		TaggedString: "TaggedString",
-		Ref:          RefV{"classes/spells/42", nil, nil},
+		Ref:          RefV{"classes/spells/42", nil, nil, nil},
 		Any:          StringV("any value"),
 		Date:         time.Date(1970, time.January, 3, 0, 0, 0, 0, time.UTC),
 		Time:         time.Date(1970, time.January, 1, 0, 0, 0, 5, time.UTC),

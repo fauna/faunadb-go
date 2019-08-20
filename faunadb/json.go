@@ -144,7 +144,7 @@ func (p *jsonParser) parseRef() (value Value, err error) {
 
 	if obj, err = p.readSingleObject(); err == nil {
 		var id string
-		var cls, db *RefV
+		var col, db *RefV
 
 		if v, ok := obj["id"]; ok {
 			if err = v.Get(&id); err != nil {
@@ -152,8 +152,8 @@ func (p *jsonParser) parseRef() (value Value, err error) {
 			}
 		}
 
-		if v, ok := obj["class"]; ok {
-			if err = v.Get(&cls); err != nil {
+		if v, ok := obj["collection"]; ok {
+			if err = v.Get(&col); err != nil {
 				return
 			}
 		}
@@ -164,10 +164,10 @@ func (p *jsonParser) parseRef() (value Value, err error) {
 			}
 		}
 
-		if cls == nil && db == nil {
+		if col == nil && db == nil {
 			value = nativeFromName(id)
 		} else {
-			value = RefV{id, cls, db}
+			value = RefV{id, col, col, db}
 		}
 	}
 

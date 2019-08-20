@@ -112,8 +112,10 @@ func TestDeserializeBooleanFalse(t *testing.T) {
 func TestDeserializeRefV(t *testing.T) {
 	var ref RefV
 
-	require.NoError(t, decodeJSON(`{"@ref":{"id":"42","class":{"@ref":{"id":"spells","class":{"@ref":{"id":"classes"}}}}}}`, &ref))
-	require.Equal(t, RefV{"42", &RefV{"spells", NativeClasses(), nil}, nil}, ref)
+	require.NoError(t, decodeJSON(`{"@ref":{"id":"42","collection":{"@ref":{"id":"spells","collection":{"@ref":{"id":"collections"}}}}}}`, &ref))
+	r1 := &RefV{"spells", NativeCollections(), NativeCollections(), nil}
+	r2 := RefV{"42", r1, r1, nil}
+	require.Equal(t, r2, r2, ref)
 }
 
 func TestDeserializeDateV(t *testing.T) {
@@ -190,7 +192,7 @@ func TestDeserializeSetRefV(t *testing.T) {
 	json := `
 	{
 		"@set": {
-			"match": {"@ref":{"id":"spells_by_element","class":{"@ref":{"id":"indexes"}}}},
+			"match": {"@ref":{"id":"spells_by_element","collection":{"@ref":{"id":"indexes"}}}},
 			"terms": "fire"
 		}
 	}
@@ -200,7 +202,7 @@ func TestDeserializeSetRefV(t *testing.T) {
 
 	require.Equal(t,
 		SetRefV{ObjectV{
-			"match": RefV{"spells_by_element", NativeIndexes(), nil},
+			"match": RefV{"spells_by_element", NativeIndexes(), NativeIndexes(), nil},
 			"terms": StringV("fire"),
 		}},
 		setRef,
@@ -426,7 +428,7 @@ func TestDeserializeComplexStruct(t *testing.T) {
 	json := `
 	{
 		"Ref": {
-			"@ref":{"id":"42","class":{"@ref":{"id":"spells","class":{"@ref":{"id":"classes"}}}}}
+			"@ref":{"id":"42","collection":{"@ref":{"id":"spells","collection":{"@ref":{"id":"collections"}}}}}
 		},
 		"Any": "any value",
 		"Date": { "@date": "1970-01-03" },
@@ -449,9 +451,11 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		"Null": null
 	}
 	`
+	r1 := &RefV{"spells", NativeCollections(), NativeCollections(), nil}
+
 	expected := complexStruct{
 		TaggedString: "TaggedString",
-		Ref:          RefV{"42", &RefV{"spells", NativeClasses(), nil}, nil},
+		Ref:          RefV{"42", r1, r1, nil},
 		Any:          StringV("any value"),
 		Date:         time.Date(1970, time.January, 3, 0, 0, 0, 0, time.UTC),
 		Time:         time.Date(1970, time.January, 1, 0, 0, 0, 5, time.UTC),

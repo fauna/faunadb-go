@@ -21,7 +21,7 @@ The At method uses field extractors to traverse the data to specify a field:
 
 	var firstEmail string
 
-	profile, _ := client.Query(RefClass(Class("profile), "43"))
+	profile, _ := client.Query(RefCollection(Collection("profile), "43"))
 	profile.At(ObjKey("emails").AtIndex(0)).Get(&firstEmail)
 
 For more information, check https://app.fauna.com/documentation/reference/queryapi#simple-type.
@@ -98,9 +98,10 @@ func (localTime TimeV) MarshalJSON() ([]byte, error) {
 
 // RefV represents a FaunaDB ref type.
 type RefV struct {
-	ID       string
-	Class    *RefV
-	Database *RefV
+	ID         string
+	Collection *RefV
+	Class      *RefV //Deprecated: As of 2.7 Class is deprecated, use Collection instead
+	Database   *RefV
 }
 
 // Get implements the Value interface by decoding the underlying ref to a RefV.
@@ -113,8 +114,8 @@ func (ref RefV) At(field Field) FieldValue { return field.get(ref) }
 func (ref RefV) MarshalJSON() ([]byte, error) {
 	values := map[string]interface{}{"id": ref.ID}
 
-	if ref.Class != nil {
-		values["class"] = ref.Class
+	if ref.Collection != nil {
+		values["collection"] = ref.Collection
 	}
 
 	if ref.Database != nil {
@@ -125,25 +126,31 @@ func (ref RefV) MarshalJSON() ([]byte, error) {
 }
 
 var (
-	nativeClasses     = RefV{"classes", nil, nil}
-	nativeIndexes     = RefV{"indexes", nil, nil}
-	nativeDatabases   = RefV{"databases", nil, nil}
-	nativeFunctions   = RefV{"functions", nil, nil}
-	nativeKeys        = RefV{"keys", nil, nil}
-	nativeTokens      = RefV{"tokens", nil, nil}
-	nativeCredentials = RefV{"credentials", nil, nil}
+	nativeClasses     = RefV{"classes", nil, nil, nil}
+	nativeCollections = RefV{"collections", nil, nil, nil}
+	nativeIndexes     = RefV{"indexes", nil, nil, nil}
+	nativeDatabases   = RefV{"databases", nil, nil, nil}
+	nativeFunctions   = RefV{"functions", nil, nil, nil}
+	nativeRoles       = RefV{"roles", nil, nil, nil}
+	nativeKeys        = RefV{"keys", nil, nil, nil}
+	nativeTokens      = RefV{"tokens", nil, nil, nil}
+	nativeCredentials = RefV{"credentials", nil, nil, nil}
 )
 
 func NativeClasses() *RefV     { return &nativeClasses }
+func NativeCollections() *RefV { return &nativeCollections }
 func NativeIndexes() *RefV     { return &nativeIndexes }
 func NativeDatabases() *RefV   { return &nativeDatabases }
 func NativeFunctions() *RefV   { return &nativeFunctions }
+func NativeRoles() *RefV       { return &nativeRoles }
 func NativeKeys() *RefV        { return &nativeKeys }
 func NativeTokens() *RefV      { return &nativeTokens }
 func NativeCredentials() *RefV { return &nativeCredentials }
 
 func nativeFromName(id string) *RefV {
 	switch id {
+	case "collections":
+		return &nativeCollections
 	case "classes":
 		return &nativeClasses
 	case "indexes":
@@ -152,6 +159,8 @@ func nativeFromName(id string) *RefV {
 		return &nativeDatabases
 	case "functions":
 		return &nativeFunctions
+	case "roles":
+		return &nativeRoles
 	case "keys":
 		return &nativeKeys
 	case "tokens":
@@ -160,7 +169,7 @@ func nativeFromName(id string) *RefV {
 		return &nativeCredentials
 	}
 
-	return &RefV{id, nil, nil}
+	return &RefV{id, nil, nil, nil}
 }
 
 // SetRefV represents a FaunaDB setref type.

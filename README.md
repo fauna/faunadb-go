@@ -10,11 +10,11 @@ A Go lang driver for [FaunaDB](https://fauna.com/).
 ## Supported Go Versions
 
 Currently, the driver is tested on:
-- 1.5
-- 1.6
-- 1.7
 - 1.8
 - 1.9
+- 1.10
+- 1.11
+- 1.12
 
 ## Using the Driver
 
@@ -83,7 +83,7 @@ type User struct {
 func main() {
 	client := f.NewFaunaClient("your-secret-here")
 
-	res, err := client.Query(f.Get(f.RefClass(f.Class("user"), "42")))
+	res, err := client.Query(f.Get(f.RefCollection(f.Collection("user"), "42")))
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +99,7 @@ func main() {
 ```
 
 For more information about FaunaDB query language, consult our query language
-[reference documentation](https://app.fauna.com/documentation/reference/queryapi).
+[reference documentation](https://docs.fauna.com/fauna/current/reference/queryapi/).
 
 Specific reference documentation for the driver is hosted at
 [GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb).

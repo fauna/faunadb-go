@@ -238,54 +238,54 @@ func TestSerializeStructWithEmbeddedStructs(t *testing.T) {
 
 func TestSerializeRef(t *testing.T) {
 	assertJSON(t,
-		RefClass(Ref("classes/spells"), "42"),
-		`{"id":"42","ref":{"@ref":"classes/spells"}}`,
+		RefCollection(Ref("collections/spells"), "42"),
+		`{"id":"42","ref":{"@ref":"collections/spells"}}`,
 	)
 }
 
 func TestSerializeCreate(t *testing.T) {
 	assertJSON(t,
-		Create(Ref("classes/spells"), Obj{
+		Create(Ref("collections/spells"), Obj{
 			"name": "fire",
 		}),
-		`{"create":{"@ref":"classes/spells"},"params":{"object":{"name":"fire"}}}`,
+		`{"create":{"@ref":"collections/spells"},"params":{"object":{"name":"fire"}}}`,
 	)
 }
 
 func TestSerializeUpdate(t *testing.T) {
 	assertJSON(t,
-		Update(Ref("classes/spells/123"), Obj{
+		Update(Ref("collections/spells/123"), Obj{
 			"name": "fire",
 		}),
-		`{"params":{"object":{"name":"fire"}},"update":{"@ref":"classes/spells/123"}}`,
+		`{"params":{"object":{"name":"fire"}},"update":{"@ref":"collections/spells/123"}}`,
 	)
 }
 
 func TestSerializeReplace(t *testing.T) {
 	assertJSON(t,
-		Replace(Ref("classes/spells/123"), Obj{
+		Replace(Ref("collections/spells/123"), Obj{
 			"name": "fire",
 		}),
-		`{"params":{"object":{"name":"fire"}},"replace":{"@ref":"classes/spells/123"}}`,
+		`{"params":{"object":{"name":"fire"}},"replace":{"@ref":"collections/spells/123"}}`,
 	)
 }
 
 func TestSerializeDelete(t *testing.T) {
 	assertJSON(t,
-		Delete(Ref("classes/spells/123")),
-		`{"delete":{"@ref":"classes/spells/123"}}`,
+		Delete(Ref("collections/spells/123")),
+		`{"delete":{"@ref":"collections/spells/123"}}`,
 	)
 }
 
 func TestSerializeInsert(t *testing.T) {
 	assertJSON(t,
 		Insert(
-			Ref("classes/spells/104979509696660483"),
+			Ref("collections/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
 			ActionCreate,
 			Obj{"data": Obj{"name": "test"}},
 		),
-		`{"action":"create","insert":{"@ref":"classes/spells/104979509696660483"},`+
+		`{"action":"create","insert":{"@ref":"collections/spells/104979509696660483"},`+
 			`"params":{"object":{"data":{"object":{"name":"test"}}}},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
 	)
 }
@@ -293,11 +293,11 @@ func TestSerializeInsert(t *testing.T) {
 func TestSerializeRemove(t *testing.T) {
 	assertJSON(t,
 		Remove(
-			Ref("classes/spells/104979509696660483"),
+			Ref("collections/spells/104979509696660483"),
 			time.Unix(0, 0).UTC(),
 			ActionDelete,
 		),
-		`{"action":"delete","remove":{"@ref":"classes/spells/104979509696660483"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
+		`{"action":"delete","remove":{"@ref":"collections/spells/104979509696660483"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
 	)
 }
 
@@ -307,6 +307,15 @@ func TestSerializeCreateClass(t *testing.T) {
 			"name": "boons",
 		}),
 		`{"create_class":{"object":{"name":"boons"}}}`,
+	)
+}
+
+func TestSerializeCreateCollection(t *testing.T) {
+	assertJSON(t,
+		CreateCollection(Obj{
+			"name": "boons",
+		}),
+		`{"create_collection":{"object":{"name":"boons"}}}`,
 	)
 }
 
@@ -323,9 +332,9 @@ func TestSerializeCreateIndex(t *testing.T) {
 	assertJSON(t,
 		CreateIndex(Obj{
 			"name":   "new-index",
-			"source": Ref("classes/spells"),
+			"source": Ref("collections/spells"),
 		}),
-		`{"create_index":{"object":{"name":"new-index","source":{"@ref":"classes/spells"}}}}`,
+		`{"create_index":{"object":{"name":"new-index","source":{"@ref":"collections/spells"}}}}`,
 	)
 }
 
@@ -336,6 +345,32 @@ func TestSerializeCreateKey(t *testing.T) {
 			"role":     "server",
 		}),
 		`{"create_key":{"object":{"database":{"@ref":"databases/prydain"},"role":"server"}}}`,
+	)
+}
+
+func TestSerializeCreateRole(t *testing.T) {
+	assertJSON(t,
+		CreateRole(Obj{
+			"name": "a_role",
+			"privileges": Arr{Obj{
+				"resource": Ref("databases"),
+				"actions":  Obj{"read": true},
+			}},
+		}),
+		`{"create_role":{"object":{"name":"a_role","privileges":[`+
+			`{"object":{"actions":{"object":{"read":true}},"resource":{"@ref":"databases"}}}]}}}`,
+	)
+
+	assertJSON(t,
+		CreateRole(Obj{
+			"name": "a_role",
+			"privileges": Obj{
+				"resource": Ref("databases"),
+				"actions":  Obj{"read": true},
+			},
+		}),
+		`{"create_role":{"object":{"name":"a_role","privileges":`+
+			`{"object":{"actions":{"object":{"read":true}},"resource":{"@ref":"databases"}}}}}}`,
 	)
 }
 
@@ -376,12 +411,9 @@ func TestSerializeAt(t *testing.T) {
 }
 
 func TestSerializeLet(t *testing.T) {
-	assertJSON(t,
-		Let(
-			Obj{"v1": Ref("classes/spells/42")},
-			Exists(Var("v1")),
-		),
-		`{"in":{"exists":{"var":"v1"}},"let":{"v1":{"@ref":"classes/spells/42"}}}`,
+	query := Let().Bind("v1", Ref("collections/spells/42")).Bind("v2", Index("spells")).Bind("a1", Index("all_things")).In(Exists(Var("v1")))
+	assertJSON(t, query,
+		`{"in":{"exists":{"var":"v1"}},"let":[{"v1":{"@ref":"collections/spells/42"}},{"v2":{"index":"spells"}},{"a1":{"index":"all_things"}}]}`,
 	)
 }
 
@@ -402,18 +434,18 @@ func TestSerializeAbort(t *testing.T) {
 func TestSerializeDo(t *testing.T) {
 	assertJSON(t,
 		Do(Arr{
-			Get(Ref("classes/spells/4")),
-			Get(Ref("classes/spells/2")),
+			Get(Ref("collections/spells/4")),
+			Get(Ref("collections/spells/2")),
 		}),
-		`{"do":[[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]]}`,
+		`{"do":[[{"get":{"@ref":"collections/spells/4"}},{"get":{"@ref":"collections/spells/2"}}]]}`,
 	)
 
 	assertJSON(t,
 		Do(
-			Get(Ref("classes/spells/4")),
-			Get(Ref("classes/spells/2")),
+			Get(Ref("collections/spells/4")),
+			Get(Ref("collections/spells/2")),
 		),
-		`{"do":[{"get":{"@ref":"classes/spells/4"}},{"get":{"@ref":"classes/spells/2"}}]}`,
+		`{"do":[{"get":{"@ref":"collections/spells/4"}},{"get":{"@ref":"collections/spells/2"}}]}`,
 	)
 }
 
@@ -475,18 +507,18 @@ func TestSerializeAppend(t *testing.T) {
 
 func TestSerializeGet(t *testing.T) {
 	assertJSON(t,
-		Get(Ref("classes/spells/42")),
-		`{"get":{"@ref":"classes/spells/42"}}`,
+		Get(Ref("collections/spells/42")),
+		`{"get":{"@ref":"collections/spells/42"}}`,
 	)
 }
 
 func TestSerializeGetWithTimestamp(t *testing.T) {
 	assertJSON(t,
 		Get(
-			Ref("classes/spells/42"),
+			Ref("collections/spells/42"),
 			TS(time.Unix(0, 0).UTC()),
 		),
-		`{"get":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
+		`{"get":{"@ref":"collections/spells/42"},"ts":{"@ts":"1970-01-01T00:00:00Z"}}`,
 	)
 }
 
@@ -499,18 +531,18 @@ func TestSerializeKeyFromSecret(t *testing.T) {
 
 func TestSerializeExists(t *testing.T) {
 	assertJSON(t,
-		Exists(Ref("classes/spells/42")),
-		`{"exists":{"@ref":"classes/spells/42"}}`,
+		Exists(Ref("collections/spells/42")),
+		`{"exists":{"@ref":"collections/spells/42"}}`,
 	)
 }
 
 func TestSerializeExistsWithTimestamp(t *testing.T) {
 	assertJSON(t,
 		Exists(
-			Ref("classes/spells/42"),
+			Ref("collections/spells/42"),
 			TS(time.Unix(1, 1).UTC()),
 		),
-		`{"exists":{"@ref":"classes/spells/42"},"ts":{"@ts":"1970-01-01T00:00:01.000000001Z"}}`,
+		`{"exists":{"@ref":"collections/spells/42"},"ts":{"@ts":"1970-01-01T00:00:01.000000001Z"}}`,
 	)
 }
 
@@ -690,15 +722,15 @@ func TestSerializeDate(t *testing.T) {
 
 func TestSerializeSingleton(t *testing.T) {
 	assertJSON(t,
-		Singleton(Class("widgets")),
-		`{"singleton":{"class":"widgets"}}`,
+		Singleton(Collection("widgets")),
+		`{"singleton":{"collection":"widgets"}}`,
 	)
 }
 
 func TestSerializeEvents(t *testing.T) {
 	assertJSON(t,
-		Events(Class("widgets")),
-		`{"events":{"class":"widgets"}}`,
+		Events(Collection("widgets")),
+		`{"events":{"collection":"widgets"}}`,
 	)
 }
 
@@ -783,10 +815,10 @@ func TestSerializeDistinct(t *testing.T) {
 func TestSerializeJoin(t *testing.T) {
 	assertJSON(t,
 		Join(
-			MatchTerm(Ref("indexes/spellbooks_by_owner"), Ref("classes/characters/104979509695139637")),
+			MatchTerm(Ref("indexes/spellbooks_by_owner"), Ref("collections/characters/104979509695139637")),
 			Ref("indexes/spells_by_spellbook"),
 		),
-		`{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"classes/characters/104979509695139637"}},`+
+		`{"join":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"collections/characters/104979509695139637"}},`+
 			`"with":{"@ref":"indexes/spells_by_spellbook"}}`,
 	)
 }
@@ -794,10 +826,10 @@ func TestSerializeJoin(t *testing.T) {
 func TestSerializeLogin(t *testing.T) {
 	assertJSON(t,
 		Login(
-			Ref("classes/characters/104979509695139637"),
+			Ref("collections/characters/104979509695139637"),
 			Obj{"password": "abracadabra"},
 		),
-		`{"login":{"@ref":"classes/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`,
+		`{"login":{"@ref":"collections/characters/104979509695139637"},"params":{"object":{"password":"abracadabra"}}}`,
 	)
 }
 
@@ -810,8 +842,8 @@ func TestSerializeLogout(t *testing.T) {
 
 func TestSerializeIndentify(t *testing.T) {
 	assertJSON(t,
-		Identify(Ref("classes/characters/104979509695139637"), "abracadabra"),
-		`{"identify":{"@ref":"classes/characters/104979509695139637"},"password":"abracadabra"}`,
+		Identify(Ref("collections/characters/104979509695139637"), "abracadabra"),
+		`{"identify":{"@ref":"collections/characters/104979509695139637"},"password":"abracadabra"}`,
 	)
 }
 
@@ -872,6 +904,18 @@ func TestSerializeClass(t *testing.T) {
 	)
 }
 
+func TestSerializeCollection(t *testing.T) {
+	assertJSON(t,
+		Collection("test-collection"),
+		`{"collection":"test-collection"}`,
+	)
+
+	assertJSON(t,
+		ScopedCollection("test-db", Database("scope")),
+		`{"collection":"test-db","scope":{"database":"scope"}}`,
+	)
+}
+
 func TestSerializeFunction(t *testing.T) {
 	assertJSON(t,
 		Function("test-function"),
@@ -884,6 +928,18 @@ func TestSerializeFunction(t *testing.T) {
 	)
 }
 
+func TestSerializeRole(t *testing.T) {
+	assertJSON(t,
+		Role("test-role"),
+		`{"role":"test-role"}`,
+	)
+
+	assertJSON(t,
+		ScopedRole("test-role", Database("scope")),
+		`{"role":"test-role","scope":{"database":"scope"}}`,
+	)
+}
+
 func TestSerializeClasses(t *testing.T) {
 	assertJSON(t,
 		Classes(),
@@ -893,6 +949,18 @@ func TestSerializeClasses(t *testing.T) {
 	assertJSON(t,
 		ScopedClasses(Database("scope")),
 		`{"classes":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeCollections(t *testing.T) {
+	assertJSON(t,
+		Collections(),
+		`{"collections":null}`,
+	)
+
+	assertJSON(t,
+		ScopedCollections(Database("scope")),
+		`{"collections":{"database":"scope"}}`,
 	)
 }
 
@@ -929,6 +997,18 @@ func TestSerializeFunctions(t *testing.T) {
 	assertJSON(t,
 		ScopedFunctions(Database("scope")),
 		`{"functions":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeRoles(t *testing.T) {
+	assertJSON(t,
+		Roles(),
+		`{"roles":null}`,
+	)
+
+	assertJSON(t,
+		ScopedRoles(Database("scope")),
+		`{"roles":{"database":"scope"}}`,
 	)
 }
 
@@ -1177,7 +1257,7 @@ func TestSerializeFloor(t *testing.T) {
 
 func TestSerializeHypot(t *testing.T) {
 	assertJSON(t,
-		Hypot(1,2),
+		Hypot(1, 2),
 		`{"b":2,"hypot":1}`,
 	)
 }
@@ -1212,7 +1292,7 @@ func TestSerializeMin(t *testing.T) {
 
 func TestSerializePow(t *testing.T) {
 	assertJSON(t,
-		Pow(1,2),
+		Pow(1, 2),
 		`{"exp":2,"pow":1}`,
 	)
 }
@@ -1247,8 +1327,6 @@ func TestSerializeMultiply(t *testing.T) {
 		`{"multiply":[3,4]}`,
 	)
 }
-
-
 
 func TestSerializeRound(t *testing.T) {
 	assertJSON(t,

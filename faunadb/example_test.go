@@ -18,8 +18,8 @@ func Example() {
 	// Crate a new client
 	client := f.NewFaunaClient("your-secret-here")
 
-	// Create a class to store profiles
-	_, _ = client.Query(f.CreateClass(f.Obj{"name": "profiles"}))
+	// Create a collection to store profiles
+	_, _ = client.Query(f.CreateCollection(f.Obj{"name": "profiles"}))
 
 	// Create a new profile entry
 	profile := Profile{
@@ -30,7 +30,7 @@ func Example() {
 	// Save profile at FaunaDB
 	newProfile, _ := client.Query(
 		f.Create(
-			f.Class("profiles"),
+			f.Collection("profiles"),
 			f.Obj{"data": profile},
 		),
 	)

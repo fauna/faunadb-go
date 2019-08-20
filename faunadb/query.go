@@ -42,16 +42,6 @@ func varargs(expr ...interface{}) interface{} {
 	return expr
 }
 
-func unescapedBindings(obj Obj) unescapedObj {
-	res := make(unescapedObj, len(obj))
-
-	for k, v := range obj {
-		res[k] = wrap(v)
-	}
-
-	return res
-}
-
 // Optional parameters
 
 // EventsOpt is an boolean optional parameter that describes if the query should include historical events.
@@ -162,9 +152,9 @@ func Separator(sep interface{}) OptionalParameter {
 	}
 }
 
-// Precision is a optional parameter that specifies the precision for a Trunc/Round operations.
+// Precision is an optional parameter that specifies the precision for a Trunc and Round operations.
 //
-// Functions that accept this optional parameter are: Round/Trunc.
+// Functions that accept this optional parameter are: Round and Trunc.
 func Precision(precision interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["precision"] = wrap(precision)
@@ -178,6 +168,24 @@ func Normalizer(norm interface{}) OptionalParameter {
 	return func(fn unescapedObj) {
 		fn["normalizer"] = wrap(norm)
 	}
+}
+
+// LetBuilder builds Let expressions
+type LetBuilder struct {
+	bindings unescapedArr
+}
+
+// Bind binds a variable name to a value and returns a LetBuilder
+func (lb *LetBuilder) Bind(key string, in interface{}) *LetBuilder {
+	binding := make(unescapedObj, 1)
+	binding[key] = wrap(in)
+	lb.bindings = append(lb.bindings, binding)
+	return lb
+}
+
+// In sets the expression to be evaluated and returns the prepared Let.
+func (lb *LetBuilder) In(in Expr) Expr {
+	return fn2("let", lb.bindings, "in", in)
 }
 
 // Values
@@ -197,13 +205,27 @@ func Ref(id string) Expr { return fn1("@ref", id) }
 //
 // Parameters:
 //  classRef Ref - A class reference.
-//  id string|int64 - The instance ID.
+//  id string|int64 - The document ID.
+//
+// Deprecated: Use RefCollection instead, RefClass is kept for backwards compatibility
 //
 // Returns:
 //  Ref - A new reference type.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#special-type
 func RefClass(classRef, id interface{}) Expr { return fn2("ref", classRef, "id", id) }
+
+// RefCollection creates a new Ref based on the provided collection and ID.
+//
+// Parameters:
+//  collectionRef Ref - A collection reference.
+//  id string|int64 - The document ID.
+//
+// Returns:
+//  Ref - A new reference type.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#special-type
+func RefCollection(collectionRef, id interface{}) Expr { return fn2("ref", collectionRef, "id", id) }
 
 // Null creates a NullV value.
 //
@@ -287,6 +309,14 @@ func At(timestamp, expr interface{}) Expr { return fn2("at", timestamp, "expr", 
 
 // Let binds values to one or more variables.
 //
+// Returns:
+//  *LetBuilder - Returns a LetBuilder.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+func Let() *LetBuilder { return &LetBuilder{nil} }
+
+// LetRef binds values to one or more variables as go pointer.
+//
 // Parameters:
 //  bindings Object - An object binding a variable name to a value.
 //  in Expr - An expression to be evaluated.
@@ -295,7 +325,13 @@ func At(timestamp, expr interface{}) Expr { return fn2("at", timestamp, "expr", 
 //  Value - The result of the given expression.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
-func Let(bindings Obj, in interface{}) Expr { return fn2("let", unescapedBindings(bindings), "in", in) }
+func LetPtr(bindings Obj, in *Obj) Expr {
+
+	return unescapedObj{
+		"let": wrap(unescapedBindings(bindings)),
+		"in":  in,
+	}
+}
 
 // LetRef binds values to one or more variables as go pointer.
 //
@@ -442,15 +478,37 @@ func Prepend(elems, coll interface{}) Expr { return fn2("prepend", elems, "colle
 // See: https://app.fauna.com/documentation/reference/queryapi#collections
 func Append(elems, coll interface{}) Expr { return fn2("append", elems, "collection", coll) }
 
+// IsEmpty returns true if the collection is the empty set, else false.
+//
+// Parameters:
+//  coll []Value - The collection of elements.
+//
+// Returns:
+//   bool - True if the collection is empty, else false.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#collections
+func IsEmpty(coll interface{}) Expr { return fn1("is_empty", coll) }
+
+// IsNonEmpty returns false if the collection is the empty set, else true
+//
+// Parameters:
+//  coll []Value - The collection of elements.
+//
+// Returns:
+//   bool - True if the collection is not empty, else false.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#collections
+func IsNonEmpty(coll interface{}) Expr { return fn1("is_nonempty", coll) }
+
 // Read
 
-// Get retrieves the instance identified by the provided ref. Optional parameters: TS.
+// Get retrieves the document identified by the provided ref. Optional parameters: TS.
 //
 // Parameters:
 //  ref Ref|SetRef - The reference to the object or a set reference.
 //
 // Optional parameters:
-//  ts time - The snapshot time at which to get the instance. See TS() function.
+//  ts time - The snapshot time at which to get the document. See TS() function.
 //
 // Returns:
 //  Object - The object requested.
@@ -469,14 +527,14 @@ func Get(ref interface{}, options ...OptionalParameter) Expr { return fn1("get",
 // See: https://app.fauna.com/documentation/reference/queryapi#read-functions
 func KeyFromSecret(secret interface{}) Expr { return fn1("key_from_secret", secret) }
 
-// Exists returns boolean true if the provided ref exists (in the case of an instance),
+// Exists returns boolean true if the provided ref exists (in the case of an document),
 // or is non-empty (in the case of a set), and false otherwise. Optional parameters: TS.
 //
 // Parameters:
-//  ref Ref - The reference to the object. It could be an instance reference of a object reference like a class.
+//  ref Ref - The reference to the object. It could be a document reference of a object reference like a collection.
 //
 // Optional parameters:
-//  ts time - The snapshot time at which to check for the instance's existence. See TS() function.
+//  ts time - The snapshot time at which to check for the document's existence. See TS() function.
 //
 // Returns:
 //  bool - true if the reference exists, false otherwise.
@@ -493,7 +551,7 @@ func Exists(ref interface{}, options ...OptionalParameter) Expr { return fn1("ex
 //  after Cursor - Return the next page of results after this cursor (inclusive). See After() function.
 //  before Cursor - Return the previous page of results before this cursor (exclusive). See Before() function.
 //  sources bool - If true, include the source sets along with each element. See Sources() function.
-//  ts time - The snapshot time at which to get the instance. See TS() function.
+//  ts time - The snapshot time at which to get the document. See TS() function.
 //
 // Returns:
 //  Page - A page of elements.
@@ -505,14 +563,14 @@ func Paginate(set interface{}, options ...OptionalParameter) Expr {
 
 // Write
 
-// Create creates an instance of the specified class.
+// Create creates an document of the specified collection.
 //
 // Parameters:
-//  ref Ref - A class reference.
-//  params Object - An object with attributes of the instance created.
+//  ref Ref - A collection reference.
+//  params Object - An object with attributes of the document created.
 //
 // Returns:
-//  Object - A new instance of the class referenced.
+//  Object - A new document of the collection referenced.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Create(ref, params interface{}) Expr { return fn2("create", ref, "params", params) }
@@ -522,11 +580,24 @@ func Create(ref, params interface{}) Expr { return fn2("create", ref, "params", 
 // Parameters:
 //  params Object - An object with attributes of the class.
 //
+// Deprecated: Use CreateCollection instead, CreateClass is kept for backwards compatibility
+//
 // Returns:
 //  Object - The new created class object.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func CreateClass(params interface{}) Expr { return fn1("create_class", params) }
+
+// CreateCollection creates a new collection.
+//
+// Parameters:
+//  params Object - An object with attributes of the collection.
+//
+// Returns:
+//  Object - The new created collection object.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+func CreateCollection(params interface{}) Expr { return fn1("create_collection", params) }
 
 // CreateDatabase creates an new database.
 //
@@ -572,11 +643,22 @@ func CreateKey(params interface{}) Expr { return fn1("create_key", params) }
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func CreateFunction(params interface{}) Expr { return fn1("create_function", params) }
 
-// Update updates the provided instance.
+// CreateRole creates a new role.
+//
+// Parameters:
+//  params Object - An object with attributes of the role.
+//
+// Returns:
+//  Object - The new created role object.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+func CreateRole(params interface{}) Expr { return fn1("create_role", params) }
+
+// Update updates the provided document.
 //
 // Parameters:
 //  ref Ref - The reference to update.
-//  params Object - An object representing the parameters of the instance.
+//  params Object - An object representing the parameters of the document.
 //
 // Returns:
 //  Object - The updated object.
@@ -584,11 +666,11 @@ func CreateFunction(params interface{}) Expr { return fn1("create_function", par
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Update(ref, params interface{}) Expr { return fn2("update", ref, "params", params) }
 
-// Replace replaces the provided instance.
+// Replace replaces the provided document.
 //
 // Parameters:
 //  ref Ref - The reference to replace.
-//  params Object - An object representing the parameters of the instance.
+//  params Object - An object representing the parameters of the document.
 //
 // Returns:
 //  Object - The replaced object.
@@ -596,7 +678,7 @@ func Update(ref, params interface{}) Expr { return fn2("update", ref, "params", 
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Replace(ref, params interface{}) Expr { return fn2("replace", ref, "params", params) }
 
-// Delete deletes the provided instance.
+// Delete deletes the provided document.
 //
 // Parameters:
 //  ref Ref - The reference to delete.
@@ -607,7 +689,7 @@ func Replace(ref, params interface{}) Expr { return fn2("replace", ref, "params"
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func Delete(ref interface{}) Expr { return fn1("delete", ref) }
 
-// Insert adds an event to the provided instance's history.
+// Insert adds an event to the provided document's history.
 //
 // Parameters:
 //  ref Ref - The reference to insert against.
@@ -622,10 +704,10 @@ func Insert(ref, ts, action, params interface{}) Expr {
 	return fn4("insert", ref, "ts", ts, "action", action, "params", params)
 }
 
-// Remove deletes an event from the provided instance's history.
+// Remove deletes an event from the provided document's history.
 //
 // Parameters:
-//  ref Ref - The reference of the instance whose event should be removed.
+//  ref Ref - The reference of the document whose event should be removed.
 //  ts time - The valid time of the inserted event.
 //  action string - The event action (ActionCreate, ActionUpdate or ActionDelete) that should be removed.
 //
@@ -681,7 +763,7 @@ func Casefold(str interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func FindStr(str, find interface{}, options ...OptionalParameter) Expr {
 	return fn2("findstr", str, "find", find, options...)
 }
@@ -698,7 +780,7 @@ func FindStr(str, find interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func FindStrRegex(str, pattern interface{}, options ...OptionalParameter) Expr {
 	return fn2("findstrregex", str, "pattern", pattern, options...)
 }
@@ -711,7 +793,7 @@ func FindStrRegex(str, pattern interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  int - A length of a string.
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func Length(str interface{}) Expr { return fn1("length", str) }
 
 // LowerCase changes all characters in the string to lowercase
@@ -722,7 +804,7 @@ func Length(str interface{}) Expr { return fn1("length", str) }
 // Returns:
 //  string - A string in lowercase.
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func LowerCase(str interface{}) Expr { return fn1("lowercase", str) }
 
 // LTrim returns a string wtih leading white space removed.
@@ -733,7 +815,7 @@ func LowerCase(str interface{}) Expr { return fn1("lowercase", str) }
 // Returns:
 //  string - A string with all leading white space removed
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func LTrim(str interface{}) Expr { return fn1("ltrim", str) }
 
 // Repeat returns a string wtih repeated n times
@@ -745,7 +827,7 @@ func LTrim(str interface{}) Expr { return fn1("ltrim", str) }
 // Returns:
 //  string - A string concatendanted the specified number of times
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func Repeat(str, number interface{}) Expr { return fn2("repeat", str, "number", number) }
 
 // ReplaceStr returns a string with every occurence of the "find" string changed to "replace" string
@@ -758,7 +840,7 @@ func Repeat(str, number interface{}) Expr { return fn2("repeat", str, "number", 
 // Returns:
 //  string - returns a string with every occurence of the "find" string changed to "replace"
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func ReplaceStr(str, find, replace interface{}) Expr {
 	return fn3("replacestr", str, "find", find, "replace", replace)
 }
@@ -776,7 +858,7 @@ func ReplaceStr(str, find, replace interface{}) Expr {
 // Returns:
 //  string - A string with occurence(s) of the java regular expression "pattern" changed to "replace" string
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func ReplaceStrRegex(value, pattern, replace interface{}, options ...OptionalParameter) Expr {
 	return fn3("replacestrregex", value, "pattern", pattern, "replace", replace, options...)
 }
@@ -789,7 +871,7 @@ func ReplaceStrRegex(value, pattern, replace interface{}, options ...OptionalPar
 // Returns:
 //  string - A string with all trailing white space removed
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func RTrim(str interface{}) Expr { return fn1("rtrim", str) }
 
 // Space function returns "N" number of spaces
@@ -800,7 +882,7 @@ func RTrim(str interface{}) Expr { return fn1("rtrim", str) }
 // Returns:
 //  string - function returns string with n spaces
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func Space(value interface{}) Expr { return fn1("space", value) }
 
 // SubString returns a subset of the source string.   Optional parameters: StrLength
@@ -815,7 +897,7 @@ func Space(value interface{}) Expr { return fn1("space", value) }
 // Returns:
 //  string - function returns a subset of the source string
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func SubString(str, start interface{}, options ...OptionalParameter) Expr {
 	return fn2("substring", str, "start", start, options...)
 }
@@ -828,7 +910,7 @@ func SubString(str, start interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  string - A string in TitleCase.
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func TitleCase(str interface{}) Expr { return fn1("titlecase", str) }
 
 // Trim returns a string wtih trailing white space removed.
@@ -839,7 +921,7 @@ func TitleCase(str interface{}) Expr { return fn1("titlecase", str) }
 // Returns:
 //  string - A string with all trailing white space removed
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func Trim(str interface{}) Expr { return fn1("trim", str) }
 
 // UpperCase changes all characters in the string to uppercase
@@ -850,7 +932,7 @@ func Trim(str interface{}) Expr { return fn1("trim", str) }
 // Returns:
 //  string - A string in uppercase.
 //
-// See: https://fauna.com/documentation/reference/queryapi#string-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func UpperCase(str interface{}) Expr { return fn1("uppercase", str) }
 
 // Time and Date
@@ -891,10 +973,10 @@ func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) 
 
 // Set
 
-// Singleton returns the history of the instance's presence of the provided ref.
+// Singleton returns the history of the document's presence of the provided ref.
 //
 // Parameters:
-//  ref Ref - The reference of the instance for which to retrieve the singleton set.
+//  ref Ref - The reference of the document for which to retrieve the singleton set.
 //
 // Returns:
 //  SetRef - The singleton SetRef.
@@ -902,7 +984,7 @@ func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) 
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Singleton(ref interface{}) Expr { return fn1("singleton", ref) }
 
-// Events returns the history of instance's data of the provided ref.
+// Events returns the history of document's data of the provided ref.
 //
 // Parameters:
 //  refSet Ref|SetRef - A reference or set reference to retrieve an event set from.
@@ -913,7 +995,7 @@ func Singleton(ref interface{}) Expr { return fn1("singleton", ref) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Events(refSet interface{}) Expr { return fn1("events", refSet) }
 
-// Match returns the set of instances for the specified index.
+// Match returns the set of documents for the specified index.
 //
 // Parameters:
 //  ref Ref - The reference of the index to match against.
@@ -924,7 +1006,7 @@ func Events(refSet interface{}) Expr { return fn1("events", refSet) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Match(ref interface{}) Expr { return fn1("match", ref) }
 
-// MatchTerm returns th set of instances that match the terms in an index.
+// MatchTerm returns th set of documents that match the terms in an index.
 //
 // Parameters:
 //  ref Ref - The reference of the index to match against.
@@ -936,7 +1018,7 @@ func Match(ref interface{}) Expr { return fn1("match", ref) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", terms) }
 
-// Union returns the set of instances that are present in at least one of the specified sets.
+// Union returns the set of documents that are present in at least one of the specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to union together.
@@ -947,7 +1029,7 @@ func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", 
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Union(sets ...interface{}) Expr { return fn1("union", varargs(sets...)) }
 
-// Intersection returns the set of instances that are present in all of the specified sets.
+// Intersection returns the set of documents that are present in all of the specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to intersect.
@@ -958,7 +1040,7 @@ func Union(sets ...interface{}) Expr { return fn1("union", varargs(sets...)) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Intersection(sets ...interface{}) Expr { return fn1("intersection", varargs(sets...)) }
 
-// Difference returns the set of instances that are present in the first set but not in
+// Difference returns the set of documents that are present in the first set but not in
 // any of the other specified sets.
 //
 // Parameters:
@@ -970,7 +1052,7 @@ func Intersection(sets ...interface{}) Expr { return fn1("intersection", varargs
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Difference(sets ...interface{}) Expr { return fn1("difference", varargs(sets...)) }
 
-// Distinct returns the set of instances with duplicates removed.
+// Distinct returns the set of documents with duplicates removed.
 //
 // Parameters:
 //  set []SetRef - A list of SetRef to remove duplicates from.
@@ -981,7 +1063,7 @@ func Difference(sets ...interface{}) Expr { return fn1("difference", varargs(set
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Distinct(set interface{}) Expr { return fn1("distinct", set) }
 
-// Join derives a set of resources by applying each instance in the source set to the target set.
+// Join derives a set of resources by applying each document in the source set to the target set.
 //
 // Parameters:
 //  source SetRef - A SetRef of the source set.
@@ -1028,10 +1110,10 @@ func Logout(invalidateAll interface{}) Expr { return fn1("logout", invalidateAll
 // See: https://app.fauna.com/documentation/reference/queryapi#authentication
 func Identify(ref, password interface{}) Expr { return fn2("identify", ref, "password", password) }
 
-// Identity returns the instance reference associated with the current key.
+// Identity returns the document reference associated with the current key.
 //
 // For example, the current key token created using:
-//	Create(Tokens(), Obj{"instance": someRef})
+//	Create(Tokens(), Obj{"document": someRef})
 // or via:
 //	Login(someRef, Obj{"password":"sekrit"})
 // will return "someRef" as the result of this function.
@@ -1123,11 +1205,24 @@ func ScopedIndex(name interface{}, scope interface{}) Expr { return fn2("index",
 // Parameters:
 //  name string - The name of the class.
 //
+// Deprecated: Use Collection instead, Class is kept for backwards compatibility
+//
 // Returns:
 //  Ref - The class reference.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Class(name interface{}) Expr { return fn1("class", name) }
+
+// Collection creates a new collection ref.
+//
+// Parameters:
+//  name string - The name of the collection.
+//
+// Returns:
+//  Ref - The collection reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Collection(name interface{}) Expr { return fn1("collection", name) }
 
 // ScopedClass creates a new class ref inside a database.
 //
@@ -1135,11 +1230,29 @@ func Class(name interface{}) Expr { return fn1("class", name) }
 //  name string - The name of the class.
 //  scope Ref - The reference of the class's scope.
 //
+// Deprecated: Use ScopedCollection instead, ScopedClass is kept for backwards compatibility
+//
 // Returns:
-//  Ref - The class reference.
+//  Ref - The collection reference.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func ScopedClass(name interface{}, scope interface{}) Expr { return fn2("class", name, "scope", scope) }
+func ScopedClass(name interface{}, scope interface{}) Expr {
+	return fn2("class", name, "scope", scope)
+}
+
+// ScopedCollection creates a new collection ref inside a database.
+//
+// Parameters:
+//  name string - The name of the collection.
+//  scope Ref - The reference of the collection's scope.
+//
+// Returns:
+//  Ref - The collection reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedCollection(name interface{}, scope interface{}) Expr {
+	return fn2("collection", name, "scope", scope)
+}
 
 // Function create a new function ref.
 //
@@ -1166,7 +1279,32 @@ func ScopedFunction(name interface{}, scope interface{}) Expr {
 	return fn2("function", name, "scope", scope)
 }
 
+// Role create a new role ref.
+//
+// Parameters:
+//  name string - The name of the role.
+//
+// Returns:
+//  Ref - The role reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Role(name interface{}) Expr { return fn1("role", name) }
+
+// ScopedRole create a new role ref.
+//
+// Parameters:
+//  name string - The name of the role.
+//  scope Ref - The reference of the role's scope.
+//
+// Returns:
+//  Ref - The role reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedRole(name, scope interface{}) Expr { return fn2("role", name, "scope", scope) }
+
 // Classes creates a native ref for classes.
+//
+// Deprecated: Use Collections instead, Classes is kept for backwards compatibility
 //
 // Returns:
 //  Ref - The reference of the class set.
@@ -1174,16 +1312,37 @@ func ScopedFunction(name interface{}, scope interface{}) Expr {
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Classes() Expr { return fn1("classes", NullV{}) }
 
+// Collections creates a native ref for collections.
+//
+// Returns:
+//  Ref - The reference of the collections set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Collections() Expr { return fn1("collections", NullV{}) }
+
 // ScopedClasses creates a native ref for classes inside a database.
 //
 // Parameters:
 //  scope Ref - The reference of the class set's scope.
+//
+// Deprecated: Use ScopedCollections instead, ScopedClasses is kept for backwards compatibility
 //
 // Returns:
 //  Ref - The reference of the class set.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func ScopedClasses(scope interface{}) Expr { return fn1("classes", scope) }
+
+// ScopedCollections creates a native ref for collections inside a database.
+//
+// Parameters:
+//  scope Ref - The reference of the collections set's scope.
+//
+// Returns:
+//  Ref - The reference of the collections set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedCollections(scope interface{}) Expr { return fn1("collections", scope) }
 
 // Indexes creates a native ref for indexes.
 //
@@ -1241,6 +1400,25 @@ func Functions() Expr { return fn1("functions", NullV{}) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func ScopedFunctions(scope interface{}) Expr { return fn1("functions", scope) }
+
+// Roles creates a native ref for roles.
+//
+// Returns:
+//  Ref - The reference of the roles set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func Roles() Expr { return fn1("roles", NullV{}) }
+
+// ScopedRole creates a native ref for roles inside a database.
+//
+// Parameters:
+//  scope Ref - The reference of the role set's scope.
+//
+// Returns:
+//  Ref - The reference of the role set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedRoles(scope interface{}) Expr { return fn1("roles", scope) }
 
 // Keys creates a native ref for keys.
 //
@@ -1330,7 +1508,7 @@ func Contains(path, value interface{}) Expr { return fn2("contains", path, "in",
 // Returns:
 //  number - The abosulte value of a number
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Abs(value interface{}) Expr { return fn1("abs", value) }
 
 // Acos computes the arccosine of a number.
@@ -1341,7 +1519,7 @@ func Abs(value interface{}) Expr { return fn1("abs", value) }
 // Returns:
 //  number - The arccosine of a number
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Acos(value interface{}) Expr { return fn1("acos", value) }
 
 // Asin computes the arcsine of a number.
@@ -1352,7 +1530,7 @@ func Acos(value interface{}) Expr { return fn1("acos", value) }
 // Returns:
 //  number - The arcsine of a number
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Asin(value interface{}) Expr { return fn1("asin", value) }
 
 // Atan computes the arctan of a number.
@@ -1363,7 +1541,7 @@ func Asin(value interface{}) Expr { return fn1("asin", value) }
 // Returns:
 //  number - The arctan of a number
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Atan(value interface{}) Expr { return fn1("atan", value) }
 
 // Add computes the sum of a list of numbers.
@@ -1407,7 +1585,7 @@ func BitNot(value interface{}) Expr { return fn1("bitnot", value) }
 // Returns:
 //  number - The OR of all elements.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func BitOr(args ...interface{}) Expr { return fn1("bitor", varargs(args...)) }
 
 // BitXor computes the XOR of a list of numbers.
@@ -1418,7 +1596,7 @@ func BitOr(args ...interface{}) Expr { return fn1("bitor", varargs(args...)) }
 // Returns:
 //  number - The XOR of all elements.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func BitXor(args ...interface{}) Expr { return fn1("bitxor", varargs(args...)) }
 
 // Ceil computes the largest integer greater than or equal to
@@ -1429,7 +1607,7 @@ func BitXor(args ...interface{}) Expr { return fn1("bitxor", varargs(args...)) }
 // Returns:
 //  number - The ceil of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Ceil(value interface{}) Expr { return fn1("ceil", value) }
 
 // Cos computes the Cosine of a number
@@ -1440,7 +1618,7 @@ func Ceil(value interface{}) Expr { return fn1("ceil", value) }
 // Returns:
 //  number - The cosine of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Cos(value interface{}) Expr { return fn1("cos", value) }
 
 // Cosh computes the Hyperbolic Cosine of a number
@@ -1451,7 +1629,7 @@ func Cos(value interface{}) Expr { return fn1("cos", value) }
 // Returns:
 //  number - The Hyperbolic cosine of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Cosh(value interface{}) Expr { return fn1("cosh", value) }
 
 // Degrees computes the degress of a number
@@ -1462,7 +1640,7 @@ func Cosh(value interface{}) Expr { return fn1("cosh", value) }
 // Returns:
 //  number - The degrees of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Degrees(value interface{}) Expr { return fn1("degrees", value) }
 
 // Divide computes the quotient of a list of numbers.
@@ -1484,7 +1662,7 @@ func Divide(args ...interface{}) Expr { return fn1("divide", varargs(args...)) }
 // Returns:
 //  number - The exp of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Exp(value interface{}) Expr { return fn1("exp", value) }
 
 // Floor computes the Floor of a number
@@ -1495,7 +1673,7 @@ func Exp(value interface{}) Expr { return fn1("exp", value) }
 // Returns:
 //  number - The Floor of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Floor(value interface{}) Expr { return fn1("floor", value) }
 
 // Hypot computes the Hypotenuse of two numbers
@@ -1507,18 +1685,18 @@ func Floor(value interface{}) Expr { return fn1("floor", value) }
 // Returns:
 //  number - The hypotenuse of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Hypot(a, b interface{}) Expr { return fn2("hypot", a, "b", b) }
 
-// ln computes the ln of a number
+// Ln computes the natural log of a number
 //
 // Parameters:
-//  value number - A number to compute the ln of
+//  value number - A number to compute the natural log of
 //
 // Returns:
 //  number - The ln of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Ln(value interface{}) Expr { return fn1("ln", value) }
 
 // Log computes the Log of a number
@@ -1529,7 +1707,7 @@ func Ln(value interface{}) Expr { return fn1("ln", value) }
 // Returns:
 //  number - The Log of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Log(value interface{}) Expr { return fn1("log", value) }
 
 // Max computes the max of a list of numbers.
@@ -1540,7 +1718,7 @@ func Log(value interface{}) Expr { return fn1("log", value) }
 // Returns:
 //  number - The max of all elements.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Max(args ...interface{}) Expr { return fn1("max", varargs(args...)) }
 
 // Min computes the Min of a list of numbers.
@@ -1551,7 +1729,7 @@ func Max(args ...interface{}) Expr { return fn1("max", varargs(args...)) }
 // Returns:
 //  number - The min of all elements.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Min(args ...interface{}) Expr { return fn1("min", varargs(args...)) }
 
 // Modulo computes the reminder after the division of a list of numbers.
@@ -1573,7 +1751,7 @@ func Modulo(args ...interface{}) Expr { return fn1("modulo", varargs(args...)) }
 // Returns:
 //  number - The multiplication of all elements.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Multiply(args ...interface{}) Expr { return fn1("multiply", varargs(args...)) }
 
 // Pow computes the Power of a number
@@ -1585,7 +1763,7 @@ func Multiply(args ...interface{}) Expr { return fn1("multiply", varargs(args...
 // Returns:
 //  number - The Pow of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Pow(base, exp interface{}) Expr { return fn2("pow", base, "exp", exp) }
 
 // Radians computes the Radians of a number
@@ -1596,19 +1774,19 @@ func Pow(base, exp interface{}) Expr { return fn2("pow", base, "exp", exp) }
 // Returns:
 //  number - The Radians of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Radians(value interface{}) Expr { return fn1("radians", value) }
 
 // Round a number at the given percission
 //
 // Parameters:
 //  value number - The number to truncate
-//  precision number - precision where to truncate
+//  precision number - precision where to truncate, defaults is 2
 //
 // Returns:
 //  number - The Rounded value.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Round(value interface{}, options ...OptionalParameter) Expr {
 	return fn1("round", value, options...)
 }
@@ -1621,7 +1799,7 @@ func Round(value interface{}, options ...OptionalParameter) Expr {
 // Returns:
 //  number - The Sign of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Sign(value interface{}) Expr { return fn1("sign", value) }
 
 // Sin computes the Sine of a number
@@ -1632,7 +1810,7 @@ func Sign(value interface{}) Expr { return fn1("sign", value) }
 // Returns:
 //  number - The Sine of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Sin(value interface{}) Expr { return fn1("sin", value) }
 
 // Sinh computes the Hyperbolic Sine of a number
@@ -1643,7 +1821,7 @@ func Sin(value interface{}) Expr { return fn1("sin", value) }
 // Returns:
 //  number - The Hyperbolic Sine of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Sinh(value interface{}) Expr { return fn1("sinh", value) }
 
 // Sqrt computes the square root of a number
@@ -1654,7 +1832,7 @@ func Sinh(value interface{}) Expr { return fn1("sinh", value) }
 // Returns:
 //  number - The square root of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Sqrt(value interface{}) Expr { return fn1("sqrt", value) }
 
 // Subtract computes the difference of a list of numbers.
@@ -1665,7 +1843,7 @@ func Sqrt(value interface{}) Expr { return fn1("sqrt", value) }
 // Returns:
 //  number - The difference of all elements.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Subtract(args ...interface{}) Expr { return fn1("subtract", varargs(args...)) }
 
 // Tan computes the Tangent of a number
@@ -1676,7 +1854,7 @@ func Subtract(args ...interface{}) Expr { return fn1("subtract", varargs(args...
 // Returns:
 //  number - The Tangent of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Tan(value interface{}) Expr { return fn1("tan", value) }
 
 // Tanh computes the Hyperbolic Tangent of a number
@@ -1687,19 +1865,19 @@ func Tan(value interface{}) Expr { return fn1("tan", value) }
 // Returns:
 //  number - The Hyperbolic Tangent of value
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Tanh(value interface{}) Expr { return fn1("tanh", value) }
 
 // Trunc truncates a number at the given percission
 //
 // Parameters:
 //  value number - The number to truncate
-//  precision number - precision where to truncate
+//  precision number - precision where to truncate, defaults is 2
 //
 // Returns:
 //  number - The truncated value.
 //
-// See: https://fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Trunc(value interface{}, options ...OptionalParameter) Expr {
 	return fn1("trunc", value, options...)
 }
@@ -1845,6 +2023,127 @@ func ToNumber(value interface{}) Expr {
 //   time - A time literal.
 func ToTime(value interface{}) Expr {
 	return fn1("to_time", value)
+}
+
+// Converts a time expression to seconds since the UNIX epoch.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToSeconds(value interface{}) Expr {
+	return fn1("to_seconds", value)
+}
+
+// Converts a time expression to milliseconds since the UNIX epoch.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToMillis(value interface{}) Expr {
+	return fn1("to_millis", value)
+}
+
+// Converts a time expression to microseconds since the UNIX epoch.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - A time literal.
+func ToMicros(value interface{}) Expr {
+	return fn1("to_micros", value)
+}
+
+// Returns the time expression's year, following the ISO-8601 standard.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Year(value interface{}) Expr {
+	return fn1("year", value)
+}
+
+// Returns a time expression's month of the year, from 1 to 12.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - Month.
+func Month(value interface{}) Expr {
+	return fn1("month", value)
+}
+
+// Returns a time expression's hour of the day, from 0 to 23.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Hour(value interface{}) Expr {
+	return fn1("hour", value)
+}
+
+// Returns a time expression's minute of the hour, from 0 to 59.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Minute(value interface{}) Expr {
+	return fn1("minute", value)
+}
+
+// Returns a time expression's second of the minute, from 0 to 59.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - year.
+func Second(value interface{}) Expr {
+	return fn1("second", value)
+}
+
+// Returns a time expression's day of the month, from 1 to 31.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - day of month.
+func DayOfMonth(value interface{}) Expr {
+	return fn1("day_of_month", value)
+}
+
+// Returns a time expression's day of the week following ISO-8601 convention, from 1 (Monday) to 7 (Sunday).
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - day of week.
+func DayOfWeek(value interface{}) Expr {
+	return fn1("day_of_week", value)
+}
+
+// Returns a time expression's day of the year, from 1 to 365, or 366 in a leap year.
+//
+// Parameters:
+//    value Object - The expression to convert.
+//
+// Returns:
+//   time - Day of the year.
+func DayOfYear(value interface{}) Expr {
+	return fn1("day_of_year", value)
 }
 
 // ToDate attempts to convert an expression to a date literal.
