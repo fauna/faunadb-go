@@ -11,7 +11,19 @@ func unescapedBindings(obj Obj) unescapedObj {
 	return res
 }
 
-// LetRef binds values to one or more variables as go pointer.
+// InPtr is In with pointer bindings support
+func (lb *LetBuilder) InPtr(in Expr) Expr {
+	// return fn2("let", lb.bindings, "in", in)
+	// return LetPtr(lb.bindings, &in)
+	return unescapedObj{
+		"let": wrap(lb.bindings),
+		"in":  in,
+	}
+}
+
+// LetPtr is the original Let implementation with pointer support in bindings
+// Note: Has been updated to bindings in an array similar to builtin LetBuilder
+// Consider using `Let().Bind().InPtr(&in)` instead
 //
 // Parameters:
 //  bindings Object - An object binding a variable name to a value.
@@ -22,9 +34,8 @@ func unescapedBindings(obj Obj) unescapedObj {
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
 func LetPtr(bindings Obj, in *Obj) Expr {
-
 	return unescapedObj{
-		"let": wrap(unescapedBindings(bindings)),
+		"let": wrap(Arr{unescapedBindings(bindings)}),
 		"in":  in,
 	}
 }
