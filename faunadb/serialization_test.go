@@ -769,6 +769,13 @@ func TestSerializeUnion(t *testing.T) {
 	)
 }
 
+func TestSerializeMerge(t *testing.T) {
+	assertJSON(t, Merge(Obj{"x": 24}, Obj{"y": 25}), "{\"merge\":{\"object\":{\"x\":24}},\"with\":{\"object\":{\"y\":25}}}")
+	assertJSON(t, Merge(Obj{"points": 900}, Obj{"name": "Trevor"}), "{\"merge\":{\"object\":{\"points\":900}},\"with\":{\"object\":{\"name\":\"Trevor\"}}}")
+	assertJSON(t, Merge(Obj{}, Obj{"id": 9}), "{\"merge\":{\"object\":{}},\"with\":{\"object\":{\"id\":9}}}")
+	assertJSON(t, Merge(Obj{"x": 24}, Obj{"y": 25}, ConflictResolver(Lambda(Arr{"key", "left", "right"}, Var("right")))), "{\"lambda\":{\"expr\":{\"var\":\"right\"},\"lambda\":[\"key\",\"left\",\"right\"]},\"merge\":{\"object\":{\"x\":24}},\"with\":{\"object\":{\"y\":25}}}")
+}
+
 func TestSerializeIntersection(t *testing.T) {
 	assertJSON(t,
 		Intersection(Arr{

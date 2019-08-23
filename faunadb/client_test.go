@@ -765,6 +765,22 @@ func (s *ClientTestSuite) TestUnion() {
 	s.Require().Equal([]f.RefV{magicMissile, fireball, faerieFire}, spells)
 }
 
+func (s *ClientTestSuite) TestMerge() {
+	var b1, b2, b3, b4 bool
+
+	s.queryAndDecode(f.Equals(f.Merge(f.Obj{"x": 1, "y": 2}, f.Obj{"z": 3}), f.Obj{"x": 1, "y": 2, "z": 3}), &b1)
+	s.queryAndDecode(f.Equals(f.Merge(f.Obj{}, f.Obj{"a": 1}), f.Obj{"a": 1}), &b2)
+	s.queryAndDecode(f.Equals(f.Merge(f.Obj{"a": 1}, f.Arr{f.Obj{"b": 2}, f.Obj{"c": 3}, f.Obj{"a": 5}}), f.Obj{"a": 5, "b": 2, "c": 3}), &b3)
+	s.queryAndDecode(f.Equals(f.Merge(f.Obj{"a": 1, "b": 2, "c": 3}, f.Obj{
+		"a": "a", "b": "b", "c": "c"}, f.ConflictResolver(f.Lambda(f.Arr{"key", "left", "right"}, f.Var("right")))), f.Obj{"a": "a", "b": "b", "c": "c"}), &b4)
+
+	s.Require().True(b1)
+	s.Require().True(b2)
+	s.Require().True(b3)
+	s.Require().True(b4)
+
+}
+
 func (s *ClientTestSuite) TestIntersection() {
 	var spells []f.RefV
 

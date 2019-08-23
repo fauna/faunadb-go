@@ -161,6 +161,15 @@ func Precision(precision interface{}) OptionalParameter {
 	}
 }
 
+// ConflictResolver is an optional parameter that specifies the lambda for resolving Merge conflicts
+//
+// Functions that accept this optional parameter are: Merge
+func ConflictResolver(lambda interface{}) OptionalParameter {
+	return func(fn unescapedObj) {
+		fn["lambda"] = wrap(lambda)
+	}
+}
+
 // Normalizer is a string optional parameter that specifies the normalization function for casefold operation.
 //
 // Functions that accept this optional parameter are: Casefold.
@@ -983,6 +992,20 @@ func MatchTerm(ref, terms interface{}) Expr { return fn2("match", ref, "terms", 
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Union(sets ...interface{}) Expr { return fn1("union", varargs(sets...)) }
+
+// Merge two or more objects..
+//
+// Parameters:
+//   merge merge the first object.
+//   with the second object or a list of objects
+//   lambda a lambda to resolve possible conflicts
+//
+// Returns:
+// merged object
+//
+func Merge(merge interface{}, with interface{}, lambda ...OptionalParameter) Expr {
+	return fn2("merge", merge, "with", with, lambda...)
+}
 
 // Intersection returns the set of documents that are present in all of the specified sets.
 //
