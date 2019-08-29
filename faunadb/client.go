@@ -19,6 +19,7 @@ const (
 	requestTimeout    = 60 * time.Second
 	headerTxnTime     = "X-Txn-Time"
 	headerLastSeenTxn = "X-Last-Seen-Txn"
+	headerFaunaDriver = "go"
 )
 
 var resource = ObjKey("resource")
@@ -239,6 +240,7 @@ func (client *FaunaClient) prepareRequest(expr Expr) (request *http.Request, err
 			request.Header.Add("Authorization", client.basicAuth)
 			request.Header.Add("Content-Type", "application/json; charset=utf-8")
 			request.Header.Add("X-FaunaDB-API-Version", apiVersion)
+			request.Header.Add("X-Fauna-Driver", headerFaunaDriver)
 			client.addLastTxnTimeHeader(request)
 		}
 	}
