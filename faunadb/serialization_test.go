@@ -374,6 +374,13 @@ func TestSerializeCreateRole(t *testing.T) {
 	)
 }
 
+func TestSerializeMoveDatabase(t *testing.T) {
+	assertJSON(t,
+		MoveDatabase(Database("source"), Database("dest")),
+		`{"move_database":{"database":"source"},"to":{"database":"dest"}}`,
+	)
+}
+
 func TestSerializeNull(t *testing.T) {
 	assertJSON(t, Null(), `null`)
 }
