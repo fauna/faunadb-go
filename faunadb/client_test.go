@@ -823,6 +823,28 @@ func (s *ClientTestSuite) TestJoin() {
 	s.Require().Equal([]f.RefV{fireball}, spells)
 }
 
+func (s *ClientTestSuite) TestRange() {
+	data := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	var arr f.Arr
+
+	col := s.queryForRef(f.CreateCollection(f.Obj{"name": "range_test"}))
+	s.queryForRef(f.CreateIndex(f.Obj{"name": "range_idx", "source": col, "values": f.Arr{f.Obj{"field": f.Arr{"data", "value"}}}}))
+	s.query(
+		f.Foreach(data, f.Lambda("x", f.Create(col, f.Obj{"data": f.Obj{"value": f.Var("x")}}))),
+	)
+
+	m := f.Match(f.Index("range_idx"))
+
+	s.queryAndDecode(f.Select("data", f.Paginate(f.Range(m, 3, 8))), &arr)
+	s.Require().Equal(f.Arr{f.LongV(3), f.LongV(4), f.LongV(5), f.LongV(6), f.LongV(7), f.LongV(8)}, arr)
+
+	s.queryAndDecode(f.Select("data", f.Paginate(f.Range(m, 17, 18))), &arr)
+	s.Require().Equal(f.Arr{f.LongV(17), f.LongV(18)}, arr)
+
+	s.queryAndDecode(f.Select("data", f.Paginate(f.Range(m, 19, 0))), &arr)
+	s.Require().Equal(f.Arr{}, arr)
+}
+
 func (s *ClientTestSuite) TestEvalFormatExpression() {
 	var str string
 

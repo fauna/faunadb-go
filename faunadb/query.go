@@ -1046,6 +1046,21 @@ func Distinct(set interface{}) Expr { return fn1("distinct", set) }
 // See: https://app.fauna.com/documentation/reference/queryapi#sets
 func Join(source, target interface{}) Expr { return fn2("join", source, "with", target) }
 
+// Range filters the set based on the lower/upper bounds (inclusive).
+//
+// Parameters:
+//  set SetRef - Set to be filtered.
+//  from - lower bound.
+//  to - upper bound
+//
+// Returns:
+//  SetRef
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#sets
+func Range(set interface{}, from interface{}, to interface{}) Expr {
+	return fn3("range", set, "from", from, "to", to)
+}
+
 // Authentication
 
 // Login creates a token for the provided ref.
