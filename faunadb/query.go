@@ -1035,6 +1035,21 @@ func Merge(merge interface{}, with interface{}, lambda ...OptionalParameter) Exp
 	return fn2("merge", merge, "with", with, lambda...)
 }
 
+// Reduce function applies a reducer Lambda function serially to each member of the collection to produce a single value.
+//
+// Parameters:
+// lambda     Expr  - The accumulator function
+// initial    Expr  - The initial value
+// collection Expr  - The collection to be reduced
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/reduce
+func Reduce(lambda, initial interface{}, collection interface{}) Expr {
+	return fn3("reduce", lambda, "initial", initial, "collection", collection)
+}
+
 // Intersection returns the set of documents that are present in all of the specified sets.
 //
 // Parameters:

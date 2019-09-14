@@ -778,7 +778,19 @@ func (s *ClientTestSuite) TestMerge() {
 	s.Require().True(b2)
 	s.Require().True(b3)
 	s.Require().True(b4)
+}
 
+func (s *ClientTestSuite) TestReduce() {
+	var i int
+	var str string
+	arrInts := [...]int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	arrStrings := [...]string{"Fauna", "DB", " ", "rocks"}
+
+	s.queryAndDecode(f.Reduce(f.Lambda(f.Arr{"accum", "value"}, f.Add(f.Var("accum"), f.Var("value"))), 0, arrInts), &i)
+	s.Require().Equal(45, i)
+
+	s.queryAndDecode(f.Reduce(f.Lambda(f.Arr{"accum", "value"}, f.Concat(f.Arr{f.Var("accum"), f.Var("value")})), "", arrStrings), &str)
+	s.Require().Equal("FaunaDB rocks", str)
 }
 
 func (s *ClientTestSuite) TestIntersection() {

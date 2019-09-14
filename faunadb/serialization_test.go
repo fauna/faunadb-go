@@ -790,6 +790,13 @@ func TestSerializeMerge(t *testing.T) {
 	assertJSON(t, Merge(Obj{"x": 24}, Obj{"y": 25}, ConflictResolver(Lambda(Arr{"key", "left", "right"}, Var("right")))), "{\"lambda\":{\"expr\":{\"var\":\"right\"},\"lambda\":[\"key\",\"left\",\"right\"]},\"merge\":{\"object\":{\"x\":24}},\"with\":{\"object\":{\"y\":25}}}")
 }
 
+func TestSerializeReduce(t *testing.T) {
+	assertJSON(t,
+		Reduce(Lambda(Arr{"accum", "value"}, Add(Var("accum"), Var("value"))), 0, []int{10, 20, 30}),
+		`{"collection":[10,20,30],"initial":0,"reduce":{"expr":{"add":[{"var":"accum"},{"var":"value"}]},"lambda":["accum","value"]}}`,
+	)
+}
+
 func TestSerializeIntersection(t *testing.T) {
 	assertJSON(t,
 		Intersection(Arr{
