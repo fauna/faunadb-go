@@ -1475,6 +1475,48 @@ func TestSerializeTrunc(t *testing.T) {
 	)
 }
 
+func TestSerializeCount(t *testing.T) {
+	expected := `{"count":[1,2,3,4,5]}`
+
+	assertJSON(t,
+		Count(Arr{1, 2, 3, 4, 5}),
+		expected,
+	)
+
+	assertJSON(t,
+		Count(1, 2, 3, 4, 5),
+		expected,
+	)
+}
+
+func TestSerializeSum(t *testing.T) {
+	expected := `{"sum":[1,2,3,4,5]}`
+
+	assertJSON(t,
+		Sum(Arr{1, 2, 3, 4, 5}),
+		expected,
+	)
+
+	assertJSON(t,
+		Sum(1, 2, 3, 4, 5),
+		expected,
+	)
+}
+
+func TestSerializeMean(t *testing.T) {
+	expected := `{"mean":[1,2,3,4,5]}`
+
+	assertJSON(t,
+		Mean(Arr{1, 2, 3, 4, 5}),
+		expected,
+	)
+
+	assertJSON(t,
+		Mean(1, 2, 3, 4, 5),
+		expected,
+	)
+}
+
 func TestSerializeLT(t *testing.T) {
 	assertJSON(t,
 		LT(Arr{1, 2}),
