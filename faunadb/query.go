@@ -2093,6 +2093,46 @@ func All(collection interface{}) Expr {
 	return fn1("all", collection)
 }
 
+// Count returns the number of elements in the collection.
+//
+// Parameters:
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/count
+func Count(collection interface{}) Expr {
+	return fn1("count", collection)
+}
+
+// Sum sums the elements in the collection.
+//
+// Parameters:
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sum
+func Sum(collection interface{}) Expr {
+	return fn1("sum", collection)
+}
+
+// Mean returns the mean of all elements in the collection.
+//
+// Parameters:
+//
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/mean
+func Mean(collection interface{}) Expr {
+	return fn1("mean", collection)
+}
+
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //
 // Parameters:

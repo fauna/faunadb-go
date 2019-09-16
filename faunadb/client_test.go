@@ -1919,6 +1919,35 @@ func (s *ClientTestSuite) TestEvalAnyAllExpressions() {
 	}, &b)
 
 	s.Require().Equal([]bool{true, true, false, false}, b)
+}
+
+func (s *ClientTestSuite) TestEvalCountMeanSumExpression() {
+	var expected f.Arr
+	data := f.Arr{1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	col := s.queryForRef(f.CreateCollection(f.Obj{"name": "countmeansum_test"}))
+	s.queryForRef(f.CreateIndex(f.Obj{"name": "countmeansum_idx", "source": col, "active": true, "values": f.Arr{f.Obj{"field": f.Arr{"data", "value"}}}}))
+	s.query(
+		f.Foreach(data, f.Lambda("x", f.Create(col, f.Obj{"data": f.Obj{"value": f.Pow(f.Var("x"), 2)}}))),
+	)
+
+	m := f.Match(f.Index("countmeansum_idx"))
+
+	s.queryAndDecode(f.Arr{
+		f.Count(data),
+		f.Mean(data),
+		f.Sum(data),
+	}, &expected)
+
+	s.Require().Equal(f.Arr{f.LongV(9), f.DoubleV(5), f.LongV(45)}, expected)
+
+	s.queryAndDecode(f.Arr{
+		f.Count(m),
+		f.Trunc(f.Mean(m)),
+		f.Sum(m),
+	}, &expected)
+
+	s.Require().Equal(f.Arr{f.LongV(9), f.DoubleV(31.66), f.DoubleV(285)}, expected)
 
 }
 
