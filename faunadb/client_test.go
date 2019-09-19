@@ -1909,6 +1909,42 @@ func (s *ClientTestSuite) TestCreateRole() {
 	s.Require().True(exists)
 }
 
+func (s *ClientTestSuite) TestMoveDatabase() {
+	srcDb := f.RandomStartingWith("db_move_src")
+	destDb := f.RandomStartingWith("db_move_dest")
+	var srcDbRef, destDbRef f.RefV
+
+	key, err := f.CreateKeyWithRole("admin")
+	s.Require().NoError(err)
+
+	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+
+	destDbClient := s.createNewDatabase(adminClient, destDb)
+	_ = s.createNewDatabase(adminClient, srcDb)
+
+	value1, err := adminClient.Query(f.Get(f.Database(destDb)))
+	s.Require().NoError(
+		value1.At(refField).Get(&destDbRef),
+	)
+
+	value2, err := adminClient.Query(f.Get(f.Database(srcDb)))
+	s.Require().NoError(
+		value2.At(refField).Get(&srcDbRef),
+	)
+	s.Require().NoError(err)
+
+	_, err = adminClient.Query(f.MoveDatabase(srcDbRef, destDbRef))
+	s.Require().NoError(err)
+
+	b, err := destDbClient.Query(f.Exists(srcDbRef))
+	s.Require().NoError(err)
+	s.Require().Equal(f.BooleanV(true), b)
+
+	b, err = adminClient.Query(f.Exists(srcDbRef))
+	s.Require().NoError(err)
+	s.Require().Equal(f.BooleanV(false), b)
+}
+
 func (s *ClientTestSuite) TestCallFunction() {
 	body := f.Query(
 		f.Lambda(

@@ -618,6 +618,18 @@ func CreateFunction(params interface{}) Expr { return fn1("create_function", par
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
 func CreateRole(params interface{}) Expr { return fn1("create_role", params) }
 
+// MoveDatabase moves a database to a new hierachy.
+//
+// Parameters:
+//  from Object - Source reference to be moved.
+//  to Object   - New parent database reference.
+//
+// Returns:
+//  Object - instance.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+func MoveDatabase(from interface{}, to interface{}) Expr { return fn2("move_database", from, "to", to) }
+
 // Update updates the provided document.
 //
 // Parameters:
