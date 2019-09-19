@@ -844,6 +844,17 @@ func TestSerializeJoin(t *testing.T) {
 	)
 }
 
+func TestSerializeRange(t *testing.T) {
+	assertJSON(t,
+		Range(
+			MatchTerm(Ref("indexes/spellbooks_by_owner"), Ref("collections/characters/104979509695139637")),
+			10,
+			50,
+		),
+		`{"from":10,"range":{"match":{"@ref":"indexes/spellbooks_by_owner"},"terms":{"@ref":"collections/characters/104979509695139637"}},"to":50}`,
+	)
+}
+
 func TestSerializeLogin(t *testing.T) {
 	assertJSON(t,
 		Login(
