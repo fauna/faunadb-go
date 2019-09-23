@@ -856,7 +856,7 @@ func (s *ClientTestSuite) TestRange() {
 	var arr f.Arr
 
 	col := s.queryForRef(f.CreateCollection(f.Obj{"name": "range_test"}))
-	s.queryForRef(f.CreateIndex(f.Obj{"name": "range_idx", "source": col, "values": f.Arr{f.Obj{"field": f.Arr{"data", "value"}}}}))
+	s.queryForRef(f.CreateIndex(f.Obj{"name": "range_idx", "source": col, "active": true, "values": f.Arr{f.Obj{"field": f.Arr{"data", "value"}}}}))
 	s.query(
 		f.Foreach(data, f.Lambda("x", f.Create(col, f.Obj{"data": f.Obj{"value": f.Var("x")}}))),
 	)
