@@ -1,6 +1,5 @@
 # FaunaDB Go Driver
 
-[![Coverage Status](https://codecov.io/gh/fauna/faunadb-go/branch/master/graph/badge.svg)](https://codecov.io/gh/fauna/faunadb-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://godoc.org/github.com/fauna/faunadb-go/faunadb)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/master/LICENSE)
