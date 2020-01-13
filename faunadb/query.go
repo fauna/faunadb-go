@@ -11,10 +11,14 @@ const (
 	ActionRemove = "remove"
 )
 
-// Time unit. Usually used as a parameter for Epoch function.
+// Time unit. Usually used as a parameter for Time functions.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#epochnum-unit
 const (
+	TimeUnitDay         = "day"
+	TimeUnitHalfDay     = "half day"
+	TimeUnitHour        = "hour"
+	TimeUnitMinute      = "minute"
 	TimeUnitSecond      = "second"
 	TimeUnitMillisecond = "millisecond"
 	TimeUnitMicrosecond = "microsecond"
@@ -939,6 +943,66 @@ func UpperCase(str interface{}) Expr { return fn1("uppercase", str) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
 func Time(str interface{}) Expr { return fn1("time", str) }
+
+// TimeAdd returns a new time or date with the offset in terms of the unit
+// added.
+//
+// Parameters:
+// base        -  the base time or data
+// offset      -  the number of units
+// unit        -  the unit type
+//
+// Returns:
+// Expr
+//
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timeadd
+func TimeAdd(base interface{}, offset interface{}, unit interface{}) Expr {
+	return fn3(
+		"time_add", base,
+		"offset", offset,
+		"unit", unit,
+	)
+}
+
+// TimeSubtract returns a new time or date with the offset in terms of the unit
+// subtracted.
+//
+// Parameters:
+// base        -  the base time or data
+// offset      -  the number of units
+// unit        -  the unit type
+//
+// Returns:
+// Expr
+//
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timesubtract
+func TimeSubtract(base interface{}, offset interface{}, unit interface{}) Expr {
+	return fn3(
+		"time_subtract", base,
+		"offset", offset,
+		"unit", unit,
+	)
+}
+
+// TimeDiff returns the number of intervals in terms of the unit between
+// two times or dates. Both start and finish must be of the same
+// type.
+//
+// Parameters:
+//   start the starting time or date, inclusive
+//   finish the ending time or date, exclusive
+//   unit the unit type//
+// Returns:
+// Expr
+//
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timediff
+func TimeDiff(start interface{}, finish interface{}, unit interface{}) Expr {
+	return fn3(
+		"time_diff", start,
+		"other", finish,
+		"unit", unit,
+	)
+}
 
 // Date constructs a date from a ISO 8601 offset date/time string.
 //

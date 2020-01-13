@@ -714,6 +714,27 @@ func TestSerializeTime(t *testing.T) {
 	)
 }
 
+func TestSerializeTimeAdd(t *testing.T) {
+	assertJSON(t,
+		TimeAdd("1970-01-01T00:00:00+00:00", 1, TimeUnitHour),
+		`{"offset":1,"time_add":"1970-01-01T00:00:00+00:00","unit":"hour"}`,
+	)
+}
+
+func TestSerializeTimeSubtract(t *testing.T) {
+	assertJSON(t,
+		TimeSubtract("1970-01-01T00:00:00+00:00", 1, TimeUnitDay),
+		`{"offset":1,"time_subtract":"1970-01-01T00:00:00+00:00","unit":"day"}`,
+	)
+}
+
+func TestSerializeTimeDiff(t *testing.T) {
+	assertJSON(t,
+		TimeDiff("1970-01-01T00:00:00+00:00", Epoch(1, TimeUnitSecond), TimeUnitSecond),
+		`{"other":{"epoch":1,"unit":"second"},"time_diff":"1970-01-01T00:00:00+00:00","unit":"second"}`,
+	)
+}
+
 func TestSerializeEpoch(t *testing.T) {
 	assertJSON(t,
 		Arr{

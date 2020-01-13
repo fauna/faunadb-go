@@ -1052,6 +1052,47 @@ func (s *ClientTestSuite) TestEvalTimeExpression() {
 	)
 }
 
+func (s *ClientTestSuite) TestEvalTimeAddExpression() {
+	var t time.Time
+
+	s.queryAndDecode(f.TimeAdd(f.Epoch(0, f.TimeUnitSecond), 1, f.TimeUnitHour), &t)
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(1)*time.Hour),
+	)
+
+	s.queryAndDecode(f.TimeAdd(f.Epoch(0, f.TimeUnitSecond), 16, f.TimeUnitMinute), &t)
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(16)*time.Minute),
+	)
+
+}
+
+func (s *ClientTestSuite) TestEvalTimeSubtractExpression() {
+	var t time.Time
+
+	expected, _ := time.Parse(time.RFC3339, "1970-01-08T20:42:00Z")
+	s.queryAndDecode(f.TimeSubtract(f.Epoch(190, f.TimeUnitHour), 78, f.TimeUnitMinute), &t)
+	s.Require().Equal(t, expected)
+
+	expected = time.Unix(0, 0).UTC()
+	s.queryAndDecode(f.TimeSubtract(f.Epoch(16, f.TimeUnitSecond), 16, f.TimeUnitSecond), &t)
+	s.Require().Equal(t, expected)
+
+}
+
+func (s *ClientTestSuite) TestEvalTimeDiffExpression() {
+	var t int
+
+	s.queryAndDecode(f.TimeDiff(f.Epoch(0, f.TimeUnitSecond), f.Epoch(1, f.TimeUnitSecond), f.TimeUnitSecond), &t)
+	s.Require().Equal(t, 1)
+
+	s.queryAndDecode(f.TimeDiff(f.Epoch(24, f.TimeUnitHour), f.Epoch(1, f.TimeUnitDay), f.TimeUnitHour), &t)
+	s.Require().Equal(t, 0)
+
+}
+
 func (s *ClientTestSuite) TestEvalEpochExpression() {
 	var t []time.Time
 
