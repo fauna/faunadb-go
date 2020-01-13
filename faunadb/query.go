@@ -747,6 +747,81 @@ func Casefold(str interface{}, options ...OptionalParameter) Expr {
 	return fn1("casefold", str, options...)
 }
 
+// StartsWith returns true if the string starts with the given prefix value, or false if otherwise
+//
+// Parameters:
+//
+//  value  string -  the string to evaluate
+//  search string -  the prefix to search for
+//
+// Returns:
+//   boolean       - does `value` start with `search
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/startswith
+func StartsWith(value interface{}, search interface{}) Expr {
+	return fn2("startswith", value, "search", search)
+}
+
+// EndsWith returns true if the string ends with the given suffix value, or false if otherwise
+//
+// Parameters:
+//
+// value  string  -  the string to evaluate
+// search  string -  the suffix to search for
+//
+// Returns:
+// boolean       - does `value` end with `search`
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/endswith
+func EndsWith(value interface{}, search interface{}) Expr {
+	return fn2("endswith", value, "search", search)
+}
+
+// ContainsStr returns true if the string contains the given substring, or false if otherwise
+//
+// Parameters:
+//
+// value string  -  the string to evaluate
+// search string -  the substring to search for
+//
+// Returns:
+// boolean      - was the search result found
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/containsstr
+func ContainsStr(value interface{}, search interface{}) Expr {
+	return fn2("containsstr", value, "search", search)
+}
+
+// ContainsStrRegex returns true if the string contains the given pattern, or false if otherwise
+//
+// Parameters:
+//
+// value   string      -  the string to evaluate
+// pattern string      -  the pattern to search for
+//
+// Returns:
+// boolean      - was the search result found
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/containsstrregex
+func ContainsStrRegex(value interface{}, pattern interface{}) Expr {
+	return fn2("containsstrregex", value, "pattern", pattern)
+}
+
+// RegexEscape It takes a string and returns a regex which matches the input string verbatim.
+//
+// Parameters:
+//
+// value  string     - the string to analyze
+// pattern       -  the pattern to search for
+//
+// Returns:
+// boolean      - was the search result found
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/regexescape
+func RegexEscape(value interface{}) Expr {
+	return fn1("regexescape", value)
+}
+
 // FindStr locates a substring in a source string.  Optional parameters: Start
 //
 // Parameters:

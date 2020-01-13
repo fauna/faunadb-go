@@ -941,6 +941,57 @@ func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 	s.Require().Equal("\u00E5", str)
 }
 
+func (s *ClientTestSuite) TestEvalStartsWithExpression() {
+	var b bool
+
+	s.queryAndDecode(f.StartsWith("faunadb", "fauna"), &b)
+	s.Require().Equal(true, b)
+
+	s.queryAndDecode(f.StartsWith("faunadb", "F"), &b)
+	s.Require().Equal(false, b)
+
+}
+
+func (s *ClientTestSuite) TestEvalEndsWithExpression() {
+	var b bool
+
+	s.queryAndDecode(f.EndsWith("faunadb", "fauna"), &b)
+	s.Require().Equal(false, b)
+
+	s.queryAndDecode(f.EndsWith("faunadb", "db"), &b)
+	s.Require().Equal(true, b)
+
+	s.queryAndDecode(f.EndsWith("faunadb", ""), &b)
+	s.Require().Equal(true, b)
+}
+
+func (s *ClientTestSuite) TestEvalContainsStrExpression() {
+	var b bool
+
+	s.queryAndDecode(f.ContainsStr("faunadb", "fauna"), &b)
+	s.Require().Equal(true, b)
+}
+
+func (s *ClientTestSuite) TestEvalContainsStrRegexExpression() {
+	var b bool
+
+	s.queryAndDecode(f.ContainsStrRegex("faunadb", `f(\w+)a`), &b)
+	s.Require().Equal(true, b)
+
+	s.queryAndDecode(f.ContainsStrRegex("faunadb", `/^\d*\.\d+$/`), &b)
+	s.Require().Equal(false, b)
+
+	s.queryAndDecode(f.ContainsStrRegex("test data", `\s`), &b)
+	s.Require().Equal(true, b)
+}
+
+func (s *ClientTestSuite) TestEvalRegexEscapeExpression() {
+	var str string
+
+	s.queryAndDecode(f.RegexEscape(`f(\w+)a`), &str)
+	s.Require().Equal(`\Qf(\w+)a\E`, str)
+}
+
 func (s *ClientTestSuite) TestEvalFindStrExpression() {
 	var res int
 

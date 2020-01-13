@@ -609,6 +609,26 @@ func TestSerializeCasefold(t *testing.T) {
 	)
 }
 
+func TestSerializeStartsWith(t *testing.T) {
+	assertJSON(t, StartsWith("faunadb", "fauna"), `{"search":"fauna","startswith":"faunadb"}`)
+}
+
+func TestSerializeEndsWith(t *testing.T) {
+	assertJSON(t, EndsWith("faunadb", "db"), `{"endswith":"faunadb","search":"db"}`)
+}
+
+func TestSerializeContainsStr(t *testing.T) {
+	assertJSON(t, ContainsStr("faunadb", "db"), `{"containsstr":"faunadb","search":"db"}`)
+}
+
+func TestSerializeContainsStrRegex(t *testing.T) {
+	assertJSON(t, ContainsStrRegex("faunadb", "f(.*)db"), `{"containsstrregex":"faunadb","pattern":"f(.*)db"}`)
+}
+
+func TestSerializeRegexEscape(t *testing.T) {
+	assertJSON(t, RegexEscape("f[a](.*)db"), `{"regexescape":"f[a](.*)db"}`)
+}
+
 func TestSerializeFindStr(t *testing.T) {
 	assertJSON(t,
 		FindStr("GET DOWN", "DOWN"),
