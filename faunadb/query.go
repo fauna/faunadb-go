@@ -1102,6 +1102,16 @@ func Date(str interface{}) Expr { return fn1("date", str) }
 // See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
 func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) }
 
+// Now returns the current snapshot time.
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/now
+func Now() Expr {
+	return fn1("now", NullV{})
+}
+
 // Set
 
 // Singleton returns the history of the document's presence of the provided ref.

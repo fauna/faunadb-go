@@ -1144,6 +1144,20 @@ func (s *ClientTestSuite) TestEvalTimeDiffExpression() {
 
 }
 
+func (s *ClientTestSuite) TestEvalNowExpression() {
+	var t1, t2 time.Time
+	var b bool
+
+	s.queryAndDecode(f.Now(), &t1)
+	s.queryAndDecode(f.Equals(f.Arr{f.Now(), f.Time("now")}), &b)
+	s.Require().Equal(b, true)
+
+	s.queryAndDecode(f.Now(), &t2)
+
+	s.Require().True(t2.After(t1))
+
+}
+
 func (s *ClientTestSuite) TestEvalEpochExpression() {
 	var t []time.Time
 

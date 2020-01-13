@@ -768,6 +768,10 @@ func TestSerializeEpoch(t *testing.T) {
 	)
 }
 
+func TestSerializeNow(t *testing.T) {
+	assertJSON(t, Now(), `{"now":null}`)
+}
+
 func TestSerializeDate(t *testing.T) {
 	assertJSON(t,
 		Date("1970-01-01"),
