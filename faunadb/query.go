@@ -2067,6 +2067,32 @@ func Trunc(value interface{}, options ...OptionalParameter) Expr {
 	return fn1("trunc", value, options...)
 }
 
+// Any evaluates to true if any element of the collection is true.
+//
+// Parameters:
+// collection  - the collection
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/any
+func Any(collection interface{}) Expr {
+	return fn1("any", collection)
+}
+
+// All evaluates to true if all elements of the collection are true.
+//
+// Parameters:
+// collection - the collection
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/all
+func All(collection interface{}) Expr {
+	return fn1("all", collection)
+}
+
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //
 // Parameters:

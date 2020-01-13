@@ -1520,6 +1520,14 @@ func TestSerializeTrunc(t *testing.T) {
 	)
 }
 
+func TestSerializeAny(t *testing.T) {
+	assertJSON(t, Any([]bool{true, true, true}), `{"any":[true,true,true]}`)
+}
+
+func TestSerializeAll(t *testing.T) {
+	assertJSON(t, All([]bool{true, true, true}), `{"all":[true,true,true]}`)
+}
+
 func TestSerializeLT(t *testing.T) {
 	assertJSON(t,
 		LT(Arr{1, 2}),

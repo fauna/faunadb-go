@@ -1908,6 +1908,20 @@ func (s *ClientTestSuite) TestEvalTruncExpression() {
 	s.Require().Equal(1.23, num)
 }
 
+func (s *ClientTestSuite) TestEvalAnyAllExpressions() {
+	var b []bool
+
+	s.queryAndDecode(f.Arr{
+		f.Any(f.Arr{true, true, false}),
+		f.All(f.Arr{true, true, true}),
+		f.Any(f.Arr{false, false, false}),
+		f.All(f.Arr{true, true, false}),
+	}, &b)
+
+	s.Require().Equal([]bool{true, true, false, false}, b)
+
+}
+
 func (s *ClientTestSuite) TestEvalLTExpression() {
 	var b bool
 
