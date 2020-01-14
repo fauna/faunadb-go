@@ -1409,6 +1409,20 @@ func Class(name interface{}) Expr { return fn1("class", name) }
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Collection(name interface{}) Expr { return fn1("collection", name) }
 
+//Documents returns a set of all documents in the given collection.
+// A set must be paginated in order to retrieve its values.
+//
+// Parameters:
+// collection  ref  - a reference to the collection
+//
+// Returns:
+// Expr  - A new Expr instance
+//
+// See:  https://docs.fauna.com/fauna/current/api/fql/functions/Documents
+func Documents(collection interface{}) Expr {
+	return fn1("documents", collection)
+}
+
 // ScopedClass creates a new class ref inside a database.
 //
 // Parameters:

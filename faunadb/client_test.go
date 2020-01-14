@@ -1951,6 +1951,27 @@ func (s *ClientTestSuite) TestEvalCountMeanSumExpression() {
 
 }
 
+func (s *ClientTestSuite) TestEvalDocumentsExpression() {
+	var i int
+
+	aCollection := f.RandomStartingWith("collection_")
+	anIndex := f.RandomStartingWith("index_")
+
+	s.query(f.CreateCollection(f.Obj{"name": aCollection}))
+	s.query(f.CreateIndex(f.Obj{"name": anIndex, "source": f.Collection(aCollection), "active": true}))
+
+	maxCount := 27
+	data := make([]f.Obj, maxCount)
+
+	s.query(f.Foreach(data, f.Lambda("x", f.Create(f.Collection(aCollection), f.Obj{"data": f.Var("x")}))))
+
+	s.queryAndDecode(f.Select(f.Arr{0}, f.Count(f.Paginate(f.Documents(f.Collection(aCollection))))), &i)
+	s.Require().Equal(maxCount, i)
+
+	s.queryAndDecode(f.Count(f.Documents(f.Collection(aCollection))), &i)
+	s.Require().Equal(maxCount, i)
+}
+
 func (s *ClientTestSuite) TestEvalLTExpression() {
 	var b bool
 

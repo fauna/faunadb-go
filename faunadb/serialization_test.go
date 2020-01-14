@@ -1048,6 +1048,14 @@ func TestSerializeCollections(t *testing.T) {
 	)
 }
 
+func TestSerializeDocuments(t *testing.T) {
+
+	assertJSON(t,
+		Documents(Collection("users")),
+		`{"documents":{"collection":"users"}}`,
+	)
+}
+
 func TestSerializeIndexes(t *testing.T) {
 	assertJSON(t,
 		Indexes(),
