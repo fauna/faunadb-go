@@ -609,6 +609,26 @@ func TestSerializeCasefold(t *testing.T) {
 	)
 }
 
+func TestSerializeStartsWith(t *testing.T) {
+	assertJSON(t, StartsWith("faunadb", "fauna"), `{"search":"fauna","startswith":"faunadb"}`)
+}
+
+func TestSerializeEndsWith(t *testing.T) {
+	assertJSON(t, EndsWith("faunadb", "db"), `{"endswith":"faunadb","search":"db"}`)
+}
+
+func TestSerializeContainsStr(t *testing.T) {
+	assertJSON(t, ContainsStr("faunadb", "db"), `{"containsstr":"faunadb","search":"db"}`)
+}
+
+func TestSerializeContainsStrRegex(t *testing.T) {
+	assertJSON(t, ContainsStrRegex("faunadb", "f(.*)db"), `{"containsstrregex":"faunadb","pattern":"f(.*)db"}`)
+}
+
+func TestSerializeRegexEscape(t *testing.T) {
+	assertJSON(t, RegexEscape("f[a](.*)db"), `{"regexescape":"f[a](.*)db"}`)
+}
+
 func TestSerializeFindStr(t *testing.T) {
 	assertJSON(t,
 		FindStr("GET DOWN", "DOWN"),
@@ -714,6 +734,27 @@ func TestSerializeTime(t *testing.T) {
 	)
 }
 
+func TestSerializeTimeAdd(t *testing.T) {
+	assertJSON(t,
+		TimeAdd("1970-01-01T00:00:00+00:00", 1, TimeUnitHour),
+		`{"offset":1,"time_add":"1970-01-01T00:00:00+00:00","unit":"hour"}`,
+	)
+}
+
+func TestSerializeTimeSubtract(t *testing.T) {
+	assertJSON(t,
+		TimeSubtract("1970-01-01T00:00:00+00:00", 1, TimeUnitDay),
+		`{"offset":1,"time_subtract":"1970-01-01T00:00:00+00:00","unit":"day"}`,
+	)
+}
+
+func TestSerializeTimeDiff(t *testing.T) {
+	assertJSON(t,
+		TimeDiff("1970-01-01T00:00:00+00:00", Epoch(1, TimeUnitSecond), TimeUnitSecond),
+		`{"other":{"epoch":1,"unit":"second"},"time_diff":"1970-01-01T00:00:00+00:00","unit":"second"}`,
+	)
+}
+
 func TestSerializeEpoch(t *testing.T) {
 	assertJSON(t,
 		Arr{
@@ -725,6 +766,10 @@ func TestSerializeEpoch(t *testing.T) {
 		`[{"epoch":0,"unit":"second"},{"epoch":0,"unit":"millisecond"},`+
 			`{"epoch":0,"unit":"microsecond"},{"epoch":0,"unit":"nanosecond"}]`,
 	)
+}
+
+func TestSerializeNow(t *testing.T) {
+	assertJSON(t, Now(), `{"now":null}`)
 }
 
 func TestSerializeDate(t *testing.T) {
@@ -1000,6 +1045,14 @@ func TestSerializeCollections(t *testing.T) {
 	assertJSON(t,
 		ScopedCollections(Database("scope")),
 		`{"collections":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeDocuments(t *testing.T) {
+
+	assertJSON(t,
+		Documents(Collection("users")),
+		`{"documents":{"collection":"users"}}`,
 	)
 }
 
@@ -1472,6 +1525,41 @@ func TestSerializeTrunc(t *testing.T) {
 	assertJSON(t,
 		Trunc(3),
 		`{"trunc":3}`,
+	)
+}
+
+func TestSerializeAny(t *testing.T) {
+	assertJSON(t, Any([]bool{true, true, true}), `{"any":[true,true,true]}`)
+}
+
+func TestSerializeAll(t *testing.T) {
+	assertJSON(t, All([]bool{true, true, true}), `{"all":[true,true,true]}`)
+}
+
+func TestSerializeCount(t *testing.T) {
+	expected := `{"count":[1,2,3,4,5]}`
+
+	assertJSON(t,
+		Count(Arr{1, 2, 3, 4, 5}),
+		expected,
+	)
+}
+
+func TestSerializeSum(t *testing.T) {
+	expected := `{"sum":[1,2,3,4,5]}`
+
+	assertJSON(t,
+		Sum(Arr{1, 2, 3, 4, 5}),
+		expected,
+	)
+}
+
+func TestSerializeMean(t *testing.T) {
+	expected := `{"mean":[1,2,3,4,5]}`
+
+	assertJSON(t,
+		Mean(Arr{1, 2, 3, 4, 5}),
+		expected,
 	)
 }
 

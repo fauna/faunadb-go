@@ -11,10 +11,14 @@ const (
 	ActionRemove = "remove"
 )
 
-// Time unit. Usually used as a parameter for Epoch function.
+// Time unit. Usually used as a parameter for Time functions.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#epochnum-unit
 const (
+	TimeUnitDay         = "day"
+	TimeUnitHalfDay     = "half day"
+	TimeUnitHour        = "hour"
+	TimeUnitMinute      = "minute"
 	TimeUnitSecond      = "second"
 	TimeUnitMillisecond = "millisecond"
 	TimeUnitMicrosecond = "microsecond"
@@ -743,6 +747,81 @@ func Casefold(str interface{}, options ...OptionalParameter) Expr {
 	return fn1("casefold", str, options...)
 }
 
+// StartsWith returns true if the string starts with the given prefix value, or false if otherwise
+//
+// Parameters:
+//
+//  value  string -  the string to evaluate
+//  search string -  the prefix to search for
+//
+// Returns:
+//   boolean       - does `value` start with `search
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/startswith
+func StartsWith(value interface{}, search interface{}) Expr {
+	return fn2("startswith", value, "search", search)
+}
+
+// EndsWith returns true if the string ends with the given suffix value, or false if otherwise
+//
+// Parameters:
+//
+// value  string  -  the string to evaluate
+// search  string -  the suffix to search for
+//
+// Returns:
+// boolean       - does `value` end with `search`
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/endswith
+func EndsWith(value interface{}, search interface{}) Expr {
+	return fn2("endswith", value, "search", search)
+}
+
+// ContainsStr returns true if the string contains the given substring, or false if otherwise
+//
+// Parameters:
+//
+// value string  -  the string to evaluate
+// search string -  the substring to search for
+//
+// Returns:
+// boolean      - was the search result found
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/containsstr
+func ContainsStr(value interface{}, search interface{}) Expr {
+	return fn2("containsstr", value, "search", search)
+}
+
+// ContainsStrRegex returns true if the string contains the given pattern, or false if otherwise
+//
+// Parameters:
+//
+// value   string      -  the string to evaluate
+// pattern string      -  the pattern to search for
+//
+// Returns:
+// boolean      - was the search result found
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/containsstrregex
+func ContainsStrRegex(value interface{}, pattern interface{}) Expr {
+	return fn2("containsstrregex", value, "pattern", pattern)
+}
+
+// RegexEscape It takes a string and returns a regex which matches the input string verbatim.
+//
+// Parameters:
+//
+// value  string     - the string to analyze
+// pattern       -  the pattern to search for
+//
+// Returns:
+// boolean      - was the search result found
+//
+// See https://docs.fauna.com/fauna/current/api/fql/functions/regexescape
+func RegexEscape(value interface{}) Expr {
+	return fn1("regexescape", value)
+}
+
 // FindStr locates a substring in a source string.  Optional parameters: Start
 //
 // Parameters:
@@ -940,6 +1019,66 @@ func UpperCase(str interface{}) Expr { return fn1("uppercase", str) }
 // See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
 func Time(str interface{}) Expr { return fn1("time", str) }
 
+// TimeAdd returns a new time or date with the offset in terms of the unit
+// added.
+//
+// Parameters:
+// base        -  the base time or data
+// offset      -  the number of units
+// unit        -  the unit type
+//
+// Returns:
+// Expr
+//
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timeadd
+func TimeAdd(base interface{}, offset interface{}, unit interface{}) Expr {
+	return fn3(
+		"time_add", base,
+		"offset", offset,
+		"unit", unit,
+	)
+}
+
+// TimeSubtract returns a new time or date with the offset in terms of the unit
+// subtracted.
+//
+// Parameters:
+// base        -  the base time or data
+// offset      -  the number of units
+// unit        -  the unit type
+//
+// Returns:
+// Expr
+//
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timesubtract
+func TimeSubtract(base interface{}, offset interface{}, unit interface{}) Expr {
+	return fn3(
+		"time_subtract", base,
+		"offset", offset,
+		"unit", unit,
+	)
+}
+
+// TimeDiff returns the number of intervals in terms of the unit between
+// two times or dates. Both start and finish must be of the same
+// type.
+//
+// Parameters:
+//   start the starting time or date, inclusive
+//   finish the ending time or date, exclusive
+//   unit the unit type//
+// Returns:
+// Expr
+//
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timediff
+func TimeDiff(start interface{}, finish interface{}, unit interface{}) Expr {
+	return fn3(
+		"time_diff", start,
+		"other", finish,
+		"unit", unit,
+	)
+}
+
 // Date constructs a date from a ISO 8601 offset date/time string.
 //
 // Parameters:
@@ -962,6 +1101,16 @@ func Date(str interface{}) Expr { return fn1("date", str) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
 func Epoch(num, unit interface{}) Expr { return fn2("epoch", num, "unit", unit) }
+
+// Now returns the current snapshot time.
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/now
+func Now() Expr {
+	return fn1("now", NullV{})
+}
 
 // Set
 
@@ -1259,6 +1408,20 @@ func Class(name interface{}) Expr { return fn1("class", name) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Collection(name interface{}) Expr { return fn1("collection", name) }
+
+//Documents returns a set of all documents in the given collection.
+// A set must be paginated in order to retrieve its values.
+//
+// Parameters:
+// collection  ref  - a reference to the collection
+//
+// Returns:
+// Expr  - A new Expr instance
+//
+// See:  https://docs.fauna.com/fauna/current/api/fql/functions/Documents
+func Documents(collection interface{}) Expr {
+	return fn1("documents", collection)
+}
 
 // ScopedClass creates a new class ref inside a database.
 //
@@ -1916,6 +2079,72 @@ func Tanh(value interface{}) Expr { return fn1("tanh", value) }
 // See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
 func Trunc(value interface{}, options ...OptionalParameter) Expr {
 	return fn1("trunc", value, options...)
+}
+
+// Any evaluates to true if any element of the collection is true.
+//
+// Parameters:
+// collection  - the collection
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/any
+func Any(collection interface{}) Expr {
+	return fn1("any", collection)
+}
+
+// All evaluates to true if all elements of the collection are true.
+//
+// Parameters:
+// collection - the collection
+//
+// Returns:
+// Expr
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/all
+func All(collection interface{}) Expr {
+	return fn1("all", collection)
+}
+
+// Count returns the number of elements in the collection.
+//
+// Parameters:
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/count
+func Count(collection interface{}) Expr {
+	return fn1("count", collection)
+}
+
+// Sum sums the elements in the collection.
+//
+// Parameters:
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sum
+func Sum(collection interface{}) Expr {
+	return fn1("sum", collection)
+}
+
+// Mean returns the mean of all elements in the collection.
+//
+// Parameters:
+//
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/mean
+func Mean(collection interface{}) Expr {
+	return fn1("mean", collection)
 }
 
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.

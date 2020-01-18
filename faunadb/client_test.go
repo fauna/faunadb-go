@@ -941,6 +941,57 @@ func (s *ClientTestSuite) TestEvalCasefoldExpression() {
 	s.Require().Equal("\u00E5", str)
 }
 
+func (s *ClientTestSuite) TestEvalStartsWithExpression() {
+	var b bool
+
+	s.queryAndDecode(f.StartsWith("faunadb", "fauna"), &b)
+	s.Require().Equal(true, b)
+
+	s.queryAndDecode(f.StartsWith("faunadb", "F"), &b)
+	s.Require().Equal(false, b)
+
+}
+
+func (s *ClientTestSuite) TestEvalEndsWithExpression() {
+	var b bool
+
+	s.queryAndDecode(f.EndsWith("faunadb", "fauna"), &b)
+	s.Require().Equal(false, b)
+
+	s.queryAndDecode(f.EndsWith("faunadb", "db"), &b)
+	s.Require().Equal(true, b)
+
+	s.queryAndDecode(f.EndsWith("faunadb", ""), &b)
+	s.Require().Equal(true, b)
+}
+
+func (s *ClientTestSuite) TestEvalContainsStrExpression() {
+	var b bool
+
+	s.queryAndDecode(f.ContainsStr("faunadb", "fauna"), &b)
+	s.Require().Equal(true, b)
+}
+
+func (s *ClientTestSuite) TestEvalContainsStrRegexExpression() {
+	var b bool
+
+	s.queryAndDecode(f.ContainsStrRegex("faunadb", `f(\w+)a`), &b)
+	s.Require().Equal(true, b)
+
+	s.queryAndDecode(f.ContainsStrRegex("faunadb", `/^\d*\.\d+$/`), &b)
+	s.Require().Equal(false, b)
+
+	s.queryAndDecode(f.ContainsStrRegex("test data", `\s`), &b)
+	s.Require().Equal(true, b)
+}
+
+func (s *ClientTestSuite) TestEvalRegexEscapeExpression() {
+	var str string
+
+	s.queryAndDecode(f.RegexEscape(`f(\w+)a`), &str)
+	s.Require().Equal(`\Qf(\w+)a\E`, str)
+}
+
 func (s *ClientTestSuite) TestEvalFindStrExpression() {
 	var res int
 
@@ -1050,6 +1101,61 @@ func (s *ClientTestSuite) TestEvalTimeExpression() {
 		time.Unix(0, 0).UTC().
 			Add(time.Duration(4)*time.Hour),
 	)
+}
+
+func (s *ClientTestSuite) TestEvalTimeAddExpression() {
+	var t time.Time
+
+	s.queryAndDecode(f.TimeAdd(f.Epoch(0, f.TimeUnitSecond), 1, f.TimeUnitHour), &t)
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(1)*time.Hour),
+	)
+
+	s.queryAndDecode(f.TimeAdd(f.Epoch(0, f.TimeUnitSecond), 16, f.TimeUnitMinute), &t)
+	s.Require().Equal(t,
+		time.Unix(0, 0).UTC().
+			Add(time.Duration(16)*time.Minute),
+	)
+
+}
+
+func (s *ClientTestSuite) TestEvalTimeSubtractExpression() {
+	var t time.Time
+
+	expected, _ := time.Parse(time.RFC3339, "1970-01-08T20:42:00Z")
+	s.queryAndDecode(f.TimeSubtract(f.Epoch(190, f.TimeUnitHour), 78, f.TimeUnitMinute), &t)
+	s.Require().Equal(t, expected)
+
+	expected = time.Unix(0, 0).UTC()
+	s.queryAndDecode(f.TimeSubtract(f.Epoch(16, f.TimeUnitSecond), 16, f.TimeUnitSecond), &t)
+	s.Require().Equal(t, expected)
+
+}
+
+func (s *ClientTestSuite) TestEvalTimeDiffExpression() {
+	var t int
+
+	s.queryAndDecode(f.TimeDiff(f.Epoch(0, f.TimeUnitSecond), f.Epoch(1, f.TimeUnitSecond), f.TimeUnitSecond), &t)
+	s.Require().Equal(t, 1)
+
+	s.queryAndDecode(f.TimeDiff(f.Epoch(24, f.TimeUnitHour), f.Epoch(1, f.TimeUnitDay), f.TimeUnitHour), &t)
+	s.Require().Equal(t, 0)
+
+}
+
+func (s *ClientTestSuite) TestEvalNowExpression() {
+	var t1, t2 time.Time
+	var b bool
+
+	s.queryAndDecode(f.Now(), &t1)
+	s.queryAndDecode(f.Equals(f.Arr{f.Now(), f.Time("now")}), &b)
+	s.Require().Equal(b, true)
+
+	s.queryAndDecode(f.Now(), &t2)
+
+	s.Require().True(t2.After(t1))
+
 }
 
 func (s *ClientTestSuite) TestEvalEpochExpression() {
@@ -1800,6 +1906,70 @@ func (s *ClientTestSuite) TestEvalTruncExpression() {
 
 	s.queryAndDecode(f.Trunc(1.234567), &num)
 	s.Require().Equal(1.23, num)
+}
+
+func (s *ClientTestSuite) TestEvalAnyAllExpressions() {
+	var b []bool
+
+	s.queryAndDecode(f.Arr{
+		f.Any(f.Arr{true, true, false}),
+		f.All(f.Arr{true, true, true}),
+		f.Any(f.Arr{false, false, false}),
+		f.All(f.Arr{true, true, false}),
+	}, &b)
+
+	s.Require().Equal([]bool{true, true, false, false}, b)
+}
+
+func (s *ClientTestSuite) TestEvalCountMeanSumExpression() {
+	var expected f.Arr
+	data := f.Arr{1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	col := s.queryForRef(f.CreateCollection(f.Obj{"name": "countmeansum_test"}))
+	s.queryForRef(f.CreateIndex(f.Obj{"name": "countmeansum_idx", "source": col, "active": true, "values": f.Arr{f.Obj{"field": f.Arr{"data", "value"}}}}))
+	s.query(
+		f.Foreach(data, f.Lambda("x", f.Create(col, f.Obj{"data": f.Obj{"value": f.Pow(f.Var("x"), 2)}}))),
+	)
+
+	m := f.Match(f.Index("countmeansum_idx"))
+
+	s.queryAndDecode(f.Arr{
+		f.Count(data),
+		f.Mean(data),
+		f.Sum(data),
+	}, &expected)
+
+	s.Require().Equal(f.Arr{f.LongV(9), f.DoubleV(5), f.LongV(45)}, expected)
+
+	s.queryAndDecode(f.Arr{
+		f.Count(m),
+		f.Trunc(f.Mean(m)),
+		f.Sum(m),
+	}, &expected)
+
+	s.Require().Equal(f.Arr{f.LongV(9), f.DoubleV(31.66), f.DoubleV(285)}, expected)
+
+}
+
+func (s *ClientTestSuite) TestEvalDocumentsExpression() {
+	var i int
+
+	aCollection := f.RandomStartingWith("collection_")
+	anIndex := f.RandomStartingWith("index_")
+
+	s.query(f.CreateCollection(f.Obj{"name": aCollection}))
+	s.query(f.CreateIndex(f.Obj{"name": anIndex, "source": f.Collection(aCollection), "active": true}))
+
+	maxCount := 27
+	data := make([]f.Obj, maxCount)
+
+	s.query(f.Foreach(data, f.Lambda("x", f.Create(f.Collection(aCollection), f.Obj{"data": f.Var("x")}))))
+
+	s.queryAndDecode(f.Select(f.Arr{0}, f.Count(f.Paginate(f.Documents(f.Collection(aCollection))))), &i)
+	s.Require().Equal(maxCount, i)
+
+	s.queryAndDecode(f.Count(f.Documents(f.Collection(aCollection))), &i)
+	s.Require().Equal(maxCount, i)
 }
 
 func (s *ClientTestSuite) TestEvalLTExpression() {
