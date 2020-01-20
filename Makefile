@@ -14,14 +14,20 @@ DOCKER_RUN_FLAGS += -e FAUNA_TIMEOUT=$(FAUNA_TIMEOUT)
 endif
 
 test:
-	go test -v ./...
+	$(MAKE) v2test
+
+v2test:
+	cd v2; go test -v ./...
 
 coverage:
-	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+	$(MAKE) v2coverage
+
+v2coverage:
+	cd v2; go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 jenkins-test:
-	go test -v -race -coverprofile=/fauna/faunadb-go/results/coverage.txt -covermode=atomic ./... 2>&1 | tee log.txt
-	go-junit-report -package-name faunadb -set-exit-code < log.txt > /fauna/faunadb-go/results/report.xml
+	cd v2; go test -v -race -coverprofile=/fauna/faunadb-go/results/coverage.txt -covermode=atomic ./... 2>&1 | tee log.txt
+	cd v2; go-junit-report -package-name faunadb -set-exit-code < log.txt > /fauna/faunadb-go/results/report.xml
 
 docker-wait:
 	dockerize -wait $(FAUNA_ENDPOINT)/ping -timeout $(FAUNA_TIMEOUT)

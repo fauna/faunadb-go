@@ -47,6 +47,7 @@ commands:
       - run:
           name: Run Tests
           command: |
+            cd v2
             mkdir results
             go test -v -race -coverprofile=results/coverage.txt -covermode=atomic ./... 2>&1 | tee log.txt
 
@@ -54,6 +55,7 @@ commands:
           name: Gather Results
           when: always
           command: |
+            cd v2
             mkdir -p results/junit
             go-junit-report -package-name faunadb -set-exit-code < log.txt > results/junit/report.xml
 
