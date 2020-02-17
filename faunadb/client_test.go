@@ -2176,6 +2176,137 @@ func (s *ClientTestSuite) TestCallFunction() {
 	s.Require().Equal("a/b", output)
 }
 
+func (s *ClientTestSuite) TestTypeCheckFunctions() {
+	var val, val1, val2, val3 f.Value
+	var doc, key, token, role f.RefV
+
+	bytes := f.BytesV{0x00, 0x65}
+
+	collName := f.RandomStartingWith("coll_")
+	coll := f.Collection(collName)
+	dbName := f.RandomStartingWith("db_")
+	db := f.Database(dbName)
+	fnName := f.RandomStartingWith("fn_")
+	function := f.Function(fnName)
+	indexName := f.RandomStartingWith("index_")
+	index := f.Index(indexName)
+
+	s.adminQuery(f.CreateCollection(f.Obj{"name": collName}))
+	s.adminQuery(f.CreateIndex(f.Obj{"name": indexName, "source": coll, "active": true}))
+	s.adminQueryAndDecode(f.Create(coll, f.Obj{"data": f.Obj{}, "credentials": f.Obj{"password": "spark2020"}}), &val)
+	val.At(refField).Get(&doc)
+	s.adminQuery(f.CreateDatabase(f.Obj{"name": dbName}))
+	s.adminQuery(f.CreateFunction(f.Obj{"name": fnName, "body": f.Query(f.Lambda(f.Arr{"x"}, f.Var("x")))}))
+
+	s.adminQueryAndDecode(f.CreateKey(f.Obj{"database": db, "role": "admin"}), &val1)
+	val1.At(refField).Get(&key)
+	s.adminQueryAndDecode(f.Login(doc, f.Obj{"password": "spark2020"}), &val2)
+	val2.At(refField).Get(&token)
+	s.adminQueryAndDecode(f.CreateRole(f.Obj{"name": f.RandomStartingWith("role_"), "membership": f.Arr{}, "privileges": f.Arr{}}), &val3)
+	val3.At(refField).Get(&role)
+	//s.adminQueryAndDecode(f.Identity(), &credentials)
+
+	type typeCheckFunction func(interface{}) f.Expr
+	type funcPair struct {
+		type_    string
+		function typeCheckFunction
+	}
+
+	values := f.Arr{
+		bytes,
+		f.Null(),
+		90,
+		3.14,
+		true,
+		f.ToDate(f.Now()),
+		f.Date("1970-01-01"),
+		f.Now(),
+		f.Epoch(1, f.TimeUnitSecond),
+		f.Time("1970-01-01T00:00:00Z"),
+		f.Obj{"x": 10},
+		f.Get(doc),
+		f.Paginate(f.Collections()),
+		f.Arr{1, 2, 3},
+		"a string",
+		coll,
+		f.Collections(),
+		f.Match(index),
+		f.Union(f.Match(index)),
+		doc,
+		f.Get(doc),
+		index,
+		db,
+		coll,
+		token,
+		role,
+		key,
+		function,
+		f.Get(function),
+		f.Query(f.Lambda("x", f.Var("x"))),
+	}
+
+	functionPairs := []funcPair{
+		funcPair{"array", f.IsArray},
+		funcPair{"object", f.IsObject},
+		funcPair{"string", f.IsString},
+		funcPair{"null", f.IsNull},
+		funcPair{"number", f.IsNumber},
+		funcPair{"bytes", f.IsBytes},
+		funcPair{"date", f.IsDate},
+		funcPair{"timestamp", f.IsTimestamp},
+		funcPair{"set", f.IsSet},
+		funcPair{"ref", f.IsRef},
+		funcPair{"boolean", f.IsBoolean},
+		funcPair{"double", f.IsDouble},
+		funcPair{"integer", f.IsInteger},
+		funcPair{"database", f.IsDatabase},
+		funcPair{"index", f.IsIndex},
+		funcPair{"collection", f.IsCollection},
+		funcPair{"token", f.IsToken},
+		funcPair{"function", f.IsFunction},
+		funcPair{"collection", f.IsCollection},
+		funcPair{"role", f.IsRole},
+		funcPair{"credentials", f.IsCredentials},
+		funcPair{"key", f.IsKey},
+	}
+	expectedCounts := f.Obj{
+		"array":       1,
+		"boolean":     1,
+		"bytes":       1,
+		"collection":  3,
+		"credentials": 0,
+		"database":    1,
+		"date":        2,
+		"double":      1,
+		"function":    2,
+		"integer":     1,
+		"index":       1,
+		"key":         1,
+		"null":        1,
+		"number":      2,
+		"object":      5,
+		"ref":         10,
+		"role":        1,
+		"set":         3,
+		"string":      1,
+		"timestamp":   3,
+		"token":       1,
+	}
+
+	query := make(f.Arr, len(functionPairs))
+
+	for i := 0; i < len(functionPairs); i++ {
+		pair := functionPairs[i]
+		query[i] = f.Obj{pair.type_: f.Count(f.Filter(f.Var("values"), f.Lambda("value", pair.function(f.Var("value")))))}
+	}
+
+	var b bool
+
+	s.adminQueryAndDecode(f.Equals(expectedCounts, f.Let().Bind("values", values).In(f.Merge(f.Obj{}, query))), &b)
+	s.Require().Equal(true, b)
+
+}
+
 func (s *ClientTestSuite) TestEchoQuery() {
 	firstSeen := s.client.GetLastTxnTime()
 
