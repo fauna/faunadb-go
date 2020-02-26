@@ -2421,3 +2421,256 @@ func DayOfYear(value interface{}) Expr {
 func ToDate(value interface{}) Expr {
 	return fn1("to_date", value)
 }
+
+// IsNumber checks if the expression is a number
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool      -  returns true if the expression is a number
+func IsNumber(expr interface{}) Expr {
+	return fn1("is_number", expr)
+}
+
+// IsDouble checks if the expression is a double
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a double
+func IsDouble(expr interface{}) Expr {
+	return fn1("is_double", expr)
+}
+
+// IsInteger checks if the expression is an integer
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is an integer
+func IsInteger(expr interface{}) Expr {
+	return fn1("is_integer", expr)
+}
+
+// IsBoolean checks if the expression is a boolean
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a boolean
+func IsBoolean(expr interface{}) Expr {
+	return fn1("is_boolean", expr)
+}
+
+// IsNull checks if the expression is null
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is null
+func IsNull(expr interface{}) Expr {
+	return fn1("is_null", expr)
+}
+
+// IsBytes checks if the expression are bytes
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression are bytes
+func IsBytes(expr interface{}) Expr {
+	return fn1("is_bytes", expr)
+}
+
+// IsTimestamp checks if the expression is a timestamp
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a timestamp
+func IsTimestamp(expr interface{}) Expr {
+	return fn1("is_timestamp", expr)
+}
+
+// IsDate checks if the expression is a date
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a date
+func IsDate(expr interface{}) Expr {
+	return fn1("is_date", expr)
+}
+
+// IsString checks if the expression is a string
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a string
+func IsString(expr interface{}) Expr {
+	return fn1("is_string", expr)
+}
+
+// IsArray checks if the expression is an array
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is an array
+func IsArray(expr interface{}) Expr {
+	return fn1("is_array", expr)
+}
+
+// IsObject checks if the expression is an object
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is an object
+func IsObject(expr interface{}) Expr {
+	return fn1("is_object", expr)
+}
+
+// IsRef checks if the expression is a ref
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a ref
+func IsRef(expr interface{}) Expr {
+	return fn1("is_ref", expr)
+}
+
+// IsSet checks if the expression is a set
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a set
+func IsSet(expr interface{}) Expr {
+	return fn1("is_set", expr)
+}
+
+// IsDoc checks if the expression is a document
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a document
+func IsDoc(expr interface{}) Expr {
+	return fn1("is_doc", expr)
+}
+
+// IsLambda checks if the expression is a Lambda
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a Lambda
+func IsLambda(expr interface{}) Expr {
+	return fn1("is_lambda", expr)
+}
+
+// IsCollection checks if the expression is a collection
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a collection
+func IsCollection(expr interface{}) Expr {
+	return fn1("is_collection", expr)
+}
+
+// IsDatabase checks if the expression is a database
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a database
+func IsDatabase(expr interface{}) Expr {
+	return fn1("is_database", expr)
+}
+
+// IsIndex checks if the expression is an index
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is an index
+func IsIndex(expr interface{}) Expr {
+	return fn1("is_index", expr)
+}
+
+// IsFunction checks if the expression is a function
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a function
+func IsFunction(expr interface{}) Expr {
+	return fn1("is_function", expr)
+}
+
+// IsKey checks if the expression is a key
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a key
+func IsKey(expr interface{}) Expr {
+	return fn1("is_key", expr)
+}
+
+// IsToken checks if the expression is a token
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a token
+func IsToken(expr interface{}) Expr {
+	return fn1("is_token", expr)
+}
+
+// IsCredentials checks if the expression is a credentials
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a credential
+func IsCredentials(expr interface{}) Expr {
+	return fn1("is_credentials", expr)
+}
+
+// IsRole checks if the expression is a role
+//
+// Parameters:
+//  expr Expr - The expression to check.
+//
+// Returns:
+//  bool         -  returns true if the expression is a role
+func IsRole(expr interface{}) Expr {
+	return fn1("is_role", expr)
+}
