@@ -376,7 +376,7 @@ func (s *ClientTestSuite) TestUpdateAnInstaceData() {
 		f.Update(ref,
 			f.Obj{"data": f.Obj{
 				"name": "Faerie Fire",
-				"cost": f.Null(),
+				"cost": nil,
 			}},
 		),
 	)
@@ -2215,6 +2215,7 @@ func (s *ClientTestSuite) TestTypeCheckFunctions() {
 	values := f.Arr{
 		bytes,
 		f.Null(),
+		nil,
 		90,
 		3.14,
 		true,
@@ -2282,7 +2283,7 @@ func (s *ClientTestSuite) TestTypeCheckFunctions() {
 		"integer":     1,
 		"index":       1,
 		"key":         1,
-		"null":        1,
+		"null":        2,
 		"number":      2,
 		"object":      5,
 		"ref":         10,

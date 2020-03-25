@@ -385,6 +385,13 @@ func TestSerializeNull(t *testing.T) {
 	assertJSON(t, Null(), `null`)
 }
 
+func TestSerializeNil(t *testing.T) {
+	assertJSON(t, nil, `null`)
+	assertJSON(t, Arr{nil, 0}, `[null,0]`)
+	assertJSON(t, Arr{Obj{"hey": nil}, nil, NullV{}, Null()}, `[{"object":{"hey":null}},null,null,null]`)
+	assertJSON(t, Obj{"we_have": nil}, `{"object":{"we_have":null}}`)
+}
+
 func TestSerializeNullOnObject(t *testing.T) {
 	assertJSON(t, Obj{"data": Null()}, `{"object":{"data":null}}`)
 }
