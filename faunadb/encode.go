@@ -24,7 +24,7 @@ func wrap(i interface{}) Expr {
 	value, valueType := indirectValue(i)
 	kind := value.Kind()
 
-	if kind == reflect.Ptr && value.IsNil() {
+	if (kind == reflect.Ptr || kind == reflect.Interface) && value.IsNil() {
 		return NullV{}
 	}
 
