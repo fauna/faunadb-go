@@ -101,6 +101,11 @@ For more information about FaunaDB query language, consult our query language
 Specific reference documentation for the driver is hosted at
 [GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb).
 
+
+Most users found tests for the driver as a very useful form of documentation
+[Check it out here](https://github.com/fauna/faunadb-go/tree/master/faunadb).
+
+
 ## Contributing
 
 GitHub pull requests are very welcome.
