@@ -21,6 +21,10 @@ var (
 )
 
 func wrap(i interface{}) Expr {
+	if i == nil {
+		return NullV{}
+	}
+
 	value, valueType := indirectValue(i)
 	kind := value.Kind()
 
