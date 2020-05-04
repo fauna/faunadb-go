@@ -206,13 +206,23 @@ func (lb *LetBuilder) In(in Expr) Expr {
 // Ref creates a new RefV value with the provided ID.
 //
 // Parameters:
-//  id string - A string representation of a reference type.
+//  idOrRef Ref - A class reference or string repr to reference type.
+//  id string - The document ID.
 //
 // Returns:
 //  Ref - A new reference type.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#special-type
-func Ref(id string) Expr { return fn1("@ref", id) }
+func Ref(idOrRef interface{}, id ...interface{}) Expr {
+	switch len(id) {
+	case 0:
+		return fn1("@ref", idOrRef)
+	case 1:
+		return RefCollection(idOrRef, id[0])
+	default:
+		panic("Ref() accepts between 1 and 2 arguments.")
+	}
+}
 
 // RefClass creates a new Ref based on the provided class and ID.
 //
