@@ -525,7 +525,7 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	var ref f.RefV
 
 	randomID := f.RandomStartingWith()
-	refToCreate := f.RefCollection(randomCollection, randomID)
+	refToCreate := f.Ref(randomCollection, randomID)
 
 	res := s.queryForRef(
 		f.Do(
@@ -1441,6 +1441,7 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 		f.Arr{
 			f.Ref("collections/thing/123"),
 			f.RefCollection(f.Collection("thing"), "123"),
+			f.Ref(f.Collection("thing"), "123"),
 			f.Index("idx"),
 			f.Collection("cls"),
 			f.Database("db"),
@@ -1455,6 +1456,7 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 
 	s.Require().Equal([]f.RefV{
 		f.RefV{"123", n1, n1, nil},
+		f.RefV{"123", n2, n2, nil},
 		f.RefV{"123", n2, n2, nil},
 		f.RefV{"idx", f.NativeIndexes(), f.NativeIndexes(), nil},
 		f.RefV{"cls", f.NativeCollections(), f.NativeCollections(), nil},
