@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -11,6 +12,8 @@ import (
 var (
 	faunaSecret   = os.Getenv("FAUNA_ROOT_KEY")
 	faunaEndpoint = os.Getenv("FAUNA_ENDPOINT")
+
+	allQueriesTimeout = os.Getenv("FAUNA_QUERY_TIMEOUT_MS")
 
 	dbName string
 	dbRef  Expr
@@ -44,6 +47,17 @@ func SetupTestDB() (client *FaunaClient, err error) {
 		faunaSecret,
 		Endpoint(faunaEndpoint),
 	)
+	if allQueriesTimeout != "" {
+		if millis, err := strconv.ParseUint(allQueriesTimeout, 10, 64); err == nil {
+			adminClient = NewFaunaClient(
+				faunaSecret,
+				Endpoint(faunaEndpoint),
+				QueryTimeoutMS(millis),
+			)
+		} else {
+			panic("FAUNA_QUERY_TIMEOUT_MS environment variable must be an integer.")
+		}
+	}
 
 	DeleteTestDB()
 

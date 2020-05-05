@@ -124,6 +124,9 @@ Alternatively, tests can be run via a Docker container with
 `FAUNA_ROOT_KEY="your-cloud-secret" make docker-test` (an alternate
 Debian-based Go image can be provided via `RUNTIME_IMAGE`).
 
+Tip: Setting the `FAUNA_QUERY_TIMEOUT_MS` environment variable will
+set a timeout in milliseconds for all queries.
+
 ## LICENSE
 
 Copyright 2018 [Fauna, Inc.](https://fauna.com/)
