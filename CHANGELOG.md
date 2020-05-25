@@ -1,5 +1,8 @@
+# v2.12.1 (May, 2020) [current]
 
-# v2.12.0 (May, 2020) [current]
+- Make base64 encoding of secret match other drivers.
+
+# v2.12.0 (May, 2020)
 
 - Add client specified query timeout
 - Update Ref() to take two arguments
