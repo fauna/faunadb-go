@@ -1686,7 +1686,7 @@ func assertJSON(t *testing.T, expr Expr, expected string) {
 	bytes, err := json.Marshal(expr)
 
 	require.NoError(t, err)
-	require.Equal(t, expected, string(bytes))
+	require.JSONEq(t, expected, string(bytes))
 }
 
 func assertMarshal(t *testing.T, value Value, expected string) {
