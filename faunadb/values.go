@@ -65,7 +65,7 @@ type DoubleV float64
 func (num DoubleV) Get(i interface{}) error { return newValueDecoder(i).assign(num) }
 
 // String implements the Value interface by converting a DoubleV to a string.
-func (num DoubleV) String() string { return strconv.FormatFloat(float64(num), 'E', -1, 64) }
+func (num DoubleV) String() string { return strconv.FormatFloat(float64(num), 'G', -1, 64) }
 
 // At implements the Value interface by returning an invalid field since DoubleV is not traversable.
 func (num DoubleV) At(field Field) FieldValue { return field.get(num) }
