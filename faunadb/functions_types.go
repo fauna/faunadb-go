@@ -37,6 +37,78 @@ type toNumberFn struct {
 
 func (fn toNumberFn) String() string { return printFn(fn) }
 
+// ToDouble attempts to convert an expression to a double
+//
+// Parameters:
+//   value Object - The expression to convert.
+//
+// Returns:
+//   number - A double literal.
+func ToDouble(value interface{}) Expr {
+	return toDoubleFn{ToDouble: wrap(value)}
+}
+
+type toDoubleFn struct {
+	fnApply
+	ToDouble Expr `json:"to_double"`
+}
+
+func (fn toDoubleFn) String() string { return printFn(fn) }
+
+// ToInteger attempts to convert an expression to an integer literal
+//
+// Parameters:
+//   value Object - The expression to convert.
+//
+// Returns:
+//   number - An integer literal.
+func ToInteger(value interface{}) Expr {
+	return toIntegerFn{ToInteger: wrap(value)}
+}
+
+type toIntegerFn struct {
+	fnApply
+	ToInteger Expr `json:"to_integer"`
+}
+
+func (fn toIntegerFn) String() string { return printFn(fn) }
+
+// ToObject attempts to convert an expression to an object
+//
+// Parameters:
+//   value Object - The expression to convert.
+//
+// Returns:
+//   object - An object.
+func ToObject(value interface{}) Expr {
+	return toObjectFn{ToObject: wrap(value)}
+}
+
+type toObjectFn struct {
+	fnApply
+	ToObject Expr `json:"to_object"`
+}
+
+func (fn toObjectFn) String() string { return printFn(fn) }
+
+// ToArray attempts to convert an expression to an array
+//
+// Parameters:
+//   value Object - The expression to convert.
+//
+// Returns:
+//   array - An array.
+func ToArray(value interface{}) Expr {
+	return toArrayFn{ToArray: wrap(value)}
+}
+
+type toArrayFn struct {
+	fnApply
+	ToArray Expr `json:"to_array"`
+}
+
+func (fn toArrayFn) String() string { return printFn(fn) }
+
 // ToTime attempts to convert an expression to a time literal.
 //
 // Parameters:

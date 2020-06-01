@@ -2032,9 +2032,70 @@ func (s *ClientTestSuite) TestEvalToStringExpression() {
 
 func (s *ClientTestSuite) TestEvalToNumberExpression() {
 	var num int
+	var flt float64
 
 	s.queryAndDecode(f.ToNumber("42"), &num)
 	s.Require().Equal(42, num)
+
+	s.queryAndDecode(f.ToNumber("3.14159"), &flt)
+	s.Require().Equal(3.14159, flt)
+}
+
+func (s *ClientTestSuite) TestEvalToDoubleExpression() {
+	var flt float64
+
+	s.queryAndDecode(f.ToDouble(42), &flt)
+	s.Require().Equal(42.0, flt)
+}
+
+func (s *ClientTestSuite) TestEvalToIntegerExpression() {
+	var num int
+
+	s.queryAndDecode(f.ToInteger(3.14159), &num)
+	s.Require().Equal(3, num)
+
+	s.queryAndDecode(f.ToInteger(3.94), &num)
+	s.Require().Equal(3, num)
+}
+
+func (s *ClientTestSuite) TestEvalToObjectExpression() {
+	var b bool
+
+	s.queryAndDecode(f.Equals(
+		f.ToObject(f.Arr{
+			f.Arr{"key", "value"},
+		}),
+		f.Obj{"key": "value"},
+	), &b)
+	s.Require().True(b)
+
+	_, err := s.client.Query(f.ToObject(1))
+	s.Require().Error(err)
+}
+
+func (s *ClientTestSuite) TestEvalToArrayExpression() {
+	var b bool
+
+	arr := f.Obj{
+		"x": 1,
+		"y": 2,
+		"z": 3,
+	}
+	expected := f.Arr{
+		f.Arr{"x", 1},
+		f.Arr{"y", 2},
+		f.Arr{"z", 3},
+	}
+
+	s.queryAndDecode(f.Equals(
+		f.ToArray(arr),
+		expected,
+	), &b)
+
+	s.Require().True(b)
+
+	_, err := s.client.Query(f.ToArray(1))
+	s.Require().Error(err)
 }
 
 func (s *ClientTestSuite) TestEvalToTimeExpression() {

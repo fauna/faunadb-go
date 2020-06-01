@@ -1668,6 +1668,34 @@ func TestSerializeToNumber(t *testing.T) {
 	)
 }
 
+func TestSerializeToDouble(t *testing.T) {
+	assertJSON(t,
+		ToDouble(42),
+		`{"to_double":42}`,
+	)
+}
+
+func TestSerializeToInteger(t *testing.T) {
+	assertJSON(t,
+		ToInteger(3.14159),
+		`{"to_integer":3.14159}`,
+	)
+}
+
+func TestSerializeToObject(t *testing.T) {
+	assertJSON(t,
+		ToObject(Arr{Arr{"x", 90}}),
+		`{"to_object":[["x", 90]]}`,
+	)
+}
+
+func TestSerializeToArray(t *testing.T) {
+	assertJSON(t,
+		ToArray(Obj{"x": 1}),
+		`{"to_array":{"object":{"x":1}}}`,
+	)
+}
+
 func TestSerializeToTime(t *testing.T) {
 	assertJSON(t,
 		ToTime("1970-01-01T00:00:00Z"),
