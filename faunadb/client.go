@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	apiVersion        = "2.7"
+	apiVersion        = "3"
 	defaultEndpoint   = "https://db.fauna.com"
 	requestTimeout    = 60 * time.Second
 	headerTxnTime     = "X-Txn-Time"
