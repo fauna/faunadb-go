@@ -1611,6 +1611,141 @@ func (s *ClientTestSuite) TestEvalContainsExpression() {
 	s.Require().True(contains)
 }
 
+func (s *ClientTestSuite) TestEvalContainsFunctions() {
+
+	type containsFn func(interface{}, interface{}) f.Expr
+	var b bool
+	var assertContainsFn = func(fn containsFn, val interface{}, data interface{}, expected bool) {
+		s.queryAndDecode(fn(val, data), &b)
+		s.Require().Equal(expected, b)
+	}
+	var assertContainsValue = func(val interface{}, data interface{}, expected bool) {
+		assertContainsFn(f.ContainsValue, val, data, expected)
+	}
+	var assertContainsPath = func(val interface{}, data interface{}, expected bool) {
+		assertContainsFn(f.ContainsPath, val, data, expected)
+	}
+	var assertContainsField = func(val interface{}, data interface{}, expected bool) {
+		assertContainsFn(f.ContainsField, val, data, expected)
+	}
+
+	user := f.Obj{
+		"id": 123,
+		"profile": f.Obj{
+			"email": "email@email.com",
+			"keys": f.Arr{
+				f.Obj{
+					"role":        "admin",
+					"is_verified": false,
+					"key":         "YnlvCg==",
+				},
+				f.Obj{
+					"role": "user",
+					"key":  "emltYmFid2UK",
+					"file": f.Obj{
+						"path":  "/home/user/key.pub",
+						"size":  67343,
+						"perms": f.Arr{"r", "w"},
+					},
+				},
+			},
+			"settings": f.Obj{
+				"pi":   3.14159,
+				"data": f.BytesV{0x00, 0x65},
+			},
+		},
+	}
+
+	//Objects
+	profile := user["profile"].(f.Obj)
+	assertContainsField("id", user, true)
+	assertContainsField("email", user, false)
+	assertContainsField("email", profile, true)
+	assertContainsField("id", profile, false)
+	assertContainsField("role", profile, false)
+	assertContainsField("notexist", user, false)
+
+	assertContainsPath("id", user, true)
+	assertContainsPath("id ", user, false)
+	assertContainsPath(f.Arr{"profile", "settings"}, user, true)
+	assertContainsPath(f.Arr{"profile", "settings", "pi"}, user, true)
+	assertContainsPath(":)", user, false)
+
+	assertContainsValue(3.14159, user, false)
+	assertContainsValue(3.14159, profile["settings"], true)
+	assertContainsValue(f.BytesV{0x00, 0x65}, profile["settings"], true)
+	assertContainsValue(profile, user, true)
+	assertContainsValue(nil, user, false)
+	assertContainsValue(123, user, true)
+
+	//Arrays
+	keys := profile["keys"].(f.Arr)
+	assertContainsPath("role", keys, false)
+	assertContainsPath("role", keys[0], true)
+	assertContainsPath(f.Arr{0, "role"}, keys, true)
+	assertContainsPath("is_verified", keys[1], false)
+	assertContainsPath(f.Arr{0, "role", "file"}, keys, false)
+	assertContainsPath(f.Arr{1, "role", "file", "/home/user/key.pub"}, keys, false)
+	assertContainsPath(f.Arr{"profile", "keys", 1, "file", "perms", 0}, user, true)
+
+	assertContainsValue(3.14159, keys, false)
+	assertContainsValue(keys[0], keys, true)
+	assertContainsValue(keys[1], keys, true)
+	assertContainsValue(nil, keys, false)
+	assertContainsValue(false, keys[0], true)
+
+	//Page and Ref
+	var val f.Value
+	var doc f.RefV
+
+	collName := f.RandomStartingWith("coll_")
+	coll := f.Collection(collName)
+	indexName := f.RandomStartingWith("index_")
+	index := f.Index(indexName)
+
+	s.query(f.CreateCollection(f.Obj{"name": collName}))
+	s.query(f.CreateIndex(f.Obj{"name": indexName, "source": coll, "active": true}))
+	s.queryAndDecode(f.Create(coll, f.Obj{"data": user}), &val)
+	val.At(refField).Get(&doc)
+
+	assertContainsValue(index, f.Select("data", f.Paginate(f.Indexes())), true)
+	assertContainsValue(doc, f.Select("data", f.Paginate(f.Documents(coll))), true)
+	assertContainsValue(user, val, true)
+	assertContainsValue(coll, doc, true)
+	assertContainsValue(val, user, false)
+
+	assertContainsField("collection", doc, true)
+	assertContainsField("ts", val, true)
+	assertContainsField("ref", coll, true)
+	assertContainsField("not-exist", coll, false)
+	assertContainsField("after", f.Paginate(f.Indexes(), f.Size(1)), true)
+
+	assertContainsPath("ref", coll, true)
+	assertContainsPath("ts", coll, true)
+	assertContainsPath("after", f.Paginate(f.Indexes(), f.Size(1)), true)
+	assertContainsPath(f.Arr{"data", 1}, f.Paginate(f.Indexes(), f.Size(2)), true)
+	assertContainsPath(f.Arr{"data", 100}, f.Paginate(f.Indexes(), f.Size(2)), false)
+
+	//Bad Requests
+	_, err := s.client.Query(f.ContainsField(1, user))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.ContainsField(nil, user))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.ContainsField(user, user))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.ContainsValue(1, 1))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.ContainsValue("str", "string"))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.ContainsValue(true, false))
+	s.Require().Error(err)
+}
+
 func (s *ClientTestSuite) TestEvalSelectExpression() {
 	var food string
 

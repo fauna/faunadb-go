@@ -90,6 +90,9 @@ func TestStringifyFixedArityFunctions(t *testing.T) {
 
 	assertString(t, Ceil(1.8e+00), `Ceil(1.8)`)
 	assertString(t, Concat(Arr{"Hello", "World"}), `Concat(Arr{"Hello", "World"})`)
+	assertString(t, ContainsField("email", Var("value")), `ContainsField("email", Var("value"))`)
+	assertString(t, ContainsPath(Var("path"), Var("value")), `ContainsPath(Var("path"), Var("value"))`)
+	assertString(t, ContainsValue(Var("value"), Arr{1, 2, 3, 4, 5}), `ContainsValue(Var("value"), Arr{1, 2, 3, 4, 5})`)
 	assertString(t, ContainsStr("faunadb", "fauna"), `ContainsStr("faunadb", "fauna")`)
 	assertString(t, ContainsStrRegex("faunadb", "f(\\w+)a"), `ContainsStrRegex("faunadb", "f(\\w+)a")`)
 	assertString(t, ContainsStrRegex("faunadb", "/^\\d*\\.\\d+$/"), `ContainsStrRegex("faunadb", "/^\\d*\\.\\d+$/")`)
