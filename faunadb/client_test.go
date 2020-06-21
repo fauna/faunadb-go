@@ -851,6 +851,49 @@ func (s *ClientTestSuite) TestJoin() {
 	s.Require().Equal([]f.RefV{fireball}, spells)
 }
 
+func (s *ClientTestSuite) TestEvalReverse() {
+	data := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	var arr []int
+
+	col := s.queryForRef(f.CreateCollection(f.Obj{"name": "reverse_test"}))
+	s.queryForRef(f.CreateIndex(f.Obj{"name": "rev_idx", "source": col, "active": true, "values": f.Arr{f.Obj{"field": f.Arr{"data", "value"}}}}))
+	s.query(
+		f.Foreach(data, f.Lambda("x", f.Create(col, f.Obj{"data": f.Obj{"value": f.Var("x")}}))),
+	)
+
+	//Arrays
+	s.queryAndDecode(f.Reverse(f.Arr{1, 2, 3}), &arr)
+	s.Require().Equal([]int{3, 2, 1}, arr)
+
+	s.queryAndDecode(f.Reverse(f.Arr{1}), &arr)
+	s.Require().Equal([]int{1}, arr)
+
+	s.queryAndDecode(f.Reverse(f.Arr{}), &arr)
+	s.Require().Equal([]int{}, arr)
+
+	//Page and Sets
+	s.queryAndDecode(f.Select("data", f.Reverse(f.Paginate(f.Match(f.Index("rev_idx")), f.Size(3)))), &arr)
+	s.Require().Equal(arr, []int{2, 1, 0})
+
+	s.queryAndDecode(f.Select("data", f.Paginate(f.Reverse(f.Match(f.Index("rev_idx"))), f.Size(3))), &arr)
+	s.Require().Equal(arr, []int{20, 19, 18})
+
+	s.queryAndDecode(f.Select("data", f.Paginate(f.Reverse(f.Reverse(f.Match(f.Index("rev_idx")))))), &arr)
+	s.Require().Equal(arr, data)
+
+	//BadRequests
+
+	_, err := s.client.Query(f.Reverse("a string"))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.Reverse(123))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.Reverse(f.Obj{"x": 0, "y": 1}))
+	s.Require().Error(err)
+
+}
+
 func (s *ClientTestSuite) TestRange() {
 	data := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 	var arr f.Arr

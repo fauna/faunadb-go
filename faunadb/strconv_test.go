@@ -185,6 +185,9 @@ func TestStringifyFixedArityFunctions(t *testing.T) {
 	assertString(t, Month(2147483648000000), `Month(2147483648000000)`)
 	assertString(t, Exists(ScopedCollection("collection_1675362432", ScopedDatabase("child_3306182225", Database("parent_3146154786")))), `Exists(ScopedCollection("collection_1675362432", ScopedDatabase("child_3306182225", Database("parent_3146154786"))))`)
 	assertString(t, Prepend(Arr{1, 2}, Arr{3, 4}), `Prepend(Arr{1, 2}, Arr{3, 4})`)
+
+	assertString(t, Reverse(Paginate(Match(Index("rev_idx")))), `Reverse(Paginate(Match(Index("rev_idx"))))`)
+
 	assertString(t, Select("data", Paginate(Range(Match(Index("range_idx")), 3, 8))), `Select("data", Paginate(Range(Match(Index("range_idx")), 3, 8)))`)
 	assertString(t, Select("data", Paginate(Range(Match(Index("range_idx")), 17, 18))), `Select("data", Paginate(Range(Match(Index("range_idx")), 17, 18)))`)
 	assertString(t, Select("data", Paginate(Range(Match(Index("range_idx")), 19, 0))), `Select("data", Paginate(Range(Match(Index("range_idx")), 19, 0)))`)

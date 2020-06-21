@@ -524,6 +524,13 @@ func TestSerializeAppend(t *testing.T) {
 	)
 }
 
+func TestSerializeReverse(t *testing.T) {
+	assertJSON(t,
+		Reverse(Arr{1, 2, 3}),
+		`{"reverse":[1,2,3]}`,
+	)
+}
+
 func TestSerializeGet(t *testing.T) {
 	assertJSON(t,
 		Get(Ref("collections/spells/42")),
