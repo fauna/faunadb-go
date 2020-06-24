@@ -185,26 +185,28 @@ func (ref RefV) MarshalJSON() ([]byte, error) {
 }
 
 var (
-	nativeClasses     = RefV{"classes", nil, nil, nil}
-	nativeCollections = RefV{"collections", nil, nil, nil}
-	nativeIndexes     = RefV{"indexes", nil, nil, nil}
-	nativeDatabases   = RefV{"databases", nil, nil, nil}
-	nativeFunctions   = RefV{"functions", nil, nil, nil}
-	nativeRoles       = RefV{"roles", nil, nil, nil}
-	nativeKeys        = RefV{"keys", nil, nil, nil}
-	nativeTokens      = RefV{"tokens", nil, nil, nil}
-	nativeCredentials = RefV{"credentials", nil, nil, nil}
+	nativeClasses         = RefV{"classes", nil, nil, nil}
+	nativeCollections     = RefV{"collections", nil, nil, nil}
+	nativeIndexes         = RefV{"indexes", nil, nil, nil}
+	nativeDatabases       = RefV{"databases", nil, nil, nil}
+	nativeFunctions       = RefV{"functions", nil, nil, nil}
+	nativeRoles           = RefV{"roles", nil, nil, nil}
+	nativeKeys            = RefV{"keys", nil, nil, nil}
+	nativeTokens          = RefV{"tokens", nil, nil, nil}
+	nativeCredentials     = RefV{"credentials", nil, nil, nil}
+	nativeAccessProviders = RefV{"access_providers", nil, nil, nil}
 )
 
-func NativeClasses() *RefV     { return &nativeClasses }
-func NativeCollections() *RefV { return &nativeCollections }
-func NativeIndexes() *RefV     { return &nativeIndexes }
-func NativeDatabases() *RefV   { return &nativeDatabases }
-func NativeFunctions() *RefV   { return &nativeFunctions }
-func NativeRoles() *RefV       { return &nativeRoles }
-func NativeKeys() *RefV        { return &nativeKeys }
-func NativeTokens() *RefV      { return &nativeTokens }
-func NativeCredentials() *RefV { return &nativeCredentials }
+func NativeClasses() *RefV         { return &nativeClasses }
+func NativeCollections() *RefV     { return &nativeCollections }
+func NativeIndexes() *RefV         { return &nativeIndexes }
+func NativeDatabases() *RefV       { return &nativeDatabases }
+func NativeFunctions() *RefV       { return &nativeFunctions }
+func NativeRoles() *RefV           { return &nativeRoles }
+func NativeKeys() *RefV            { return &nativeKeys }
+func NativeTokens() *RefV          { return &nativeTokens }
+func NativeCredentials() *RefV     { return &nativeCredentials }
+func NativeAccessProviders() *RefV { return &nativeAccessProviders }
 
 func nativeFromName(id string) *RefV {
 	switch id {
@@ -226,6 +228,8 @@ func nativeFromName(id string) *RefV {
 		return &nativeTokens
 	case "credentials":
 		return &nativeCredentials
+	case "access_providers":
+		return &nativeAccessProviders
 	}
 
 	return &RefV{id, nil, nil, nil}

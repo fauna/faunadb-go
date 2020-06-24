@@ -42,6 +42,11 @@ func TestStringifyFaunaValues(t *testing.T) {
 	)
 
 	assertString(t,
+		nativeAccessProviders,
+		`RefV{ID: "access_providers"}`,
+	)
+
+	assertString(t,
 		RefV{Database: &RefV{ID: "db1"}},
 		`RefV{Database: &RefV{ID: "db1"}}`,
 	)
@@ -161,7 +166,7 @@ func TestStringifyFixedArityFunctions(t *testing.T) {
 	assertString(t, ToInteger(3.14), `ToInteger(3.14)`)
 	assertString(t, ToDouble(90), `ToDouble(90)`)
 	assertString(t, ToObject(Arr{Arr{"x", 1}}), `ToObject(Arr{Arr{"x", 1}})`)
-	assertString(t, ToArray(Obj{"x": 1}), `ToArray(Obj{"x": 1}))`)
+	assertString(t, ToArray(Obj{"x": 1}), `ToArray(Obj{"x": 1})`)
 	assertString(t, ToTime("1970-01-01T00:00:00-04:00"), `ToTime("1970-01-01T00:00:00-04:00")`)
 	assertString(t, Trim("   One Fish Two Fish   "), `Trim("   One Fish Two Fish   ")`)
 	assertString(t, Trunc(1.234567), `Trunc(1.234567)`)
@@ -224,6 +229,7 @@ func TestStringify0ArityFunctions(t *testing.T) {
 	assertString(t, Credentials(), `Credentials()`)
 	assertString(t, Tokens(), `Tokens()`)
 	assertString(t, Collections(), `Collections()`)
+	assertString(t, AccessProviders(), `AccessProviders()`)
 	assertString(t, Databases(), `Databases()`)
 	assertString(t, Keys(), `Keys()`)
 	assertString(t, Classes(), `Classes()`)
@@ -322,6 +328,8 @@ func TestStringifyScopedFunctions(t *testing.T) {
 	assertString(t, ScopedCredentials(Database("db1")), `ScopedCredentials(Database("db1"))`)
 	assertString(t, ScopedTokens(Database("db1")), `ScopedTokens(Database("db1"))`)
 	assertString(t, ScopedCollections(Database("db1")), `ScopedCollections(Database("db1"))`)
+	assertString(t, ScopedAccessProvider("name", Database("db1")), `ScopedAccessProvider("name", Database("db1"))`)
+	assertString(t, ScopedAccessProviders(Database("db1")), `ScopedAccessProviders(Database("db1"))`)
 	assertString(t, ScopedDatabases(Database("db1")), `ScopedDatabases(Database("db1"))`)
 	assertString(t, ScopedKeys(Database("db1")), `ScopedKeys(Database("db1"))`)
 	assertString(t, ScopedClasses(Database("db1")), `ScopedClasses(Database("db1"))`)

@@ -2382,6 +2382,116 @@ func (s *ClientTestSuite) TestEchoQuery() {
 	s.Require().True(firstSeen > 0 && s.client.GetLastTxnTime() >= firstSeen)
 }
 
+func (s *ClientTestSuite) TestPaginateAccessProviders() {
+	var val f.Value
+	var arr f.Arr
+
+	key, err := f.CreateKeyWithRole("admin")
+	s.Require().NoError(err)
+
+	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+	client := s.createNewDatabase(adminClient, f.RandomStartingWith("db_"))
+
+	name := f.RandomStartingWith("name_")
+	issuer := f.RandomStartingWith("https://xxxx.auth0.com")
+	jwksUri := f.RandomStartingWith("https://xxxx.auth0.com/")
+
+	query := f.CreateAccessProvider(f.Obj{
+		"name":     name,
+		"issuer":   issuer,
+		"jwks_uri": jwksUri,
+	})
+	_, err = client.Query(query)
+	s.Require().NoError(err)
+
+	val, err = client.Query(f.Paginate(f.AccessProviders()))
+	s.Require().NoError(err)
+	val.At(dataField).Get(&arr)
+
+	s.Require().Equal(len(arr), 1)
+}
+func (s *ClientTestSuite) TestCreateAndReadAccessProvider() {
+	var provider1, provider2, provider3 f.ObjectV
+	var ref f.RefV
+	var b bool
+
+	name := f.RandomStartingWith("name_")
+	issuer := f.RandomStartingWith("https://no.issuer.fauna.com/")
+	jwksUri := f.RandomStartingWith("https://xxxx.auth0.com/")
+
+	s.adminQueryAndDecode(f.CreateAccessProvider(f.Obj{
+		"name":     name,
+		"issuer":   issuer,
+		"jwks_uri": jwksUri,
+	}), &provider1)
+	provider1.At(refField).Get(&ref)
+
+	s.Require().Equal(f.StringV(name), provider1["name"])
+	s.Require().Equal(f.StringV(issuer), provider1["issuer"])
+	s.Require().Equal(f.StringV(jwksUri), provider1["jwks_uri"])
+
+	s.adminQueryAndDecode(f.Equals(ref, f.RefV{ID: name, Collection: &f.RefV{ID: "access_providers"}}), &b)
+	s.Require().Equal(true, b)
+
+	s.adminQueryAndDecode(f.Get(ref), &provider2)
+	s.adminQueryAndDecode(f.Get(f.AccessProvider(name)), &provider3)
+
+	s.Require().Equal(provider1, provider2)
+	s.Require().Equal(provider2, provider3)
+	s.Require().Equal(provider1, provider3)
+}
+
+func (s *ClientTestSuite) TestScopedAccessProvider() {
+	var arr f.Arr
+	var ref f.RefV
+	var val f.Value
+
+	name := f.RandomStartingWith("name_")
+	issuer := f.RandomStartingWith("https://no.issuer.fauna.com/")
+	jwksUri := f.RandomStartingWith("https://xxxx.auth0.com/")
+
+	//Test scoped accessprovider
+	scopedName := "scope_" + name
+	scopedDbName := f.RandomStartingWith("db_")
+	key, err := f.CreateKeyWithRole("admin")
+	s.Require().NoError(err)
+
+	adminClient := s.client.NewSessionClient(f.GetSecret(key))
+	scopedDB := s.createNewDatabase(adminClient, scopedDbName)
+	_, err = scopedDB.Query(f.CreateAccessProvider(f.Obj{
+		"name":     scopedName,
+		"issuer":   issuer,
+		"jwks_uri": jwksUri,
+	}))
+	s.Require().NoError(err)
+
+	_, err = adminClient.Query(f.Get(f.AccessProvider(scopedName)))
+	s.Require().Error(err) //not in scope
+
+	val, err = adminClient.Query(f.Get(f.ScopedAccessProvider(scopedName, f.Database(scopedDbName))))
+	val.At(refField).Get(&ref)
+	s.Require().NoError(err)
+	s.Require().Equal(scopedName, ref.ID)
+
+	val, err = adminClient.Query(f.Paginate(f.ScopedAccessProviders(f.Database(scopedDbName))))
+	s.Require().NoError(err)
+	val.At(dataField).Get(&arr)
+	s.Require().Len(arr, 1)
+
+	//Bad requests
+	_, err = s.client.Query(f.Get(ref))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.CreateAccessProvider(f.Obj{"name": name}))
+	s.Require().Error(err)
+
+	_, err = s.client.Query(f.Get(ref))
+	s.Require().Error(err)
+
+	//cleanup
+	adminClient.Query(f.Delete(f.Database(scopedDbName)))
+}
+
 func (s *ClientTestSuite) TestSyncLastTxnTime() {
 	firstSeen := s.client.GetLastTxnTime()
 

@@ -374,6 +374,31 @@ func TestSerializeCreateRole(t *testing.T) {
 	)
 }
 
+func TestSerializeCreateAccessProvider(t *testing.T) {
+	assertJSON(t,
+		CreateAccessProvider(Obj{
+			"name":     "a_provider",
+			"issuer":   "supported_issuer",
+			"jwks_uri": "https://xxxx.auth0.com",
+		}),
+		`{"create_access_provider":{"object":{"name":"a_provider","issuer":`+
+			`"supported_issuer","jwks_uri":"https://xxxx.auth0.com"}}}`,
+	)
+
+	assertJSON(t,
+		CreateAccessProvider(Obj{
+			"name":                "a_provider",
+			"issuer":              "supported_issuer",
+			"jwks_uri":            "https://xxxx.auth0.com",
+			"allowed_roles":       Arr{"roles"},
+			"allowed_collections": Arr{Collection("col")},
+		}),
+		`{"create_access_provider":{"object":{"name":"a_provider","issuer":`+
+			`"supported_issuer","jwks_uri":"https://xxxx.auth0.com",`+
+			`"allowed_roles":["roles"],"allowed_collections":[{"collection":"col"}]}}}`,
+	)
+}
+
 func TestSerializeMoveDatabase(t *testing.T) {
 	assertJSON(t,
 		MoveDatabase(Database("source"), Database("dest")),
@@ -1057,6 +1082,30 @@ func TestSerializeCollections(t *testing.T) {
 	assertJSON(t,
 		ScopedCollections(Database("scope")),
 		`{"collections":{"database":"scope"}}`,
+	)
+}
+
+func TestSerializeAccessProvider(t *testing.T) {
+	assertJSON(t,
+		AccessProvider("auth0"),
+		`{"access_provider":"auth0"}`,
+	)
+
+	assertJSON(t,
+		ScopedAccessProvider("auth0", Database("auth_db")),
+		`{"access_provider":"auth0","scope":{"database":"auth_db"}}`,
+	)
+}
+
+func TestSerializeAccessProviders(t *testing.T) {
+	assertJSON(t,
+		AccessProviders(),
+		`{"access_providers":null}`,
+	)
+
+	assertJSON(t,
+		ScopedAccessProviders(Database("auth_db")),
+		`{"access_providers":{"database":"auth_db"}}`,
 	)
 }
 
