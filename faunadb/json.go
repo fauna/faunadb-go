@@ -201,20 +201,29 @@ func (p *jsonParser) parseQuery() (value Value, err error) {
 	var lambda json.RawMessage
 
 	if err = p.decoder.Decode(&lambda); err == nil {
-		value = QueryV{lambda}
+		value = QueryV{lambda: lambda}
 	}
 
 	var token json.Token
 	if token, err = p.decoder.Token(); err == nil {
-		if token != json.Delim('}') {
-			err = wrongToken{"end of object", token}
+		switch token {
+		case "api_version":
+			var apiVer string
+			var obj ObjectV
+			obj, _ = p.parseObject("api_version")
+			(obj["api_version"]).Get(&apiVer)
+			value = QueryV{lambda, apiVer}
+		case json.Delim('}'):
+			err = nil
+		default:
+			err = wrongToken{"end of object or `api_version`", token}
 		}
 	}
 
 	return
 }
 
-func (p *jsonParser) parseObject(firstKey string) (Value, error) {
+func (p *jsonParser) parseObject(firstKey string) (ObjectV, error) {
 	object := make(map[string]Value)
 
 	if key := firstKey; key != "" {

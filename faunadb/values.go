@@ -354,7 +354,8 @@ func (bytes BytesV) MarshalJSON() ([]byte, error) {
 
 // QueryV represents a `@query` value in FaunaDB.
 type QueryV struct {
-	lambda json.RawMessage
+	lambda     json.RawMessage
+	apiVersion string `json:"api_version,omitempty"`
 }
 
 // Get implements the Value interface by decoding the underlying value to a QueryV.
@@ -365,7 +366,7 @@ func (query QueryV) At(field Field) FieldValue { return field.get(query) }
 
 // String implements the Value interface by converting a QueryV to a string.
 func (query QueryV) String() string {
-	return "QueryV{" + string(query.lambda) + "}"
+	return "QueryV{" + string(query.lambda) + "," + query.apiVersion + "}"
 }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB query representation.
