@@ -8,7 +8,7 @@ executors:
         type: string
       version:
         type: enum
-        enum: ["release", "nightly"]
+        enum: ["stable", "nightly"]
     resource_class: large
     docker:
       - image: circleci/golang:<<parameters.go_version>>
@@ -65,7 +65,7 @@ jobs:
     executor:
       name: core
       go_version: "1.13"
-      version: release
+      version: stable
     steps:
       - build_and_test
 
@@ -81,7 +81,7 @@ jobs:
     executor:
       name: core
       go_version: "1.12"
-      version: release
+      version: stable
     steps:
       - build_and_test
 
@@ -97,7 +97,7 @@ jobs:
     executor:
       name: core
       go_version: "1.11"
-      version: release
+      version: stable
     steps:
       - build_and_test
 
