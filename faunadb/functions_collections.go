@@ -273,3 +273,24 @@ type meanFn struct {
 }
 
 func (fn meanFn) String() string { return printFn(fn) }
+
+// Reverse accepts a set, array or page and returns the same type with elements in reversed order.
+//
+// Parameters:
+//
+// collection Expr - the collection
+//
+// Returns:
+// a new Expr instance
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/reverse
+func Reverse(collection interface{}) Expr {
+	return reverseFn{Reverse: wrap(collection)}
+}
+
+type reverseFn struct {
+	fnApply
+	Reverse Expr `json:"reverse"`
+}
+
+func (fn reverseFn) String() string { return printFn(fn) }
