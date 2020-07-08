@@ -161,7 +161,7 @@ func TestStringifyFixedArityFunctions(t *testing.T) {
 	assertString(t, ToInteger(3.14), `ToInteger(3.14)`)
 	assertString(t, ToDouble(90), `ToDouble(90)`)
 	assertString(t, ToObject(Arr{Arr{"x", 1}}), `ToObject(Arr{Arr{"x", 1}})`)
-	assertString(t, ToArray(Obj{"x": 1}), `ToArray(Obj{"x": 1}))`)
+	assertString(t, ToArray(Obj{"x": 1}), `ToArray(Obj{"x": 1})`)
 	assertString(t, ToTime("1970-01-01T00:00:00-04:00"), `ToTime("1970-01-01T00:00:00-04:00")`)
 	assertString(t, Trim("   One Fish Two Fish   "), `Trim("   One Fish Two Fish   ")`)
 	assertString(t, Trunc(1.234567), `Trunc(1.234567)`)

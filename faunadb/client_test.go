@@ -1625,9 +1625,24 @@ func (s *ClientTestSuite) TestNestedKeyRef() {
 	s.Require().NoError(err)
 	result.At(dataField).Get(&keys)
 
+	var parent = &f.RefV{ID: parentDb, Collection: f.NativeDatabases(), Class: f.NativeDatabases()}
+	var nativeKeyRef = &f.RefV{ID: f.NativeKeys().ID, Database: parent}
+
+	var nestedServerKeyRef = f.RefV{
+		ID:         serverKey.ID,
+		Class:      nativeKeyRef,
+		Collection: nativeKeyRef,
+	}
+
+	var nestedAdminKeyRef = f.RefV{
+		ID:         adminKey.ID,
+		Class:      nativeKeyRef,
+		Collection: nativeKeyRef,
+	}
+
 	s.Require().Equal(
 		keys,
-		[]f.RefV{serverKey, adminKey},
+		[]f.RefV{nestedServerKeyRef, nestedAdminKeyRef},
 	)
 }
 
