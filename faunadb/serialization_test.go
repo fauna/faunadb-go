@@ -1183,6 +1183,41 @@ func TestSerializeContains(t *testing.T) {
 	)
 }
 
+func TestSerializeContainsPath(t *testing.T) {
+	assertJSON(t,
+		ContainsPath(
+			Arr{"favorites", "foods"},
+			Obj{"favorites": Obj{
+				"foods": Arr{"stake"},
+			}},
+		),
+		`{"contains_path":["favorites","foods"],"in":{"object":{"favorites":{"object":{"foods":["stake"]}}}}}`,
+	)
+}
+
+func TestSerializeContainsValue(t *testing.T) {
+	assertJSON(t,
+		ContainsValue(
+			"steak",
+			Obj{"favorites": Obj{
+				"foods": Arr{"steak"},
+			}},
+		),
+		`{"contains_value":"steak","in":{"object":{"favorites":{"object":{"foods":["steak"]}}}}}`,
+	)
+}
+func TestSerializeContainsField(t *testing.T) {
+	assertJSON(t,
+		ContainsField(
+			"favorites",
+			Obj{"favorites": Obj{
+				"foods": Arr{"steak"},
+			}},
+		),
+		`{"contains_field":"favorites","in":{"object":{"favorites":{"object":{"foods":["steak"]}}}}}`,
+	)
+}
+
 func TestSerializeSelect(t *testing.T) {
 	assertJSON(t,
 		Select(

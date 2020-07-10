@@ -200,6 +200,8 @@ func (fn isNonEmptyFn) String() string { return printFn(fn) }
 // Returns:
 //  bool - true if the path contains any value, false otherwise.
 //
+// Deprecated: Use ContainsPath instead. Contains will be removed in API v4.
+//
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func Contains(path, value interface{}) Expr {
 	return containsFn{Contains: wrap(path), Value: wrap(value)}
@@ -212,6 +214,72 @@ type containsFn struct {
 }
 
 func (fn containsFn) String() string { return printFn(fn) }
+
+// ContainsPath checks if the provided value contains the path specified.
+//
+// Parameters:
+//  path Path - An array representing a path to check for the existence of. Path can be either strings or ints.
+//  value Object - Value to search against.
+//
+// Returns:
+//  bool - true if the path contains any value, false otherwise.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ContainsPath(path, value interface{}) Expr {
+	return containsPathFn{ContainsPath: wrap(path), Value: wrap(value)}
+}
+
+type containsPathFn struct {
+	fnApply
+	ContainsPath Expr `json:"contains_path"`
+	Value        Expr `json:"in"`
+}
+
+func (fn containsPathFn) String() string { return printFn(fn) }
+
+// ContainsValue checks if the provided value contains the value specified.
+//
+// Parameters:
+//  value Expr - Value to check for the existence of.
+//  in Expr - An object/array/page/ref to search against.
+//
+// Returns:
+//  bool - true if the value is found, false otherwise.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ContainsValue(value, in interface{}) Expr {
+	return containsValueFn{ContainsValue: wrap(value), Value: wrap(in)}
+}
+
+type containsValueFn struct {
+	fnApply
+	ContainsValue Expr `json:"contains_value"`
+	Value         Expr `json:"in"`
+}
+
+func (fn containsValueFn) String() string { return printFn(fn) }
+
+// ContainsField checks if the provided value contains the field specified.
+//
+// Parameters:
+//  field Expr - The field to check for the existence of. Field can only be a string.
+//  value Expr - Value to search against.
+//
+// Returns:
+//  bool - true if the field exists, false otherwise.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ContainsField(field, value interface{}) Expr {
+	return containsFieldFn{ContainsField: wrap(field), Value: wrap(value)}
+}
+
+type containsFieldFn struct {
+	fnApply
+	ContainsField Expr `json:"contains_field"`
+	Value         Expr `json:"in"`
+}
+
+func (fn containsFieldFn) String() string { return printFn(fn) }
 
 // Count returns the number of elements in the collection.
 //
