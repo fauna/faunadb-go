@@ -1,6 +1,7 @@
 package faunadb
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"strconv"
@@ -41,7 +42,7 @@ type StringV string
 func (str StringV) Get(i interface{}) error { return newValueDecoder(i).assign(str) }
 
 // String implements the Value interface by converting a StringV to a string.
-func (str StringV) String() string { return strconv.Quote(string(str)) }
+func (str StringV) String() string { return string(str) }
 
 // At implements the Value interface by returning an invalid field since StringV is not traversable.
 func (str StringV) At(field Field) FieldValue { return field.get(str) }
@@ -245,7 +246,6 @@ func (set SetRefV) At(field Field) FieldValue { return field.get(set) }
 // String implements the Value interface by converting a SetRefV to a string.
 func (set SetRefV) String() string {
 	params := ObjectV(set.Parameters).String()
-	params = strings.Replace(params, "Obj", "map[string]Value", 1)
 	return "SetRefV{ Parameters: " + params + " }"
 }
 
@@ -264,10 +264,10 @@ func (obj ObjectV) At(field Field) FieldValue { return field.get(obj) }
 // String implements the Value interface by converting a ObjectV to a string.
 func (obj ObjectV) String() string {
 	if len(obj) == 1 && obj["object"] != nil {
-		return wrap(obj["object"]).String()
+		return exprToString(wrap(obj["object"]))
 	}
 	var sb strings.Builder
-	sb.WriteString("Obj{")
+	sb.WriteString("ObjectV{")
 	i := 0
 	for k, v := range obj {
 		if i > 0 {
@@ -275,7 +275,7 @@ func (obj ObjectV) String() string {
 		}
 		sb.WriteString(strconv.Quote(k))
 		sb.WriteString(": ")
-		sb.WriteString(wrap(v).String())
+		sb.WriteString(faunaValueToString(v))
 		i++
 	}
 	sb.WriteString("}")
@@ -297,12 +297,12 @@ func (arr ArrayV) At(field Field) FieldValue { return field.get(arr) }
 // String implements the Value interface by converting a ArrayV to a string.
 func (arr ArrayV) String() string {
 	var sb strings.Builder
-	sb.WriteString("Arr{")
+	sb.WriteString("ArrayV{")
 	for i, v := range arr {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		sb.WriteString(wrap(v).String())
+		sb.WriteString(faunaValueToString(v))
 	}
 	sb.WriteString("}")
 	return sb.String()
@@ -340,7 +340,8 @@ func (bytes BytesV) String() string {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		sb.WriteByte(b)
+		sb.WriteString("0x")
+		sb.WriteString(strconv.FormatInt(int64(b), 16))
 	}
 	sb.WriteString("}")
 	return sb.String()
@@ -365,7 +366,15 @@ func (query QueryV) At(field Field) FieldValue { return field.get(query) }
 
 // String implements the Value interface by converting a QueryV to a string.
 func (query QueryV) String() string {
-	return "QueryV{" + string(query.lambda) + "}"
+	var target ObjectV
+	if value, err := parseJSON(bytes.NewReader(query.lambda)); err == nil {
+		err = value.Get(&target)
+	}
+	fn := lambdaFn{
+		Lambda:     target["lambda"],
+		Expression: target["expr"],
+	}
+	return "Query(" + fn.String() + ")"
 }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB query representation.

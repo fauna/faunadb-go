@@ -36,7 +36,7 @@ type invalidExpr struct{ err error }
 func (obj unescapedObj) expr() {}
 func (obj unescapedObj) String() string {
 	if len(obj) == 1 && obj["object"] != nil {
-		return obj["object"].String()
+		return exprToString(obj["object"])
 	}
 	i := 0
 	var sb strings.Builder
@@ -47,7 +47,7 @@ func (obj unescapedObj) String() string {
 		}
 		sb.WriteString(strconv.Quote(k))
 		sb.WriteString(": ")
-		sb.WriteString(v.String())
+		sb.WriteString(exprToString(v))
 		i++
 	}
 	sb.WriteString("}")
@@ -62,7 +62,7 @@ func (arr unescapedArr) String() string {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		sb.WriteString(v.String())
+		sb.WriteString(exprToString(v))
 	}
 	sb.WriteString("}")
 	return sb.String()
@@ -84,7 +84,7 @@ func (obj Obj) expr() {}
 
 func (obj Obj) String() string {
 	if len(obj) == 1 && obj["object"] != nil {
-		return wrap(obj["object"]).String()
+		return exprToString(wrap(obj["object"]))
 	}
 	i := 0
 	var sb strings.Builder
@@ -95,7 +95,7 @@ func (obj Obj) String() string {
 		}
 		sb.WriteString(strconv.Quote(k))
 		sb.WriteString(": ")
-		sb.WriteString(wrap(v).String())
+		sb.WriteString(exprToString(wrap(v)))
 		i++
 	}
 	sb.WriteString("}")
@@ -114,7 +114,7 @@ func (arr Arr) String() string {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		sb.WriteString(wrap(v).String())
+		sb.WriteString(exprToString(wrap(v)))
 	}
 	sb.WriteString("}")
 	return sb.String()

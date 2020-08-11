@@ -13,7 +13,7 @@ func assertString(t *testing.T, expr Expr, expected string) {
 }
 
 func TestStringifyFaunaValues(t *testing.T) {
-	assertString(t, StringV("a string"), `"a string"`)
+	assertString(t, StringV("a string"), `a string`)
 	assertString(t, LongV(90), `90`)
 
 	arr := Arr{
@@ -32,8 +32,8 @@ func TestStringifyFaunaValues(t *testing.T) {
 	)
 
 	assertString(t,
-		SetRefV{Parameters: map[string]Value{"x": StringV("y")}},
-		`SetRefV{ Parameters: map[string]Value{"x": "y"} }`,
+		SetRefV{Parameters: ObjectV{"x": ArrayV{StringV("y")}}},
+		`SetRefV{ Parameters: ObjectV{"x": ArrayV{StringV("y")}} }`,
 	)
 
 	assertString(t,
@@ -50,6 +50,11 @@ func TestStringifyFaunaValues(t *testing.T) {
 	assertString(t,
 		TimeV(now),
 		`TimeV("`+now.Format("2006-01-02T15:04:05.999999999Z")+`")`,
+	)
+
+	assertString(t,
+		BytesV{0x1, 0x3A, 0xFF, 0x65},
+		`BytesV{0x1, 0x3a, 0xff, 0x65}`,
 	)
 
 }

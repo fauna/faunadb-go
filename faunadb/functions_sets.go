@@ -57,7 +57,7 @@ type matchFn struct {
 
 func (fn matchFn) String() string {
 	if fn.Terms != nil {
-		return "MatchTerm(" + fn.Match.String() + ", " + fn.Terms.String() + ")"
+		return "MatchTerm(" + exprToString(fn.Match) + ", " + exprToString(fn.Terms) + ")"
 	}
 	return printFn(fn)
 }

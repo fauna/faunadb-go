@@ -2365,6 +2365,24 @@ func (s *ClientTestSuite) TestEchoAnObjectBack() {
 	s.Require().Equal(map[string]string{"key": "value"}, obj)
 }
 
+//see TestStringifyFaunaValues for more
+func (s *ClientTestSuite) TestStringifyQueryV() {
+	var q f.QueryV
+
+	query1 := f.Query(f.Lambda("X", f.Var("X")))
+	expected1 := `Query(Lambda("X", ObjectV{"var": StringV("X")}))`
+
+	query2 := f.Query(f.Lambda(f.ArrayV{f.StringV("X"), f.StringV("Y")}, f.ObjectV{"add": f.ArrayV{f.ObjectV{"var": f.StringV("X")}, f.ObjectV{"var": f.StringV("Y")}}}))
+	expected2 := `Query(Lambda(ArrayV{StringV("X"), StringV("Y")}, ObjectV{"add": ArrayV{ObjectV{"var": StringV("X")}, ObjectV{"var": StringV("Y")}}}))`
+
+	s.queryAndDecode(query2, &q)
+	s.Require().Equal(expected2, q.String())
+
+	s.queryAndDecode(query1, &q)
+	s.Require().Equal(expected1, q.String())
+
+}
+
 func (s *ClientTestSuite) TestCreateFunction() {
 	body := f.Query(f.Lambda("x", f.Var("x")))
 

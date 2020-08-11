@@ -142,13 +142,13 @@ func (fn letFn) String() string {
 		for _, elem := range arr {
 			m := elem.(unescapedObj)
 			for k, v := range m {
-				sb.WriteString(".Bind(" + strconv.Quote(k) + ", " + v.String() + ")")
+				sb.WriteString(".Bind(" + strconv.Quote(k) + ", " + exprToString(v) + ")")
 			}
 		}
 	default:
 		return "invalid type"
 	}
-	sb.WriteString(".In(" + fn.In.String() + ")")
+	sb.WriteString(".In(" + exprToString(fn.In) + ")")
 	return sb.String()
 }
 

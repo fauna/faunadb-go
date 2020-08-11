@@ -2,8 +2,40 @@ package faunadb
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 )
+
+func exprToString(e Expr) string {
+	switch e.(type) {
+	case StringV:
+		return strconv.Quote(e.String())
+	default:
+		return e.String()
+	}
+}
+
+func faunaValueToString(v Value) string {
+	var sb strings.Builder
+	closingBracket := true
+	switch v.(type) {
+	case StringV:
+		sb.WriteString("StringV(")
+	case LongV:
+		sb.WriteString("LongV(")
+	case DoubleV:
+		sb.WriteString("DoubleV(")
+	case BooleanV:
+		sb.WriteString("BooleanV(")
+	default:
+		closingBracket = false
+	}
+	sb.WriteString(exprToString(wrap(v)))
+	if closingBracket {
+		sb.WriteString(")")
+	}
+	return sb.String()
+}
 
 func printFn(fn interface{}) string {
 
@@ -54,7 +86,7 @@ func printFn(fn interface{}) string {
 					if sbArgs.Len() > 0 {
 						sbArgs.WriteString(", ")
 					}
-					sbArgs.WriteString(v.String())
+					sbArgs.WriteString(exprToString(v))
 				}
 			case "optfn":
 				if (v != NullV{}) {
@@ -68,7 +100,7 @@ func printFn(fn interface{}) string {
 					sbOpt.WriteString(optFnName)
 					sbOpt.WriteString("(")
 					if _, ok := reprVals["noargs"]; !ok {
-						sbOpt.WriteString(v.String())
+						sbOpt.WriteString(exprToString(v))
 					}
 					sbOpt.WriteString(")")
 				}
@@ -80,13 +112,13 @@ func printFn(fn interface{}) string {
 						if sbArgs.Len() > 0 {
 							sbArgs.WriteString(", ")
 						}
-						sbArgs.WriteString(nv.String())
+						sbArgs.WriteString(exprToString(nv))
 					}
 				} else {
 					if sbArgs.Len()+sbOpt.Len() > 0 {
 						sbArgs.WriteString(", ")
 					}
-					sbArgs.WriteString(v.String())
+					sbArgs.WriteString(exprToString(v))
 				}
 			case "noargs":
 
@@ -100,7 +132,7 @@ func printFn(fn interface{}) string {
 			if sbArgs.Len()+sbOpt.Len() > 0 {
 				sbArgs.WriteString(", ")
 			}
-			sbArgs.WriteString(v.String())
+			sbArgs.WriteString(exprToString(v))
 		}
 	}
 	return name + "(" + sbArgs.String() + sbOpt.String() + ")"
