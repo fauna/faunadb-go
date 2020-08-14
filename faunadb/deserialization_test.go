@@ -178,6 +178,16 @@ func TestDeserializeQueryVInsideObjectV(t *testing.T) {
 	require.Equal(t, ObjectV{"a": StringV("a"), "b": ObjectV{"lambda": QueryV{lambda}}, "c": StringV("c")}, object)
 }
 
+func TestDeserializeVersionedQueryV(t *testing.T) {
+	var query QueryV
+
+	lambda1 := json.RawMessage(`{"lambda": "x", "api_version": "3", "expr": {"var": "x"}}`)
+
+	require.NoError(t, decodeJSON(`{"@query": {"lambda": "x", "api_version": "3", "expr": {"var": "x"}}}`, &query))
+	require.Equal(t, QueryV{lambda1}, query)
+
+}
+
 func TestDeserializeInvalidQueryV(t *testing.T) {
 	var object ObjectV
 
