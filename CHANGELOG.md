@@ -1,4 +1,14 @@
-# v2.12.1 (May, 2020) [current]
+# v3.0.0 (August, 2020) [current]
+
+- Added Reverse()
+- Add ContainsPath(), ContainsField(), ContainsValue()
+- Add ToArray(), ToObject(), ToInteger(), ToDouble() functions
+- Deprecate Contains()
+- Add tests for versioned queries
+- Bump apiVersion to 3
+- Fix DoubleV string formatting
+
+# v2.12.1 (May, 2020)
 
 - Make base64 encoding of secret match other drivers.
 
