@@ -1,7 +1,8 @@
-module github.com/fauna/faunadb-go
+module github.com/fauna/faunadb-go/v3
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.2.2
+	github.com/fauna/faunadb-go v2.0.0+incompatible // indirect
+	github.com/stretchr/testify v1.6.1
 )
+
+go 1.14

@@ -1,7 +1,7 @@
 # FaunaDB Go Driver
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
-[![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://godoc.org/github.com/fauna/faunadb-go/faunadb)
+[![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go?tab=overview)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/master/LICENSE)
 
 A Go lang driver for [FaunaDB](https://fauna.com/).
@@ -12,6 +12,7 @@ Currently, the driver is tested on:
 - 1.11
 - 1.12
 - 1.13
+- 1.14
 
 ## Using the Driver
 
@@ -20,46 +21,22 @@ Currently, the driver is tested on:
 To get the latest version run:
 
 ```bash
-go get github.com/fauna/faunadb-go/faunadb
+go get github.com/fauna/faunadb-go/v3/faunadb
 ```
 
 Please note that our driver undergoes breaking changes from time to time, so depending on our `master` branch is not recommended.
 It is recommended to use one of the following methods instead:
 
-#### Using `gopkg.in`
-
-To get a specific version when using `gopkg.in`, use:
-
-```bash
-go get gopkg.in/fauna/faunadb-go.v2/faunadb
-```
-
-#### Using `dep`
-
-To get a specific version when using `dep`, use:
-
-```bash
-dep ensure -add github.com/fauna/faunadb-go/faunadb@v2.12.1
-```
-
 ### Importing
 
 For better usage, we recommend that you import this driver with an alias import.
 
-#### Using `gopkg.in`
-
-To import a specific version when using `gopkg.in`, use:
-
-```go
-import f "gopkg.in/fauna/faunadb-go.v2/faunadb"
-```
-
 #### Using `dep` or `go get`
 
-To import a specific version when using `dep` or `go get`, use:
+To import a specific version when using `go get`, use:
 
 ```go
-import f "github.com/fauna/faunadb-go/faunadb"
+import f "github.com/fauna/faunadb-go/v3/faunadb"
 ```
 
 ### Basic Usage
@@ -70,7 +47,7 @@ package main
 import (
 	"fmt"
 
-	f "github.com/fauna/faunadb-go/faunadb"
+	f "github.com/fauna/faunadb-go/v3/faunadb"
 )
 
 type User struct {
@@ -129,7 +106,7 @@ set a timeout in milliseconds for all queries.
 
 ## LICENSE
 
-Copyright 2018 [Fauna, Inc.](https://fauna.com/)
+Copyright 2020 [Fauna, Inc.](https://fauna.com/)
 
 Licensed under the Mozilla Public License, Version 2.0 (the
 "License"); you may not use this software except in compliance with
