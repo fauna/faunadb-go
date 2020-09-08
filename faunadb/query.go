@@ -199,6 +199,29 @@ func (fn paginateFn) setSize(e Expr) Expr {
 	return fn
 }
 
+// NumResults is a numeric optional parameter that specifies the number of results returned.
+//
+// Functions that accept this optional parameter are: FindStrRegex.
+func NumResults(num interface{}) OptionalParameter {
+	return func(expr Expr) Expr {
+		switch e := expr.(type) {
+		case numParam:
+			return e.setNum(wrap(num))
+		default:
+			return e
+		}
+	}
+}
+
+type numParam interface {
+	setNum(num Expr) Expr
+}
+
+func (fn findStrRegexFn) setNum(e Expr) Expr {
+	fn.NumResults = e
+	return fn
+}
+
 // Start is a numeric optional parameter that specifies the start of where to search.
 //
 // Functions that accept this optional parameter are: FindStr .
@@ -218,6 +241,11 @@ type startParam interface {
 }
 
 func (fn findStrFn) setStart(e Expr) Expr {
+	fn.Start = e
+	return fn
+}
+
+func (fn findStrRegexFn) setStart(e Expr) Expr {
 	fn.Start = e
 	return fn
 }
