@@ -231,13 +231,16 @@ func (fn findStrFn) String() string { return printFn(fn) }
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#string-functions
 func FindStrRegex(str, pattern interface{}, options ...OptionalParameter) Expr {
-	return findStrRegexFn{FindStrRegex: wrap(str), Pattern: wrap(pattern)}
+	fn := findStrRegexFn{FindStrRegex: wrap(str), Pattern: wrap(pattern)}
+	return applyOptionals(fn, options)
 }
 
 type findStrRegexFn struct {
 	fnApply
 	FindStrRegex Expr `json:"findstrregex"`
 	Pattern      Expr `json:"pattern"`
+	Start        Expr `json:"start,omitempty" faunarepr:"optfn"`
+	NumResults   Expr `json:"num_results,omitempty" faunarepr:"optfn"`
 }
 
 func (fn findStrRegexFn) String() string { return printFn(fn) }

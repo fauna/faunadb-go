@@ -1045,6 +1045,31 @@ func (s *ClientTestSuite) TestEvalFindStrExpression() {
 	s.Require().Equal(13, res)
 }
 
+func (s *ClientTestSuite) TestEvalFindStrRegexExpression() {
+	type match struct {
+		Start int    `fauna:"start"`
+		End   int    `fauna:"end"`
+		Data  string `fauna:"data"`
+	}
+	var res []match
+
+	expected1 := []match{
+		{0, 0, "A"},
+	}
+	expected2 := []match{
+		{3, 3, "A"},
+	}
+
+	s.queryAndDecode(f.FindStrRegex("ABC", "A"), &res)
+	s.Require().Equal(expected1, res)
+
+	s.queryAndDecode(f.FindStrRegex("ABCABC", "A", f.Start(1)), &res)
+	s.Require().Equal(expected2, res)
+
+	s.queryAndDecode(f.FindStrRegex("ABCABCABCABC", "A", f.Start(1), f.NumResults(2)), &res)
+	s.Require().Equal(2, len(res))
+}
+
 func (s *ClientTestSuite) TestEvalLengthExpression() {
 	var res int
 
