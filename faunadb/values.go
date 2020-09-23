@@ -244,9 +244,10 @@ func (set SetRefV) At(field Field) FieldValue { return field.get(set) }
 
 // String implements the Value interface by converting a SetRefV to a string.
 func (set SetRefV) String() string {
-	params := ObjectV(set.Parameters).String()
-	params = strings.Replace(params, "Obj", "map[string]Value", 1)
-	return "SetRefV{ Parameters: " + params + " }"
+	params := ObjectV(set.Parameters)
+	var res map[string]interface{}
+	params.Get(&res)
+	return "SetRefV{ Parameters: " + wireToExpr(res).String() + " }"
 }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB setref representation.
@@ -365,7 +366,7 @@ func (query QueryV) At(field Field) FieldValue { return field.get(query) }
 
 // String implements the Value interface by converting a QueryV to a string.
 func (query QueryV) String() string {
-	return "QueryV{" + string(query.lambda) + "}"
+	return "Query(" + rawJSONToExpr(query.lambda).String() + ")"
 }
 
 // MarshalJSON implements json.Marshaler by escaping its value according to FaunaDB query representation.

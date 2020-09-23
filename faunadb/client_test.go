@@ -2340,22 +2340,18 @@ func (s *ClientTestSuite) TestEvalToDateExpression() {
 
 func (s *ClientTestSuite) TestSetRef() {
 	var set f.SetRefV
-	var match f.RefV
-	var terms string
+
+	query := f.MatchTerm(
+		f.Index("all_spells"),
+		"arcane",
+	)
 
 	s.queryAndDecode(
-		f.MatchTerm(
-			spellsByElement,
-			"arcane",
-		),
+		query,
 		&set,
 	)
 
-	s.Require().NoError(set.Parameters["match"].Get(&match))
-	s.Require().NoError(set.Parameters["terms"].Get(&terms))
-
-	s.Require().Equal(spellsByElement, match)
-	s.Require().Equal("arcane", terms)
+	s.Require().Equal(set.Parameters, query)
 }
 
 func (s *ClientTestSuite) TestEchoAnObjectBack() {

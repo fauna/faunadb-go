@@ -12,7 +12,13 @@ func assertString(t *testing.T, expr Expr, expected string) {
 	require.Equal(t, expected, str)
 }
 
+func assertWireToExpr(t *testing.T, wire string, expected Expr) {
+	expr := rawJSONToExpr([]byte(wire))
+	require.Equal(t, expr.String(), expected.String())
+}
+
 func TestStringifyFaunaValues(t *testing.T) {
+
 	assertString(t, StringV("a string"), `"a string"`)
 	assertString(t, LongV(90), `90`)
 
@@ -29,11 +35,6 @@ func TestStringifyFaunaValues(t *testing.T) {
 	assertString(t,
 		NullV{},
 		`nil`,
-	)
-
-	assertString(t,
-		SetRefV{Parameters: map[string]Value{"x": StringV("y")}},
-		`SetRefV{ Parameters: map[string]Value{"x": "y"} }`,
 	)
 
 	assertString(t,
@@ -331,6 +332,83 @@ func TestStringifyScopedFunctions(t *testing.T) {
 	assertString(t, ScopedDatabases(Database("db1")), `ScopedDatabases(Database("db1"))`)
 	assertString(t, ScopedKeys(Database("db1")), `ScopedKeys(Database("db1"))`)
 	assertString(t, ScopedClasses(Database("db1")), `ScopedClasses(Database("db1"))`)
+}
+
+func TestWireToString(t *testing.T) {
+	assertWireToExpr(t, ` {"has_identity":null}`, HasIdentity())
+
+	assertWireToExpr(t, ` {"hour":{"epoch":0,"unit":"second"}}`, Hour(Epoch(0, "second")))
+
+	assertWireToExpr(t, ` {"hour":0}`, Hour(0))
+
+	assertWireToExpr(t, ` {"is_empty":[]}`, IsEmpty(Arr{}))
+
+	assertWireToExpr(t, ` {"is_empty":[1]}`, IsEmpty(Arr{1}))
+
+	assertWireToExpr(t, ` {"is_nonempty":[]}`, IsNonEmpty(Arr{}))
+
+	assertWireToExpr(t, ` {"is_nonempty":[1,2]}`, IsNonEmpty(Arr{1, 2}))
+
+	assertWireToExpr(t, ` {"key_from_secret":"***"}`, KeyFromSecret("***"))
+
+	assertWireToExpr(t, ` {"new_id":null}`, NewId())
+
+	assertWireToExpr(t, ` {"minute":{"epoch":0,"unit":"second"}}`, Minute(Epoch(0, "second")))
+
+	assertWireToExpr(t, ` {"minute":{"epoch":21,"unit":"second"}}`, Minute(Epoch(21, "second")))
+
+	assertWireToExpr(t, ` {"minute":0}`, Minute(0))
+
+	assertWireToExpr(t, ` {"minute":21474}`, Minute(21474))
+
+	assertWireToExpr(t, ` {"month":{"epoch":0,"unit":"second"}}`, Month(Epoch(0, "second")))
+
+	assertWireToExpr(t, ` {"month":0}`, Month(0))
+
+	assertWireToExpr(t, ` {"get":{"database":"db_move_dest1689301728"}}`, Get(Database("db_move_dest1689301728")))
+
+	assertWireToExpr(t, ` {"get":{"database":"db_move_src4255465232"}}`, Get(Database("db_move_src4255465232")))
+
+	assertWireToExpr(t, ` {"create_database":{"object":{"name":"parent_4093237308"}}}`, CreateDatabase(Obj{"name": "parent_4093237308"}))
+
+	assertWireToExpr(t, ` {"create_database":{"object":{"name":"child_627213212"}}}`, CreateDatabase(Obj{"name": "child_627213212"}))
+
+	assertWireToExpr(t, ` {"paginate":{"keys":null}}`, Paginate(Keys()))
+
+	assertWireToExpr(t, ` {"paginate":{"keys":{"database":"parent_929501578"}}}`, Paginate(ScopedKeys(Database("parent_929501578"))))
+
+	assertWireToExpr(t, ` {"prepend":[1,2],"collection":[3,4]}`, Prepend(Arr{1, 2}, Arr{3, 4}))
+
+	assertWireToExpr(t, ` {"create_collection":{"object":{"name":"range_test"}}}`, CreateCollection(Obj{"name": "range_test"}))
+
+	assertWireToExpr(t, ` {"select":"data","from":{"paginate":{"range":{"match":{"index":"range_idx"}},"from":3,"to":8}}}`, Select("data", Paginate(Range(Match(Index("range_idx")), 3, 8))))
+
+	assertWireToExpr(t, ` {"select":"data","from":{"paginate":{"range":{"match":{"index":"range_idx"}},"from":17,"to":18}}}`, Select("data", Paginate(Range(Match(Index("range_idx")), 17, 18))))
+
+	assertWireToExpr(t, ` {"select":"data","from":{"paginate":{"range":{"match":{"index":"range_idx"}},"from":19,"to":0}}}`, Select("data", Paginate(Range(Match(Index("range_idx")), 19, 0))))
+
+	assertWireToExpr(t, ` {"paginate":{"databases":null}}`, Paginate(Databases()))
+
+	assertWireToExpr(t, ` {"second":{"epoch":0,"unit":"second"}}`, Second(Epoch(0, "second")))
+
+	assertWireToExpr(t, ` {"second":0}`, Second(0))
+
+	assertWireToExpr(t, ` {"take":2,"collection":[1,2,3]}`, Take(2, Arr{1, 2, 3}))
+
+	assertWireToExpr(t, ` {"to_millis":{"epoch":0,"unit":"second"}}`, ToMillis(Epoch(0, "second")))
+
+	assertWireToExpr(t, ` {"to_millis":0}`, ToMillis(0))
+
+	assertWireToExpr(t, ` {"to_seconds":0}`, ToSeconds(0))
+
+	assertWireToExpr(t, ` {"create_collection":{"object":{"name":"coll_2425294227"}}}`, CreateCollection(Obj{"name": "coll_2425294227"}))
+
+	assertWireToExpr(t, ` {"delete":{"database":"faunadb-go-test-3079639420"}}`, Delete(Database("faunadb-go-test-3079639420")))
+
+	assertWireToExpr(t, ` {"paginate":{"drop":1,"collection":{"collections":null}}}`, Paginate(Drop(1, Collections())))
+
+	assertWireToExpr(t, ` {"size":20, "events":true, "paginate":{"drop":1,"collection":{"collections":null}}}`, Paginate(Drop(1, Collections()), Size(20), EventsOpt(true)))
+
 }
 
 func TestStringifyCustomFunctions(t *testing.T) {
