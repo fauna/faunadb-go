@@ -685,7 +685,7 @@ func TestSerializeLTrim(t *testing.T) {
 
 func TestSerializeRepeat(t *testing.T) {
 	assertJSON(t,
-		Repeat("0123456789", 2),
+		Repeat("0123456789", Number(2)),
 		`{"number":2,"repeat":"0123456789"}`,
 	)
 }

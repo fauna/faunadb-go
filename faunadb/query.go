@@ -176,6 +176,29 @@ func (fn paginateFn) setBefore(e Expr) Expr {
 	return fn
 }
 
+// Number is a numeric optional parameter that specifies an optional number.
+//
+// Functions that accept this optional parameter are: Repeat.
+func Number(num interface{}) OptionalParameter {
+	return func(expr Expr) Expr {
+		switch e := expr.(type) {
+		case numberParam:
+			return e.setNumber(wrap(num))
+		default:
+			return e
+		}
+	}
+}
+
+type numberParam interface {
+	setNumber(num Expr) Expr
+}
+
+func (fn repeatFn) setNumber(e Expr) Expr {
+	fn.Number = e
+	return fn
+}
+
 // Size is a numeric optional parameter that specifies the size of a pagination cursor.
 //
 // Functions that accept this optional parameter are: Paginate.

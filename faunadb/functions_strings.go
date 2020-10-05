@@ -305,16 +305,22 @@ func (fn lTrimFn) String() string { return printFn(fn) }
 //  str string - A string to repeat
 //  number int - The number of times to repeat the string
 //
+// Optional parameters:
+//  Number - Only replace the first found pattern.  See OnlyFirst() function.
+//
 // Returns:
 //  string - A string concatendanted the specified number of times
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#string-functions
-func Repeat(str, number interface{}) Expr { return repeatFn{Repeat: wrap(str), Number: wrap(number)} }
+func Repeat(str interface{}, options ...OptionalParameter) Expr {
+	fn := repeatFn{Repeat: wrap(str)}
+	return applyOptionals(fn, options)
+}
 
 type repeatFn struct {
 	fnApply
 	Repeat Expr `json:"repeat"`
-	Number Expr `json:"number"`
+	Number Expr `json:"number,omitempty" faunarepr:"fn=optfn,name=Number"`
 }
 
 func (fn repeatFn) String() string { return printFn(fn) }

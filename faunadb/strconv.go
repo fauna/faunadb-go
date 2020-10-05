@@ -72,7 +72,6 @@ func printFn(fn interface{}) string {
 					}
 					sbOpt.WriteString(")")
 				}
-
 			case "varargs":
 				if reflect.TypeOf(v).ConvertibleTo(reflect.TypeOf(unescapedArr{})) {
 					nestedArgs := reflect.ValueOf(v).Interface().(unescapedArr)
