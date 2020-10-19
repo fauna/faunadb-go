@@ -20,8 +20,6 @@ type createFn struct {
 	Params Expr `json:"params"`
 }
 
-func (fn createFn) String() string { return printFn(fn) }
-
 // CreateClass creates a new class.
 //
 // Parameters:
@@ -39,8 +37,6 @@ type createClassFn struct {
 	fnApply
 	CreateClass Expr `json:"create_class"`
 }
-
-func (fn createClassFn) String() string { return printFn(fn) }
 
 // CreateCollection creates a new collection.
 //
@@ -60,8 +56,6 @@ type createCollectionFn struct {
 	CreateCollection Expr `json:"create_collection"`
 }
 
-func (fn createCollectionFn) String() string { return printFn(fn) }
-
 // CreateDatabase creates an new database.
 //
 // Parameters:
@@ -77,8 +71,6 @@ type createDatabaseFn struct {
 	fnApply
 	CreateDatabase Expr `json:"create_database"`
 }
-
-func (fn createDatabaseFn) String() string { return printFn(fn) }
 
 // CreateIndex creates a new index.
 //
@@ -96,8 +88,6 @@ type createIndexFn struct {
 	CreateIndex Expr `json:"create_index"`
 }
 
-func (fn createIndexFn) String() string { return printFn(fn) }
-
 // CreateKey creates a new key.
 //
 // Parameters:
@@ -113,8 +103,6 @@ type createKeyFn struct {
 	fnApply
 	CreateKey Expr `json:"create_key"`
 }
-
-func (fn createKeyFn) String() string { return printFn(fn) }
 
 // CreateFunction creates a new function.
 //
@@ -132,8 +120,6 @@ type createFunctionFn struct {
 	CreateFunction Expr `json:"create_function"`
 }
 
-func (fn createFunctionFn) String() string { return printFn(fn) }
-
 // CreateRole creates a new role.
 //
 // Parameters:
@@ -149,8 +135,6 @@ type createRoleFn struct {
 	fnApply
 	CreateRole Expr `json:"create_role"`
 }
-
-func (fn createRoleFn) String() string { return printFn(fn) }
 
 // MoveDatabase moves a database to a new hierachy.
 //
@@ -172,8 +156,6 @@ type moveDatabaseFn struct {
 	To           Expr `json:"to"`
 }
 
-func (fn moveDatabaseFn) String() string { return printFn(fn) }
-
 // Update updates the provided document.
 //
 // Parameters:
@@ -191,8 +173,6 @@ type updateFn struct {
 	Update Expr `json:"update"`
 	Params Expr `json:"params"`
 }
-
-func (fn updateFn) String() string { return printFn(fn) }
 
 // Replace replaces the provided document.
 //
@@ -212,8 +192,6 @@ type replaceFn struct {
 	Params  Expr `json:"params"`
 }
 
-func (fn replaceFn) String() string { return printFn(fn) }
-
 // Delete deletes the provided document.
 //
 // Parameters:
@@ -229,8 +207,6 @@ type deleteFn struct {
 	fnApply
 	Delete Expr `json:"delete"`
 }
-
-func (fn deleteFn) String() string { return printFn(fn) }
 
 // Insert adds an event to the provided document's history.
 //
@@ -276,5 +252,3 @@ type removeFn struct {
 	Ts     Expr `json:"ts"`
 	Action Expr `json:"action"`
 }
-
-func (fn removeFn) String() string { return printFn(fn) }

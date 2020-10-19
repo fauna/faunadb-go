@@ -24,8 +24,6 @@ type formatFn struct {
 	Values Expr `json:"values"`
 }
 
-func (fn formatFn) String() string { return printFn(fn) }
-
 // Concat concatenates a list of strings into a single string.
 //
 // Parameters:
@@ -48,8 +46,6 @@ type concatFn struct {
 	Concat    Expr `json:"concat"`
 	Separator Expr `json:"separator,omitempty" faunarepr:"optfn"`
 }
-
-func (fn concatFn) String() string { return printFn(fn) }
 
 // Casefold normalizes strings according to the Unicode Standard section 5.18 "Case Mappings".
 //
@@ -74,8 +70,6 @@ type casefoldFn struct {
 	Normalizer Expr `json:"normalizer,omitempty" faunarepr:"optfn"`
 }
 
-func (fn casefoldFn) String() string { return printFn(fn) }
-
 // StartsWith returns true if the string starts with the given prefix value, or false if otherwise
 //
 // Parameters:
@@ -96,8 +90,6 @@ type startsWithFn struct {
 	StartsWith Expr `json:"startswith"`
 	Search     Expr `json:"search"`
 }
-
-func (fn startsWithFn) String() string { return printFn(fn) }
 
 // EndsWith returns true if the string ends with the given suffix value, or false if otherwise
 //
@@ -120,8 +112,6 @@ type endsWithFn struct {
 	Search   Expr `json:"search"`
 }
 
-func (fn endsWithFn) String() string { return printFn(fn) }
-
 // ContainsStr returns true if the string contains the given substring, or false if otherwise
 //
 // Parameters:
@@ -142,8 +132,6 @@ type containsStrFn struct {
 	ContainsStr Expr `json:"containsstr"`
 	Search      Expr `json:"search"`
 }
-
-func (fn containsStrFn) String() string { return printFn(fn) }
 
 // ContainsStrRegex returns true if the string contains the given pattern, or false if otherwise
 //
@@ -166,8 +154,6 @@ type containsStrRegexFn struct {
 	Pattern          Expr `json:"pattern"`
 }
 
-func (fn containsStrRegexFn) String() string { return printFn(fn) }
-
 // RegexEscape It takes a string and returns a regex which matches the input string verbatim.
 //
 // Parameters:
@@ -187,8 +173,6 @@ type regexEscapeFn struct {
 	fnApply
 	RegexEscape Expr `json:"regexescape"`
 }
-
-func (fn regexEscapeFn) String() string { return printFn(fn) }
 
 // FindStr locates a substring in a source string.  Optional parameters: Start
 //
@@ -214,8 +198,6 @@ type findStrFn struct {
 	Find    Expr `json:"find"`
 	Start   Expr `json:"start,omitempty" faunarepr:"optfn"`
 }
-
-func (fn findStrFn) String() string { return printFn(fn) }
 
 // FindStrRegex locates a java regex pattern in a source string.  Optional parameters: Start
 //
@@ -243,8 +225,6 @@ type findStrRegexFn struct {
 	NumResults   Expr `json:"num_results,omitempty" faunarepr:"optfn"`
 }
 
-func (fn findStrRegexFn) String() string { return printFn(fn) }
-
 // Length finds the length of a string in codepoints
 //
 // Parameters:
@@ -260,8 +240,6 @@ type lengthFn struct {
 	fnApply
 	Length Expr `json:"length"`
 }
-
-func (fn lengthFn) String() string { return printFn(fn) }
 
 // LowerCase changes all characters in the string to lowercase
 //
@@ -279,8 +257,6 @@ type lowercaseFn struct {
 	Lowercase Expr `json:"lowercase"`
 }
 
-func (fn lowercaseFn) String() string { return printFn(fn) }
-
 // LTrim returns a string wtih leading white space removed.
 //
 // Parameters:
@@ -296,8 +272,6 @@ type lTrimFn struct {
 	fnApply
 	LTrim Expr `json:"ltrim"`
 }
-
-func (fn lTrimFn) String() string { return printFn(fn) }
 
 // Repeat returns a string wtih repeated n times
 //
@@ -322,8 +296,6 @@ type repeatFn struct {
 	Repeat Expr `json:"repeat"`
 	Number Expr `json:"number,omitempty" faunarepr:"fn=optfn,name=Number"`
 }
-
-func (fn repeatFn) String() string { return printFn(fn) }
 
 // ReplaceStr returns a string with every occurence of the "find" string changed to "replace" string
 //
@@ -350,8 +322,6 @@ type replaceStrFn struct {
 	Find       Expr `json:"find"`
 	Replace    Expr `json:"replace"`
 }
-
-func (fn replaceStrFn) String() string { return printFn(fn) }
 
 // ReplaceStrRegex returns a string with occurence(s) of the java regular expression "pattern" changed to "replace" string.   Optional parameters: OnlyFirst
 //
@@ -384,8 +354,6 @@ type replaceStrRegexFn struct {
 	First           Expr `json:"first,omitempty" faunarepr:"fn=optfn,name=OnlyFirst,noargs=true"`
 }
 
-func (fn replaceStrRegexFn) String() string { return printFn(fn) }
-
 // RTrim returns a string wtih trailing white space removed.
 //
 // Parameters:
@@ -402,8 +370,6 @@ type rTrimFn struct {
 	RTrim Expr `json:"rtrim"`
 }
 
-func (fn rTrimFn) String() string { return printFn(fn) }
-
 // Space function returns "N" number of spaces
 //
 // Parameters:
@@ -419,8 +385,6 @@ type spaceFn struct {
 	fnApply
 	Space Expr `json:"space"`
 }
-
-func (fn spaceFn) String() string { return printFn(fn) }
 
 // SubString returns a subset of the source string.   Optional parameters: StrLength
 //
@@ -447,8 +411,6 @@ type subStringFn struct {
 	Length    Expr `json:"length,omitempty" faunarepr:"fn=optfn,name=StrLength"`
 }
 
-func (fn subStringFn) String() string { return printFn(fn) }
-
 // TitleCase changes all characters in the string to TitleCase
 //
 // Parameters:
@@ -464,8 +426,6 @@ type titleCaseFn struct {
 	fnApply
 	Titlecase Expr `json:"titlecase"`
 }
-
-func (fn titleCaseFn) String() string { return printFn(fn) }
 
 // Trim returns a string wtih trailing white space removed.
 //
@@ -483,8 +443,6 @@ type trimFn struct {
 	Trim Expr `json:"trim"`
 }
 
-func (fn trimFn) String() string { return printFn(fn) }
-
 // UpperCase changes all characters in the string to uppercase
 //
 // Parameters:
@@ -500,5 +458,3 @@ type upperCaseFn struct {
 	fnApply
 	UpperCase Expr `json:"uppercase"`
 }
-
-func (fn upperCaseFn) String() string { return printFn(fn) }

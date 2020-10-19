@@ -18,8 +18,6 @@ type timeFn struct {
 	Time Expr `json:"time"`
 }
 
-func (fn timeFn) String() string { return printFn(fn) }
-
 // TimeAdd returns a new time or date with the offset in terms of the unit
 // added.
 //
@@ -42,8 +40,6 @@ type timeAddFn struct {
 	Offset  Expr `json:"offset"`
 	Unit    Expr `json:"unit"`
 }
-
-func (fn timeAddFn) String() string { return printFn(fn) }
 
 // TimeSubtract returns a new time or date with the offset in terms of the unit
 // subtracted.
@@ -68,8 +64,6 @@ type timeSubtractFn struct {
 	Unit         Expr `json:"unit"`
 }
 
-func (fn timeSubtractFn) String() string { return printFn(fn) }
-
 // TimeDiff returns the number of intervals in terms of the unit between
 // two times or dates. Both start and finish must be of the same
 // type.
@@ -93,8 +87,6 @@ type timeDiffFn struct {
 	Unit     Expr `json:"unit"`
 }
 
-func (fn timeDiffFn) String() string { return printFn(fn) }
-
 // Date constructs a date from a ISO 8601 offset date/time string.
 //
 // Parameters:
@@ -110,8 +102,6 @@ type dateFn struct {
 	fnApply
 	Date Expr `json:"date"`
 }
-
-func (fn dateFn) String() string { return printFn(fn) }
 
 // Epoch constructs a time relative to the epoch "1970-01-01T00:00:00Z".
 //
@@ -131,8 +121,6 @@ type epochFn struct {
 	Unit  Expr `json:"unit"`
 }
 
-func (fn epochFn) String() string { return printFn(fn) }
-
 // Now returns the current snapshot time.
 //
 // Returns:
@@ -147,8 +135,6 @@ type nowFn struct {
 	fnApply
 	Now Expr `json:"now" faunarepr:"noargs"`
 }
-
-func (fn nowFn) String() string { return printFn(fn) }
 
 // ToSeconds converts a time expression to seconds since the UNIX epoch.
 //
@@ -166,8 +152,6 @@ type toSecondsFn struct {
 	ToSeconds Expr `json:"to_seconds"`
 }
 
-func (fn toSecondsFn) String() string { return printFn(fn) }
-
 // ToMillis converts a time expression to milliseconds since the UNIX epoch.
 //
 // Parameters:
@@ -183,8 +167,6 @@ type toMillisFn struct {
 	fnApply
 	ToMillis Expr `json:"to_millis"`
 }
-
-func (fn toMillisFn) String() string { return printFn(fn) }
 
 // ToMicros converts a time expression to microseconds since the UNIX epoch.
 //
@@ -202,8 +184,6 @@ type toMicrosFn struct {
 	ToMicros Expr `json:"to_micros"`
 }
 
-func (fn toMicrosFn) String() string { return printFn(fn) }
-
 // Year returns the time expression's year, following the ISO-8601 standard.
 //
 // Parameters:
@@ -219,8 +199,6 @@ type yearFn struct {
 	fnApply
 	Year Expr `json:"year"`
 }
-
-func (fn yearFn) String() string { return printFn(fn) }
 
 // Month returns a time expression's month of the year, from 1 to 12.
 //
@@ -238,8 +216,6 @@ type monthFn struct {
 	Month Expr `json:"month"`
 }
 
-func (fn monthFn) String() string { return printFn(fn) }
-
 // Hour returns a time expression's hour of the day, from 0 to 23.
 //
 // Parameters:
@@ -255,8 +231,6 @@ type hourFn struct {
 	fnApply
 	Hour Expr `json:"hour"`
 }
-
-func (fn hourFn) String() string { return printFn(fn) }
 
 // Minute returns a time expression's minute of the hour, from 0 to 59.
 //
@@ -274,8 +248,6 @@ type minuteFn struct {
 	Minute Expr `json:"minute"`
 }
 
-func (fn minuteFn) String() string { return printFn(fn) }
-
 // Second returns a time expression's second of the minute, from 0 to 59.
 //
 // Parameters:
@@ -291,8 +263,6 @@ type secondFn struct {
 	fnApply
 	Second Expr `json:"second"`
 }
-
-func (fn secondFn) String() string { return printFn(fn) }
 
 // DayOfMonth returns a time expression's day of the month, from 1 to 31.
 //
@@ -310,8 +280,6 @@ type dayOfMonthFn struct {
 	DayOfMonth Expr `json:"day_of_month"`
 }
 
-func (fn dayOfMonthFn) String() string { return printFn(fn) }
-
 // DayOfWeek returns a time expression's day of the week following ISO-8601 convention, from 1 (Monday) to 7 (Sunday).
 //
 // Parameters:
@@ -328,8 +296,6 @@ type dayOfWeekFn struct {
 	DayOfWeek Expr `json:"day_of_week"`
 }
 
-func (fn dayOfWeekFn) String() string { return printFn(fn) }
-
 // DayOfYear eturns a time expression's day of the year, from 1 to 365, or 366 in a leap year.
 //
 // Parameters:
@@ -345,5 +311,3 @@ type dayOfYearFn struct {
 	fnApply
 	DayOfYear Expr `json:"day_of_year"`
 }
-
-func (fn dayOfYearFn) String() string { return printFn(fn) }

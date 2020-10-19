@@ -1,10 +1,5 @@
 package faunadb
 
-import (
-	"strconv"
-	"strings"
-)
-
 // Basic forms
 
 // Abort aborts the execution of the query
@@ -23,8 +18,6 @@ type abortFn struct {
 	Abort Expr `json:"abort"`
 }
 
-func (fn abortFn) String() string { return printFn(fn) }
-
 // Do sequentially evaluates its arguments, and returns the last expression.
 // If no expressions are provided, do returns an error.
 //
@@ -41,8 +34,6 @@ type doFn struct {
 	fnApply
 	Do Expr `json:"do" faunarepr:"varargs"`
 }
-
-func (fn doFn) String() string { return printFn(fn) }
 
 // If evaluates and returns then or elze depending on the value of cond.
 // If cond evaluates to anything other than a boolean, if returns an “invalid argument” error
@@ -71,8 +62,6 @@ type ifFn struct {
 	Else Expr `json:"else"`
 }
 
-func (fn ifFn) String() string { return printFn(fn) }
-
 // Lambda creates an anonymous function. Mostly used with Collection functions.
 //
 // Parameters:
@@ -95,8 +84,6 @@ type lambdaFn struct {
 	Lambda     Expr `json:"lambda"`
 	Expression Expr `json:"expr"`
 }
-
-func (fn lambdaFn) String() string { return printFn(fn) }
 
 // At execute an expression at a given timestamp.
 //
@@ -121,8 +108,6 @@ type atFn struct {
 	Expression Expr `json:"expr"`
 }
 
-func (fn atFn) String() string { return printFn(fn) }
-
 // LetBuilder builds Let expressions
 type LetBuilder struct {
 	bindings unescapedArr
@@ -132,24 +117,6 @@ type letFn struct {
 	fnApply
 	Let Expr `json:"let"`
 	In  Expr `json:"in"`
-}
-
-func (fn letFn) String() string {
-	var sb strings.Builder
-	sb.WriteString("Let()")
-	switch arr := fn.Let.(type) {
-	case unescapedArr:
-		for _, elem := range arr {
-			m := elem.(unescapedObj)
-			for k, v := range m {
-				sb.WriteString(".Bind(" + strconv.Quote(k) + ", " + v.String() + ")")
-			}
-		}
-	default:
-		return "invalid type"
-	}
-	sb.WriteString(".In(" + fn.In.String() + ")")
-	return sb.String()
 }
 
 // Bind binds a variable name to a value and returns a LetBuilder
@@ -192,8 +159,6 @@ type varFn struct {
 	Var Expr `json:"var"`
 }
 
-func (fn varFn) String() string { return printFn(fn) }
-
 // Call invokes the specified function passing in a variable number of arguments
 //
 // Parameters:
@@ -214,8 +179,6 @@ type callFn struct {
 	Params Expr `json:"arguments"`
 }
 
-func (fn callFn) String() string { return printFn(fn) }
-
 // Query creates an instance of the @query type with the specified lambda
 //
 // Parameters:
@@ -231,8 +194,6 @@ type queryFn struct {
 	fnApply
 	Query Expr `json:"query"`
 }
-
-func (fn queryFn) String() string { return printFn(fn) }
 
 // Select traverses into the provided value, returning the value at the given path.
 //
@@ -259,8 +220,6 @@ type selectFn struct {
 	Default Expr `json:"default,omitempty" faunarepr:"optfn"`
 }
 
-func (fn selectFn) String() string { return printFn(fn) }
-
 // SelectAll traverses into the provided value flattening all values under the desired path.
 //
 // Parameters:
@@ -281,5 +240,3 @@ type selectAllFn struct {
 	From      Expr `json:"from"`
 	Default   Expr `json:"default,omitempty" faunarepr:"optfn"`
 }
-
-func (fn selectAllFn) String() string { return printFn(fn) }

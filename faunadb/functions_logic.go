@@ -16,8 +16,6 @@ type equalsFn struct {
 	Equals Expr `json:"equals" faunarepr:"varargs"`
 }
 
-func (fn equalsFn) String() string { return printFn(fn) }
-
 // Any evaluates to true if any element of the collection is true.
 //
 // Parameters:
@@ -35,8 +33,6 @@ type anyFn struct {
 	fnApply
 	Any Expr `json:"any"`
 }
-
-func (fn anyFn) String() string { return printFn(fn) }
 
 // All evaluates to true if all elements of the collection are true.
 //
@@ -56,8 +52,6 @@ type allFn struct {
 	All Expr `json:"all"`
 }
 
-func (fn allFn) String() string { return printFn(fn) }
-
 // LT returns true if each specified value is less than all the subsequent values. Otherwise LT returns false.
 //
 // Parameters:
@@ -74,8 +68,6 @@ type ltFn struct {
 	LT Expr `json:"lt" faunarepr:"varargs"`
 }
 
-func (fn ltFn) String() string { return printFn(fn) }
-
 // LTE returns true if each specified value is less than or equal to all subsequent values. Otherwise LTE returns false.
 //
 // Parameters:
@@ -91,8 +83,6 @@ type lteFn struct {
 	fnApply
 	LTE Expr `json:"lte" faunarepr:"varargs"`
 }
-
-func (fn lteFn) String() string { return printFn(fn) }
 
 // GT returns true if each specified value is greater than all subsequent values. Otherwise GT returns false.
 // and false otherwise.
@@ -111,8 +101,6 @@ type gtFn struct {
 	GT Expr `json:"gt" faunarepr:"varargs"`
 }
 
-func (fn gtFn) String() string { return printFn(fn) }
-
 // GTE returns true if each specified value is greater than or equal to all subsequent values. Otherwise GTE returns false.
 //
 // Parameters:
@@ -128,8 +116,6 @@ type gteFn struct {
 	fnApply
 	GTE Expr `json:"gte" faunarepr:"varargs"`
 }
-
-func (fn gteFn) String() string { return printFn(fn) }
 
 // And returns the conjunction of a list of boolean values.
 //
@@ -147,8 +133,6 @@ type andFn struct {
 	And Expr `json:"and" faunarepr:"varargs"`
 }
 
-func (fn andFn) String() string { return printFn(fn) }
-
 // Or returns the disjunction of a list of boolean values.
 //
 // Parameters:
@@ -165,8 +149,6 @@ type orFn struct {
 	Or Expr `json:"or" faunarepr:"varargs"`
 }
 
-func (fn orFn) String() string { return printFn(fn) }
-
 // Not returns the negation of a boolean value.
 //
 // Parameters:
@@ -182,5 +164,3 @@ type notFn struct {
 	fnApply
 	Not Expr `json:"not"`
 }
-
-func (fn notFn) String() string { return printFn(fn) }
