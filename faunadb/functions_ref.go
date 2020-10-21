@@ -28,8 +28,6 @@ type legacyRefFn struct {
 	Ref Expr `json:"@ref"`
 }
 
-func (fn legacyRefFn) String() string { return printFn(fn) }
-
 // RefClass creates a new Ref based on the provided class and ID.
 //
 // Parameters:
@@ -49,8 +47,6 @@ type refFn struct {
 	Ref Expr `json:"ref"`
 	ID  Expr `json:"id,omitempty"`
 }
-
-func (fn refFn) String() string { return printFn(fn) }
 
 // RefCollection creates a new Ref based on the provided collection and ID.
 //
@@ -91,8 +87,6 @@ type databaseFn struct {
 	Scope    Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
 
-func (fn databaseFn) String() string { return printFn(fn) }
-
 // ScopedDatabase creates a new database ref inside a database.
 //
 // Parameters:
@@ -126,8 +120,6 @@ type indexFn struct {
 	Index Expr `json:"index"`
 	Scope Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
-
-func (fn indexFn) String() string { return printFn(fn) }
 
 // ScopedIndex creates a new index ref inside a database.
 //
@@ -165,8 +157,6 @@ type classFn struct {
 	Scope Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
 
-func (fn classFn) String() string { return printFn(fn) }
-
 // Collection creates a new collection ref.
 //
 // Parameters:
@@ -183,8 +173,6 @@ type collectionFn struct {
 	Collection Expr `json:"collection"`
 	Scope      Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
-
-func (fn collectionFn) String() string { return printFn(fn) }
 
 //Documents returns a set of all documents in the given collection.
 // A set must be paginated in order to retrieve its values.
@@ -204,8 +192,6 @@ type documentsFn struct {
 	fnApply
 	Documents Expr `json:"documents"`
 }
-
-func (fn documentsFn) String() string { return printFn(fn) }
 
 // ScopedClass creates a new class ref inside a database.
 //
@@ -254,8 +240,6 @@ type functionFn struct {
 	Scope    Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
 
-func (fn functionFn) String() string { return printFn(fn) }
-
 // ScopedFunction creates a new function ref inside a database.
 //
 // Parameters:
@@ -287,8 +271,6 @@ type roleFn struct {
 	Scope Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
 
-func (fn roleFn) String() string { return printFn(fn) }
-
 // ScopedRole create a new role ref.
 //
 // Parameters:
@@ -316,8 +298,6 @@ type classesFn struct {
 	Classes Expr `json:"classes" faunarepr:"scopedfn"`
 }
 
-func (fn classesFn) String() string { return printFn(fn) }
-
 // Collections creates a native ref for collections.
 //
 // Returns:
@@ -330,8 +310,6 @@ type collectionsFn struct {
 	fnApply
 	Collections Expr `json:"collections" faunarepr:"scopedfn"`
 }
-
-func (fn collectionsFn) String() string { return printFn(fn) }
 
 // ScopedClasses creates a native ref for classes inside a database.
 //
@@ -372,8 +350,6 @@ type indexesFn struct {
 	Indexes Expr `json:"indexes" faunarepr:"scopedfn"`
 }
 
-func (fn indexesFn) String() string { return printFn(fn) }
-
 // ScopedIndexes creates a native ref for indexes inside a database.
 //
 // Parameters:
@@ -397,8 +373,6 @@ type databasesFn struct {
 	fnApply
 	Databases Expr `json:"databases" faunarepr:"scopedfn"`
 }
-
-func (fn databasesFn) String() string { return printFn(fn) }
 
 // ScopedDatabases creates a native ref for databases inside a database.
 //
@@ -424,8 +398,6 @@ type functionsFn struct {
 	Functions Expr `json:"functions" faunarepr:"scopedfn"`
 }
 
-func (fn functionsFn) String() string { return printFn(fn) }
-
 // ScopedFunctions creates a native ref for functions inside a database.
 //
 // Parameters:
@@ -449,8 +421,6 @@ type rolesFn struct {
 	fnApply
 	Roles Expr `json:"roles" faunarepr:"scopedfn"`
 }
-
-func (fn rolesFn) String() string { return printFn(fn) }
 
 // ScopedRoles creates a native ref for roles inside a database.
 //
@@ -476,8 +446,6 @@ type keysFn struct {
 	Keys Expr `json:"keys" faunarepr:"scopedfn"`
 }
 
-func (fn keysFn) String() string { return printFn(fn) }
-
 // ScopedKeys creates a native ref for keys inside a database.
 //
 // Parameters:
@@ -501,8 +469,6 @@ type tokensFn struct {
 	fnApply
 	Tokens Expr `json:"tokens" faunarepr:"scopedfn"`
 }
-
-func (fn tokensFn) String() string { return printFn(fn) }
 
 // ScopedTokens creates a native ref for tokens inside a database.
 //
@@ -541,8 +507,6 @@ type credentialsFn struct {
 	Credentials Expr `json:"credentials" faunarepr:"scopedfn"`
 }
 
-func (fn credentialsFn) String() string { return printFn(fn) }
-
 // Miscellaneous
 
 // NextID produces a new identifier suitable for use when constructing refs.
@@ -560,8 +524,6 @@ type nextIDFn struct {
 	NextID Expr `json:"next_id" faunarepr:"noargs"`
 }
 
-func (fn nextIDFn) String() string { return printFn(fn) }
-
 // NewId produces a new identifier suitable for use when constructing refs.
 //
 // Returns:
@@ -574,5 +536,3 @@ type newIDFn struct {
 	fnApply
 	NewId Expr `json:"new_id" faunarepr:"noargs"`
 }
-
-func (fn newIDFn) String() string { return printFn(fn) }

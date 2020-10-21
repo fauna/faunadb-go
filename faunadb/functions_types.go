@@ -16,8 +16,6 @@ type toStringFn struct {
 	ToString Expr `json:"to_string"`
 }
 
-func (fn toStringFn) String() string { return printFn(fn) }
-
 // ToNumber attempts to convert an expression to a numeric literal -
 // either an int64 or float64.
 //
@@ -35,8 +33,6 @@ type toNumberFn struct {
 	ToNumber Expr `json:"to_number"`
 }
 
-func (fn toNumberFn) String() string { return printFn(fn) }
-
 // ToDouble attempts to convert an expression to a double
 //
 // Parameters:
@@ -52,8 +48,6 @@ type toDoubleFn struct {
 	fnApply
 	ToDouble Expr `json:"to_double"`
 }
-
-func (fn toDoubleFn) String() string { return printFn(fn) }
 
 // ToInteger attempts to convert an expression to an integer literal
 //
@@ -71,8 +65,6 @@ type toIntegerFn struct {
 	ToInteger Expr `json:"to_integer"`
 }
 
-func (fn toIntegerFn) String() string { return printFn(fn) }
-
 // ToObject attempts to convert an expression to an object
 //
 // Parameters:
@@ -88,8 +80,6 @@ type toObjectFn struct {
 	fnApply
 	ToObject Expr `json:"to_object"`
 }
-
-func (fn toObjectFn) String() string { return printFn(fn) }
 
 // ToArray attempts to convert an expression to an array
 //
@@ -107,8 +97,6 @@ type toArrayFn struct {
 	ToArray Expr `json:"to_array"`
 }
 
-func (fn toArrayFn) String() string { return printFn(fn) }
-
 // ToTime attempts to convert an expression to a time literal.
 //
 // Parameters:
@@ -124,8 +112,6 @@ type toTimeFn struct {
 	fnApply
 	ToTime Expr `json:"to_time"`
 }
-
-func (fn toTimeFn) String() string { return printFn(fn) }
 
 // ToDate attempts to convert an expression to a date literal.
 //
@@ -143,8 +129,6 @@ type toDateFn struct {
 	ToDate Expr `json:"to_date"`
 }
 
-func (fn toDateFn) String() string { return printFn(fn) }
-
 // IsNumber checks if the expression is a number
 //
 // Parameters:
@@ -160,8 +144,6 @@ type isNumberFn struct {
 	fnApply
 	IsNumber Expr `json:"is_number"`
 }
-
-func (fn isNumberFn) String() string { return printFn(fn) }
 
 // IsDouble checks if the expression is a double
 //
@@ -179,8 +161,6 @@ type isDoubleFn struct {
 	IsDouble Expr `json:"is_double"`
 }
 
-func (fn isDoubleFn) String() string { return printFn(fn) }
-
 // IsInteger checks if the expression is an integer
 //
 // Parameters:
@@ -196,8 +176,6 @@ type isIntegerFn struct {
 	fnApply
 	IsInteger Expr `json:"is_integer"`
 }
-
-func (fn isIntegerFn) String() string { return printFn(fn) }
 
 // IsBoolean checks if the expression is a boolean
 //
@@ -215,8 +193,6 @@ type isBooleanFn struct {
 	IsBoolean Expr `json:"is_boolean"`
 }
 
-func (fn isBooleanFn) String() string { return printFn(fn) }
-
 // IsNull checks if the expression is null
 //
 // Parameters:
@@ -232,8 +208,6 @@ type isNullFn struct {
 	fnApply
 	IsNull Expr `json:"is_null"`
 }
-
-func (fn isNullFn) String() string { return printFn(fn) }
 
 // IsBytes checks if the expression are bytes
 //
@@ -251,8 +225,6 @@ type isBytesFn struct {
 	IsBytes Expr `json:"is_bytes"`
 }
 
-func (fn isBytesFn) String() string { return printFn(fn) }
-
 // IsTimestamp checks if the expression is a timestamp
 //
 // Parameters:
@@ -268,8 +240,6 @@ type isTimestampFn struct {
 	fnApply
 	IsTimestamp Expr `json:"is_timestamp"`
 }
-
-func (fn isTimestampFn) String() string { return printFn(fn) }
 
 // IsDate checks if the expression is a date
 //
@@ -287,8 +257,6 @@ type isDateFn struct {
 	IsDate Expr `json:"is_date"`
 }
 
-func (fn isDateFn) String() string { return printFn(fn) }
-
 // IsString checks if the expression is a string
 //
 // Parameters:
@@ -304,8 +272,6 @@ type isStringFn struct {
 	fnApply
 	IsString Expr `json:"is_string"`
 }
-
-func (fn isStringFn) String() string { return printFn(fn) }
 
 // IsArray checks if the expression is an array
 //
@@ -323,8 +289,6 @@ type isArrayFn struct {
 	IsArray Expr `json:"is_array"`
 }
 
-func (fn isArrayFn) String() string { return printFn(fn) }
-
 // IsObject checks if the expression is an object
 //
 // Parameters:
@@ -340,8 +304,6 @@ type isObjectFn struct {
 	fnApply
 	IsObject Expr `json:"is_object"`
 }
-
-func (fn isObjectFn) String() string { return printFn(fn) }
 
 // IsRef checks if the expression is a ref
 //
@@ -359,8 +321,6 @@ type isRefFn struct {
 	IsRef Expr `json:"is_ref"`
 }
 
-func (fn isRefFn) String() string { return printFn(fn) }
-
 // IsSet checks if the expression is a set
 //
 // Parameters:
@@ -376,8 +336,6 @@ type isSetFn struct {
 	fnApply
 	IsSet Expr `json:"is_set"`
 }
-
-func (fn isSetFn) String() string { return printFn(fn) }
 
 // IsDoc checks if the expression is a document
 //
@@ -395,8 +353,6 @@ type isDocFn struct {
 	IsDoc Expr `json:"is_doc"`
 }
 
-func (fn isDocFn) String() string { return printFn(fn) }
-
 // IsLambda checks if the expression is a Lambda
 //
 // Parameters:
@@ -412,8 +368,6 @@ type isLambdaFn struct {
 	fnApply
 	IsLambda Expr `json:"is_lambda"`
 }
-
-func (fn isLambdaFn) String() string { return printFn(fn) }
 
 // IsCollection checks if the expression is a collection
 //
@@ -431,8 +385,6 @@ type isCollectionFn struct {
 	IsCollection Expr `json:"is_collection"`
 }
 
-func (fn isCollectionFn) String() string { return printFn(fn) }
-
 // IsDatabase checks if the expression is a database
 //
 // Parameters:
@@ -448,8 +400,6 @@ type isDatabaseFn struct {
 	fnApply
 	IsDatabase Expr `json:"is_database"`
 }
-
-func (fn isDatabaseFn) String() string { return printFn(fn) }
 
 // IsIndex checks if the expression is an index
 //
@@ -467,8 +417,6 @@ type isIndexFn struct {
 	IsIndex Expr `json:"is_index"`
 }
 
-func (fn isIndexFn) String() string { return printFn(fn) }
-
 // IsFunction checks if the expression is a function
 //
 // Parameters:
@@ -484,8 +432,6 @@ type isFunctionFn struct {
 	fnApply
 	IsFunction Expr `json:"is_function"`
 }
-
-func (fn isFunctionFn) String() string { return printFn(fn) }
 
 // IsKey checks if the expression is a key
 //
@@ -503,8 +449,6 @@ type isKeyFn struct {
 	IsKey Expr `json:"is_key"`
 }
 
-func (fn isKeyFn) String() string { return printFn(fn) }
-
 // IsToken checks if the expression is a token
 //
 // Parameters:
@@ -520,8 +464,6 @@ type isTokenFn struct {
 	fnApply
 	IsToken Expr `json:"is_token"`
 }
-
-func (fn isTokenFn) String() string { return printFn(fn) }
 
 // IsCredentials checks if the expression is a credentials
 //
@@ -539,8 +481,6 @@ type isCredentialsFn struct {
 	IsCredentials Expr `json:"is_credentials"`
 }
 
-func (fn isCredentialsFn) String() string { return printFn(fn) }
-
 // IsRole checks if the expression is a role
 //
 // Parameters:
@@ -556,5 +496,3 @@ type isRoleFn struct {
 	fnApply
 	IsRole Expr `json:"is_role"`
 }
-
-func (fn isRoleFn) String() string { return printFn(fn) }

@@ -18,8 +18,6 @@ type singletonFn struct {
 	Singleton Expr `json:"singleton"`
 }
 
-func (fn singletonFn) String() string { return printFn(fn) }
-
 // Events returns the history of document's data of the provided ref.
 //
 // Parameters:
@@ -36,8 +34,6 @@ type eventsFn struct {
 	Events Expr `json:"events"`
 }
 
-func (fn eventsFn) String() string { return printFn(fn) }
-
 // Match returns the set of documents for the specified index.
 //
 // Parameters:
@@ -53,13 +49,6 @@ type matchFn struct {
 	fnApply
 	Match Expr `json:"match"`
 	Terms Expr `json:"terms,omitempty"`
-}
-
-func (fn matchFn) String() string {
-	if fn.Terms != nil {
-		return "MatchTerm(" + fn.Match.String() + ", " + fn.Terms.String() + ")"
-	}
-	return printFn(fn)
 }
 
 // MatchTerm returns th set of documents that match the terms in an index.
@@ -90,8 +79,6 @@ type unionFn struct {
 	Union Expr `json:"union" faunarepr:"varargs"`
 }
 
-func (fn unionFn) String() string { return printFn(fn) }
-
 // Merge two or more objects..
 //
 // Parameters:
@@ -113,8 +100,6 @@ type mergeFn struct {
 	With   Expr `json:"with"`
 	Lambda Expr `json:"lambda,omitempty" faunarepr:"optfn,name=ConflictResolver"`
 }
-
-func (fn mergeFn) String() string { return printFn(fn) }
 
 // Reduce function applies a reducer Lambda function serially to each member of the collection to produce a single value.
 //
@@ -142,8 +127,6 @@ type reduceFn struct {
 	Collection Expr `json:"collection"`
 }
 
-func (fn reduceFn) String() string { return printFn(fn) }
-
 // Intersection returns the set of documents that are present in all of the specified sets.
 //
 // Parameters:
@@ -162,8 +145,6 @@ type intersectionFn struct {
 	Intersection Expr `json:"intersection" faunarepr:"varargs"`
 }
 
-func (fn intersectionFn) String() string { return printFn(fn) }
-
 // Difference returns the set of documents that are present in the first set but not in
 // any of the other specified sets.
 //
@@ -181,8 +162,6 @@ type differenceFn struct {
 	Difference Expr `json:"difference" faunarepr:"varargs"`
 }
 
-func (fn differenceFn) String() string { return printFn(fn) }
-
 // Distinct returns the set of documents with duplicates removed.
 //
 // Parameters:
@@ -198,8 +177,6 @@ type distinctFn struct {
 	fnApply
 	Distinct Expr `json:"distinct"`
 }
-
-func (fn distinctFn) String() string { return printFn(fn) }
 
 // Join derives a set of resources by applying each document in the source set to the target set.
 //
@@ -218,8 +195,6 @@ type joinFn struct {
 	Join Expr `json:"join"`
 	With Expr `json:"with"`
 }
-
-func (fn joinFn) String() string { return printFn(fn) }
 
 // Range filters the set based on the lower/upper bounds (inclusive).
 //
@@ -242,5 +217,3 @@ type rangeFn struct {
 	From  Expr `json:"from"`
 	To    Expr `json:"to"`
 }
-
-func (fn rangeFn) String() string { return printFn(fn) }

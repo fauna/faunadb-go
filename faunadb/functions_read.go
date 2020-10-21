@@ -25,8 +25,6 @@ type getFn struct {
 	TS  Expr `json:"ts,omitempty" faunarepr:"optfn"`
 }
 
-func (fn getFn) String() string { return printFn(fn) }
-
 // KeyFromSecret retrieves the key object from the given secret.
 //
 // Parameters:
@@ -42,8 +40,6 @@ type keyFromSecretFn struct {
 	fnApply
 	KeyFromSecret Expr `json:"key_from_secret"`
 }
-
-func (fn keyFromSecretFn) String() string { return printFn(fn) }
 
 // Exists returns boolean true if the provided ref exists (in the case of an document),
 // or is non-empty (in the case of a set), and false otherwise. Optional parameters: TS.
@@ -68,8 +64,6 @@ type existsFn struct {
 	Exists Expr `json:"exists"`
 	TS     Expr `json:"ts,omitempty" faunarepr:"optfn"`
 }
-
-func (fn existsFn) String() string { return printFn(fn) }
 
 // Paginate retrieves a page from the provided set.
 //
@@ -101,5 +95,3 @@ type paginateFn struct {
 	Sources  Expr `json:"sources,omitempty" faunarepr:"optfn"`
 	TS       Expr `json:"ts,omitempty" faunarepr:"optfn"`
 }
-
-func (fn paginateFn) String() string { return printFn(fn) }

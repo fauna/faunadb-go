@@ -21,8 +21,6 @@ type mapFn struct {
 	Collection Expr `json:"collection"`
 }
 
-func (fn mapFn) String() string { return printFn(fn) }
-
 // Foreach applies the lambda expression on each element of a collection or Page.
 // The original collection is returned.
 //
@@ -43,8 +41,6 @@ type foreachFn struct {
 	Foreach    Expr `json:"foreach"`
 	Collection Expr `json:"collection"`
 }
-
-func (fn foreachFn) String() string { return printFn(fn) }
 
 // Filter applies the lambda expression on each element of a collection or Page.
 // It returns a new collection of the same type containing only the elements in which the
@@ -68,8 +64,6 @@ type filterFn struct {
 	Collection Expr `json:"collection"`
 }
 
-func (fn filterFn) String() string { return printFn(fn) }
-
 // Take returns a new collection containing num elements from the head of the original collection.
 //
 // Parameters:
@@ -87,8 +81,6 @@ type takeFn struct {
 	Take       Expr `json:"take"`
 	Collection Expr `json:"collection"`
 }
-
-func (fn takeFn) String() string { return printFn(fn) }
 
 // Drop returns a new collection containing the remaining elements from the original collection
 // after num elements have been removed.
@@ -108,8 +100,6 @@ type dropFn struct {
 	Drop       Expr `json:"drop"`
 	Collection Expr `json:"collection"`
 }
-
-func (fn dropFn) String() string { return printFn(fn) }
 
 // Prepend returns a new collection that is the result of prepending elems to coll.
 //
@@ -131,8 +121,6 @@ type prependFn struct {
 	Collection Expr `json:"collection"`
 }
 
-func (fn prependFn) String() string { return printFn(fn) }
-
 // Append returns a new collection that is the result of appending elems to coll.
 //
 // Parameters:
@@ -153,8 +141,6 @@ type appendFn struct {
 	Collection Expr `json:"collection"`
 }
 
-func (fn appendFn) String() string { return printFn(fn) }
-
 // IsEmpty returns true if the collection is the empty set, else false.
 //
 // Parameters:
@@ -171,8 +157,6 @@ type isEmptyFn struct {
 	IsEmpty Expr `json:"is_empty"`
 }
 
-func (fn isEmptyFn) String() string { return printFn(fn) }
-
 // IsNonEmpty returns false if the collection is the empty set, else true
 //
 // Parameters:
@@ -188,8 +172,6 @@ type isNonEmptyFn struct {
 	fnApply
 	IsNonEmpty Expr `json:"is_nonempty"`
 }
-
-func (fn isNonEmptyFn) String() string { return printFn(fn) }
 
 // Contains checks if the provided value contains the path specified.
 //
@@ -213,8 +195,6 @@ type containsFn struct {
 	Value    Expr `json:"in"`
 }
 
-func (fn containsFn) String() string { return printFn(fn) }
-
 // ContainsPath checks if the provided value contains the path specified.
 //
 // Parameters:
@@ -234,8 +214,6 @@ type containsPathFn struct {
 	ContainsPath Expr `json:"contains_path"`
 	Value        Expr `json:"in"`
 }
-
-func (fn containsPathFn) String() string { return printFn(fn) }
 
 // ContainsValue checks if the provided value contains the value specified.
 //
@@ -257,8 +235,6 @@ type containsValueFn struct {
 	Value         Expr `json:"in"`
 }
 
-func (fn containsValueFn) String() string { return printFn(fn) }
-
 // ContainsField checks if the provided value contains the field specified.
 //
 // Parameters:
@@ -279,8 +255,6 @@ type containsFieldFn struct {
 	Value         Expr `json:"in"`
 }
 
-func (fn containsFieldFn) String() string { return printFn(fn) }
-
 // Count returns the number of elements in the collection.
 //
 // Parameters:
@@ -299,8 +273,6 @@ type countFn struct {
 	Count Expr `json:"count"`
 }
 
-func (fn countFn) String() string { return printFn(fn) }
-
 // Sum sums the elements in the collection.
 //
 // Parameters:
@@ -318,8 +290,6 @@ type sumFn struct {
 	fnApply
 	Sum Expr `json:"sum"`
 }
-
-func (fn sumFn) String() string { return printFn(fn) }
 
 // Mean returns the mean of all elements in the collection.
 //
@@ -340,8 +310,6 @@ type meanFn struct {
 	Mean Expr `json:"mean"`
 }
 
-func (fn meanFn) String() string { return printFn(fn) }
-
 // Reverse accepts a set, array or page and returns the same type with elements in reversed order.
 //
 // Parameters:
@@ -360,5 +328,3 @@ type reverseFn struct {
 	fnApply
 	Reverse Expr `json:"reverse"`
 }
-
-func (fn reverseFn) String() string { return printFn(fn) }
