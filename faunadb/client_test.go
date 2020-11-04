@@ -1802,12 +1802,12 @@ func (s *ClientTestSuite) TestEvalContainsFunctions() {
 
 	assertContainsField("collection", doc, true)
 	assertContainsField("ts", val, true)
-	assertContainsField("ref", coll, true)
+	assertContainsField("ref", coll, false)
 	assertContainsField("not-exist", coll, false)
 	assertContainsField("after", f.Paginate(f.Indexes(), f.Size(1)), true)
 
-	assertContainsPath("ref", coll, true)
-	assertContainsPath("ts", coll, true)
+	assertContainsPath("ref", coll, false)
+	assertContainsPath("ts", coll, false)
 	assertContainsPath("after", f.Paginate(f.Indexes(), f.Size(1)), true)
 	assertContainsPath(f.Arr{"data", 1}, f.Paginate(f.Indexes(), f.Size(2)), true)
 	assertContainsPath(f.Arr{"data", 100}, f.Paginate(f.Indexes(), f.Size(2)), false)
