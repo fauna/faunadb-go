@@ -2,15 +2,18 @@ package faunadb
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -18,9 +21,10 @@ import (
 )
 
 const (
-	apiVersion        = "3"
+	apiVersion        = "4"
 	defaultEndpoint   = "https://db.fauna.com"
 	requestTimeout    = 60 * time.Second
+	streamTimeout     = 60 * time.Minute
 	headerTxnTime     = "X-Txn-Time"
 	headerLastSeenTxn = "X-Last-Seen-Txn"
 	headerFaunaDriver = "go"
@@ -81,6 +85,12 @@ type faunaRequest struct {
 	headers map[string]string
 }
 
+type faunaResponse struct {
+	response *http.Response
+	ctx      context.Context
+	cncl     context.CancelFunc
+}
+
 // ObserverCallback is the callback type for requests.
 type ObserverCallback func(*QueryResult)
 
@@ -98,6 +108,7 @@ If you need to create a client with a different secret, use the NewSessionClient
 type FaunaClient struct {
 	basicAuth        string
 	endpoint         string
+	streamEndpoint   string
 	http             *http.Client
 	isTxnTimeEnabled bool
 	lastTxnTime      int64
@@ -111,6 +122,8 @@ type QueryResult struct {
 	Client     *FaunaClient
 	Query      Expr
 	Result     Value
+	Event      StreamEvent
+	Streaming  bool
 	StatusCode int
 	Headers    map[string][]string
 	StartTime  time.Time
@@ -132,6 +145,11 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	if client.endpoint == "" {
 		client.endpoint = defaultEndpoint
 	}
+	streamURI := "stream"
+	if client.endpoint[len(streamURI)-1:] != "/" {
+		streamURI = "/" + streamURI
+	}
+	client.streamEndpoint = client.endpoint + streamURI
 
 	if client.http == nil {
 		dial := func(network, addr string, cfg *tls.Config) (net.Conn, error) {
@@ -144,10 +162,8 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 			DialTLS:   dial,
 			AllowHTTP: true,
 		}
-
 		client.http = &http.Client{
 			Transport: transport,
-			Timeout: requestTimeout,
 		}
 	}
 
@@ -188,20 +204,32 @@ func (client *FaunaClient) BatchQueryResult(expr []Expr) (value []Value, headers
 
 // Query is the primary method used to send a query language expression to FaunaDB.
 func (client *FaunaClient) Query(expr Expr, configs ...QueryConfig) (value Value, err error) {
+	var response faunaResponse
+	var payload []byte
+
 	startTime := time.Now()
-	response, err := client.performRequest(expr, configs)
 
-	if response != nil {
-		defer func() {
-			_, _ = io.Copy(ioutil.Discard, response.Body) // Discard remaining bytes so the connection can be reused
-			_ = response.Body.Close()
-		}()
-	}
+	if payload, err = client.prepareRequestBody(expr); err == nil {
+		body := bytes.NewReader(payload)
 
-	if err == nil {
-		if err = checkForResponseErrors(response); err == nil {
-			value, err = client.parseResponse(response, expr, startTime)
+		response, err = client.performRequest(body, client.endpoint, false, configs)
+
+		httpResponse := response.response
+
+		if httpResponse != nil {
+			defer func() {
+				_, _ = io.Copy(ioutil.Discard, httpResponse.Body) // Discard remaining bytes so the connection can be reused
+				_ = httpResponse.Body.Close()
+				response.cncl()
+			}()
 		}
+
+		if err == nil {
+			if err = checkForResponseErrors(httpResponse); err == nil {
+				value, err = client.parseResponse(httpResponse, expr, false, startTime)
+			}
+		}
+
 	}
 
 	return
@@ -235,6 +263,100 @@ func (client *FaunaClient) NewWithObserver(observer ObserverCallback) *FaunaClie
 	return client.newClient(client.basicAuth, observer)
 }
 
+// Stream creates a stream subscription to the result of the given expression.
+//
+// The subscription returned by this method does not issue any requests until
+// the subscription's Start method is called. Make sure to
+// subscribe to the events of interest, otherwise the received events are simply
+// ignored.
+func (client *FaunaClient) Stream(query Expr, config ...StreamConfig) StreamSubscription {
+	return newSubscription(client, query, config...)
+}
+
+func (client *FaunaClient) startStream(subscription *StreamSubscription) (err error) {
+	if subscription.Status() != StreamConnIdle {
+		err = errors.New("stream subscription already started")
+		return
+	}
+
+	startTime := time.Now()
+	if payload, err := client.prepareRequestBody(subscription.query); err == nil {
+		body := ioutil.NopCloser(bytes.NewReader(payload))
+
+		var endpoint strings.Builder
+		endpoint.WriteString(client.streamEndpoint)
+
+		if len(subscription.config.Fields) > 0 {
+			endpoint.WriteString("?fields=")
+			count := len(subscription.config.Fields)
+			for i := 0; i < count; i++ {
+				endpoint.WriteString(string(subscription.config.Fields[i]))
+				if i <= count-1 {
+					endpoint.WriteString(",")
+				}
+			}
+		}
+
+		subscription.status.Set(StreamConnOpening)
+		if response, err := client.performRequest(body, endpoint.String(), true, nil); err == nil {
+			httpResponse := response.response
+			_ = client.storeLastTxnTime(httpResponse.Header)
+			if err = checkForResponseErrors(httpResponse); err != nil {
+
+				subscription.status.Set(StreamConnError)
+				subscription.dispatcher.Dispatch(ErrorEvent{
+					txn: startTime.Unix(),
+					err: err,
+				})
+
+				httpResponse.Body.Close()
+				response.cncl()
+				return err
+			}
+
+			go func() {
+				subscription.status.Set(StreamConnActive)
+
+				defer httpResponse.Body.Close()
+				defer response.cncl()
+
+				for {
+					if subscription.status.Get() != StreamConnActive {
+						break
+					}
+
+					var val Value
+					var obj Obj
+
+					if val, err = client.parseResponse(httpResponse, subscription.query, true, startTime); err == nil {
+						if err = val.Get(&obj); err == nil {
+							var event StreamEvent
+							if event, err = unMarshalStreamEvent(obj); err == nil {
+								client.SyncLastTxnTime(event.Txn())
+								subscription.dispatcher.Dispatch(event)
+							}
+						}
+					} else {
+						if err == io.EOF {
+							subscription.status.Set(StreamConnClosed)
+						} else {
+							subscription.status.Set(StreamConnError)
+						}
+						subscription.dispatcher.Dispatch(ErrorEvent{
+							txn: startTime.Unix(),
+							err: err,
+						})
+						break
+					}
+				}
+			}()
+
+		}
+	}
+
+	return
+}
+
 // GetLastTxnTime gets the freshest timestamp reported to this client.
 func (client *FaunaClient) GetLastTxnTime() int64 {
 	if client.isTxnTimeEnabled {
@@ -264,6 +386,7 @@ func (client *FaunaClient) newClient(basicAuth string, observer ObserverCallback
 	return &FaunaClient{
 		basicAuth:        basicAuth,
 		endpoint:         client.endpoint,
+		streamEndpoint:   client.streamEndpoint,
 		headers:          client.headers,
 		http:             client.http,
 		isTxnTimeEnabled: client.isTxnTimeEnabled,
@@ -273,62 +396,85 @@ func (client *FaunaClient) newClient(basicAuth string, observer ObserverCallback
 	}
 }
 
-func (client *FaunaClient) performRequest(expr Expr, configs []QueryConfig) (response *http.Response, err error) {
+func (client *FaunaClient) performRequest(body io.Reader, endpoint string, streaming bool, configs []QueryConfig) (response faunaResponse, err error) {
 	var request *http.Request
-	if request, err = client.prepareRequest(expr, configs); err == nil {
-		response, err = client.http.Do(request)
+	var timeout time.Duration = requestTimeout
+	if streaming {
+		timeout = streamTimeout
+	}
+	response.ctx, response.cncl = context.WithTimeout(context.Background(), timeout)
+	if request, err = client.prepareRequest(response.ctx, body, endpoint, configs); err == nil {
+		response.response, err = client.http.Do(request)
 	}
 
 	return
 }
 
-func (client *FaunaClient) prepareRequest(expr Expr, configs []QueryConfig) (request *http.Request, err error) {
-	var body []byte
+func (client *FaunaClient) prepareRequestBody(expr Expr) (payload []byte, err error) {
+	payload, err = json.Marshal(expr)
+	return
+}
 
-	if body, err = json.Marshal(expr); err == nil {
-		if request, err = http.NewRequest("POST", client.endpoint, bytes.NewReader(body)); err == nil {
-			request.Header.Add("Authorization", client.basicAuth)
-			for k, v := range client.headers {
+func (client *FaunaClient) prepareRequest(ctx context.Context, body io.Reader, endpoint string, configs []QueryConfig) (request *http.Request, err error) {
+	if request, err = http.NewRequestWithContext(ctx, "POST", endpoint, body); err == nil {
+		request.Header.Add("Authorization", client.basicAuth)
+		for k, v := range client.headers {
+			request.Header.Add(k, v)
+		}
+
+		if len(configs) > 0 {
+			req := &faunaRequest{
+				headers: map[string]string{},
+			}
+			for _, config := range configs {
+				config(req)
+			}
+			for k, v := range req.headers {
 				request.Header.Add(k, v)
 			}
-
-			if len(configs) > 0 {
-				req := &faunaRequest{
-					headers: map[string]string{},
-				}
-				for _, config := range configs {
-					config(req)
-				}
-				for k, v := range req.headers {
-					request.Header.Add(k, v)
-				}
-			}
-
-			client.addLastTxnTimeHeader(request)
 		}
+
+		client.addLastTxnTimeHeader(request)
 	}
 
 	return
 }
 
-func (client *FaunaClient) parseResponse(response *http.Response, expr Expr, startTime time.Time) (value Value, err error) {
+func (client *FaunaClient) parseResponse(response *http.Response, expr Expr, streaming bool, startTime time.Time) (value Value, err error) {
 	var parsedResponse Value
 
-	if err = client.storeLastTxnTime(response.Header); err == nil {
-		if parsedResponse, err = parseJSON(response.Body); err == nil {
-			value, err = parsedResponse.At(resource).GetValue()
-			client.callObserver(response, expr, value, startTime)
+	if !streaming {
+		if err = client.storeLastTxnTime(response.Header); err != nil {
+			return
 		}
+	}
+
+	if parsedResponse, err = parseJSON(response.Body); err == nil {
+		if streaming {
+			value = parsedResponse
+		} else {
+			value, err = parsedResponse.At(resource).GetValue()
+		}
+		client.callObserver(response, expr, streaming, value, startTime)
 	}
 
 	return
 }
 
-func (client *FaunaClient) callObserver(response *http.Response, expr Expr, value Value, startTime time.Time) {
+func (client *FaunaClient) callObserver(response *http.Response, expr Expr, streaming bool, value Value, startTime time.Time) {
+	var event StreamEvent
+	if streaming {
+		var obj Obj
+		value.Get(&obj)
+		event, _ = unMarshalStreamEvent(obj)
+		value = nil
+	}
 	queryResult := &QueryResult{
 		client,
 		expr,
 		value,
+		event,
+		streaming,
 		response.StatusCode,
 		response.Header,
 		startTime,
