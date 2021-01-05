@@ -23,9 +23,16 @@ func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
 			continue
 		}
 
-		fieldName := fieldName(aStructType.Field(i))
+		fieldName, ignore, omitempty, err := parseTag(aStructType.Field(i))
+		if err != nil {
+			//TODO Handle error in case of bad tag options? Currently invalid options are just skipped
+		}
 
-		if fieldName != "-" {
+		if omitempty && isEmptyValue(field) {
+			continue
+		}
+
+		if !ignore && fieldName != "" {
 			fields[fieldName] = field
 		}
 	}

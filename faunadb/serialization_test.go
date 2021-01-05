@@ -173,6 +173,22 @@ func TestSerializeStructWithTags(t *testing.T) {
 	)
 }
 
+func TestSerializeStructWithOmitEmptyTags(t *testing.T) {
+	type user struct {
+		Name     string  `fauna:"name,omitempty"`
+		LastName string  `fauna:"last_name,omitempty"`
+		Age      int     `fauna:"age,omitempty"`
+		Siblings int     `fauna:"siblings,omitempty"`
+		Height   float64 `fauna:"height,omitempty"`
+		Weight   float64 `fauna:"weight,omitempty"`
+	}
+
+	assertJSON(t,
+		Obj{"data": user{"Jhon", "", 18, 0, 123.123, 0.0}},
+		`{"object":{"data":{"object":{"age":18, "height":123.123, "name":"Jhon"}}}}`,
+	)
+}
+
 func TestSerializeStructWithIgnoredFields(t *testing.T) {
 	type user struct {
 		Name string `fauna:"name"`
