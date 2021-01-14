@@ -115,7 +115,7 @@ func (c *valueDecoder) makeNewMap(obj map[string]Value) error {
 	return c.assign(newMap)
 }
 
-func (c *valueDecoder) fillStructFields(obj map[string]Value) error {
+func (c *valueDecoder) fillStructFields2(obj map[string]Value) error {
 	newStruct := reflect.New(c.targetType).Elem()
 
 	for key, field := range exportedStructFields(newStruct) {
@@ -123,10 +123,40 @@ func (c *valueDecoder) fillStructFields(obj map[string]Value) error {
 		if !found {
 			continue
 		}
+		if err := value.Get(field); err != nil {
+			return DecodeError{path: pathFromKeys(key), err: err}
+		}
+	}
+
+	return c.assign(newStruct)
+}
+
+func (c *valueDecoder) fillStructFields(obj map[string]Value) error {
+	newStruct := reflect.New(c.targetType).Elem()
+	aStructType := newStruct.Type()
+
+	//need to get all StructFields and unpack json values into the fields to check if they are empty - use allStructFields rather than
+	for key, field := range allStructFields(newStruct) {
+		f, _ := aStructType.FieldByName(key)
+		if !field.CanInterface() {
+			continue
+		}
+		fieldName, ignored, _, _ := parseTag(f) //need to parse tags
+
+		value, found := obj[fieldName]
+
+		if !found {
+			continue
+		}
+
+		if ignored {
+			continue
+		}
 
 		if err := value.Get(field); err != nil {
 			return DecodeError{path: pathFromKeys(key), err: err}
 		}
+
 	}
 
 	return c.assign(newStruct)

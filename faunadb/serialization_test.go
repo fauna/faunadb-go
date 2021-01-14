@@ -175,17 +175,21 @@ func TestSerializeStructWithTags(t *testing.T) {
 
 func TestSerializeStructWithOmitEmptyTags(t *testing.T) {
 	type user struct {
-		Name     string  `fauna:"name,omitempty"`
-		LastName string  `fauna:"last_name,omitempty"`
-		Age      int     `fauna:"age,omitempty"`
-		Siblings int     `fauna:"siblings,omitempty"`
-		Height   float64 `fauna:"height,omitempty"`
-		Weight   float64 `fauna:"weight,omitempty"`
+		Name          string   `fauna:"name,omitempty"`
+		LastName      string   `fauna:"last_name,omitempty"`
+		Age           int      `fauna:"age,omitempty"`
+		Siblings      int      `fauna:"siblings,omitempty"`
+		Height        float64  `fauna:"height,omitempty"`
+		Weight        float64  `fauna:"weight,omitempty"`
+		HeightPointer *float64 `fauna:"height_pointer,omitempty"`
+		WeightPointer *float64 `fauna:"weight_pointer,omitempty"`
 	}
 
+	f := func(f float64) *float64 { return &f }
+
 	assertJSON(t,
-		Obj{"data": user{"Jhon", "", 18, 0, 123.123, 0.0}},
-		`{"object":{"data":{"object":{"age":18, "height":123.123, "name":"Jhon"}}}}`,
+		Obj{"data": user{"Jhon", "", 18, 0, 123.123, 0.0, f(123.123), nil}},
+		`{"object":{"data":{"object":{"age":18, "height":123.123,"height_pointer":123.123, "name":"Jhon"}}}}`,
 	)
 }
 

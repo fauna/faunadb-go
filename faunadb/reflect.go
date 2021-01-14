@@ -1,6 +1,8 @@
 package faunadb
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func structToMap(aStruct reflect.Value) map[string]interface{} {
 	res := make(map[string]interface{}, aStruct.NumField())
@@ -10,6 +12,28 @@ func structToMap(aStruct reflect.Value) map[string]interface{} {
 	}
 
 	return res
+}
+
+func allStructFields(aStruct reflect.Value) map[string]reflect.Value {
+	fields := make(map[string]reflect.Value)
+	aStructType := aStruct.Type()
+
+	for i, size := 0, aStruct.NumField(); i < size; i++ {
+		field := aStruct.Field(i)
+		structTypeField := aStructType.Field(i)
+		if !field.CanInterface() {
+			continue
+		}
+
+		fieldName, ignore, _, _ := parseTag(aStructType.Field(i))
+
+		if !ignore && fieldName != "" {
+			fields[fieldName] = field
+		}
+		fields[structTypeField.Name] = field
+	}
+
+	return fields
 }
 
 func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
