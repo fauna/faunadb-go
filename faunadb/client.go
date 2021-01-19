@@ -2,15 +2,19 @@ package faunadb
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"strconv"
 	"sync/atomic"
 	"time"
+
+	"golang.org/x/net/http2"
 )
 
 const (
@@ -130,8 +134,19 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	}
 
 	if client.http == nil {
+		dial := func(network, addr string, cfg *tls.Config) (net.Conn, error) {
+			return net.Dial(network, addr)
+		}
+		if len(client.endpoint) > 5 && client.endpoint[:5] == "https" {
+			dial = nil
+		}
+		transport := &http2.Transport{
+			DialTLS:   dial,
+			AllowHTTP: true,
+		}
+
 		client.http = &http.Client{
-			Timeout: requestTimeout,
+			Transport: transport,
 		}
 	}
 
