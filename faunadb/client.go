@@ -147,6 +147,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 
 		client.http = &http.Client{
 			Transport: transport,
+			Timeout: requestTimeout,
 		}
 	}
 
