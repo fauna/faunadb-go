@@ -268,9 +268,10 @@ func (client *FaunaClient) NewWithObserver(observer ObserverCallback) *FaunaClie
 // the subscription's Start method is called. Make sure to
 // subscribe to the events of interest, otherwise the received events are simply
 // ignored.
-func (client *FaunaClient) Stream(query Expr) StreamSubscription {
-	return newSubscription(client, query)
+func (client *FaunaClient) Stream(query Expr, config ...StreamConfig) StreamSubscription {
+	return newSubscription(client, query, config...)
 }
+
 
 func (client *FaunaClient) startStream(subscription *StreamSubscription) (err error) {
 	if subscription.Status() != StreamConnIdle {

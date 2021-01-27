@@ -2,7 +2,7 @@ package faunadb
 
 import "sync"
 
-func newSubscription(client *FaunaClient, query Expr) StreamSubscription {
+func newSubscription(client *FaunaClient, query Expr, config ...StreamConfig) StreamSubscription {
 	sub := StreamSubscription{
 		query,
 		streamConfig{
@@ -11,6 +11,9 @@ func newSubscription(client *FaunaClient, query Expr) StreamSubscription {
 		client,
 		streamConnectionStatus{status: StreamConnIdle},
 		make(chan StreamEvent),
+	}
+	for _, fn := range config {
+		fn(&sub)
 	}
 	return sub
 }
