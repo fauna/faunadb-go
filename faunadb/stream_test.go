@@ -1,6 +1,7 @@
 package faunadb_test
 
 import (
+	"io"
 	"sync"
 	"testing"
 	"time"
@@ -79,84 +80,85 @@ func (s *StreamsTestSuite) TestSelectFields() {
 
 	wg.Add(1)
 	sub := s.client.Stream(ref, f.Fields("diff", "prev", "document"))
-	sub.On("error", s.defaultStreamError)
-	sub.On("start", func(se f.StreamEvent) {
-		s.Equal(f.StartEventT, se.Type())
-		s.NotZero(se.Txn())
-		e := se.(f.StartEvent)
-		s.NotNil(e.Event())
-
-		s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-	})
-
-	sub.On("version", func(se f.StreamEvent) {
-		s.Equal(f.VersionEventT, se.Type())
-		s.NotZero(se.Txn())
-		evt := se.(f.VersionEvent)
-		body := evt.Event()
-		s.NotNil(body)
-
-		s.True(s.keyInMap("diff", body))
-		s.True(s.keyInMap("prev", body))
-		s.True(s.keyInMap("document", body))
-		s.False(s.keyInMap("action", body))
-
-		wg.Done()
-	})
-
 	sub.Start()
-	wg.Wait()
-}
-/*
-func (s *StreamsTestSuite) TestMultipleActiveStreams() {
-	var wg sync.WaitGroup
-	var counter counterMutex
-	var activeStreams int64 = 101
-
-	wg.Add(int(activeStreams))
-
-	for i := 0; i < int(activeStreams); i++ {
-
-		ref := s.createDocument()
-		sub := s.client.Stream(ref)
-
-		sub.On("error", s.defaultStreamError)
-
-		sub.On("start", func(se f.StreamEvent) {
-			s.Equal(f.StartEventT, se.Type())
-			s.NotZero(se.Txn())
-			e := se.(f.StartEvent)
+	for evt := range sub.Messages() {
+		switch evt.Type() {
+		case f.StartEventT:
+			s.Equal(f.StartEventT, evt.Type())
+			s.NotZero(evt.Txn())
+			e := evt.(f.StartEvent)
 			s.NotNil(e.Event())
-
-			_, err := s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-			s.NoError(err)
-		})
-
-		sub.On("version", func(se f.StreamEvent) {
-			s.Equal(f.VersionEventT, se.Type())
-			s.NotZero(se.Txn())
-			evt := se.(f.VersionEvent)
+			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+		case f.VersionEventT:
+			s.Equal(f.VersionEventT, evt.Type())
+			s.NotZero(evt.Txn())
+			evt := evt.(f.VersionEvent)
 			body := evt.Event()
 			s.NotNil(body)
 
-			counter.Inc()
+			s.True(s.keyInMap("diff", body))
+			s.True(s.keyInMap("prev", body))
+			s.True(s.keyInMap("document", body))
+			s.False(s.keyInMap("action", body))
 
-			for {
-				if counter.Value() == activeStreams {
-					break
-				}
-				runtime.Gosched()
-			}
-
+			sub.Close()
 			wg.Done()
-		})
+		case f.ErrorEventT:
+			s.defaultStreamError(evt)
+		}
+	}
+	wg.Wait()
+}
 
+/*func (s *StreamsTestSuite) TestMultipleActiveStreams() {
+	var wg sync.WaitGroup
+	var counter counterMutex
+	var activeStreams int64 = 4
+
+	wg.Add(int(activeStreams))
+
+	ref := s.createDocument()
+
+	for i := 0; i < int(activeStreams); i++ {
+		sub := s.client.Stream(ref)
 		sub.Start()
+		for evt := range sub.Messages() {
+			switch evt.Type() {
+
+			case f.StartEventT:
+				s.Equal(f.StartEventT, evt.Type())
+				s.NotZero(evt.Txn())
+				e := evt.(f.StartEvent)
+				s.NotNil(e.Event())
+				_, err := s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+				s.NoError(err)
+
+			case f.VersionEventT:
+				s.Equal(f.VersionEventT, evt.Type())
+				s.NotZero(evt.Txn())
+				evt := evt.(f.VersionEvent)
+				body := evt.Event()
+				s.NotNil(body)
+
+				counter.Inc()
+				sub.Close()
+
+				//for {
+				//	if counter.Value() == activeStreams {
+				//		break
+				//	}
+				//	runtime.Gosched()
+				//}
+				wg.Done()
+			case f.ErrorEventT:
+				s.defaultStreamError(evt)
+			}
+		}
 	}
 
 	wg.Wait()
 	s.Require().Equal(activeStreams, counter.Value())
-}
+}*/
 
 func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 	var wg sync.WaitGroup
@@ -165,28 +167,31 @@ func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 
 	wg.Add(1)
 	sub := s.client.Stream(ref)
-	sub.On("error", s.defaultStreamError)
-	sub.On("start", func(se f.StreamEvent) {
-		s.Equal(f.StartEventT, se.Type())
-		s.NotZero(se.Txn())
-		e := se.(f.StartEvent)
-		s.NotNil(e.Event())
-
-		s.Greater(s.client.GetLastTxnTime(), lastTxnTime)
-		s.GreaterOrEqual(s.client.GetLastTxnTime(), e.Txn())
-
-		s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-	})
-
-	sub.On("version", func(se f.StreamEvent) {
-		s.Equal(f.VersionEventT, se.Type())
-
-		s.NotZero(se.Txn())
-		s.Equal(se.Txn(), s.client.GetLastTxnTime())
-
-		wg.Done()
-	})
 	sub.Start()
+	for evt := range sub.Messages() {
+		switch evt.Type() {
+		case f.StartEventT:
+			s.Equal(f.StartEventT, evt.Type())
+			s.NotZero(evt.Txn())
+			e := evt.(f.StartEvent)
+			s.NotNil(e.Event())
+
+			s.Greater(s.client.GetLastTxnTime(), lastTxnTime)
+			s.GreaterOrEqual(s.client.GetLastTxnTime(), e.Txn())
+
+			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+		case f.VersionEventT:
+			s.Equal(f.VersionEventT, evt.Type())
+
+			s.NotZero(evt.Txn())
+			s.Equal(evt.Txn(), s.client.GetLastTxnTime())
+
+			sub.Close()
+			wg.Done()
+		case f.ErrorEventT:
+			s.defaultStreamError(evt)
+		}
+	}
 	wg.Wait()
 }
 
@@ -195,18 +200,12 @@ func (s *StreamsTestSuite) TestHandleBadQuery() {
 	query := f.StringV("just a boring string")
 
 	wg.Add(1)
-
 	sub := s.client.Stream(query)
-	sub.On("start", func(se f.StreamEvent) { s.FailNow(se.String()) })
-	sub.On(f.ErrorEventT, func(se f.StreamEvent) {
-		s.Equal(se.Type(), f.ErrorEventT)
-		evt := se.(f.ErrorEvent)
-		s.EqualError(evt.Error(), "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, got String.")
-		wg.Done()
-	})
-	sub.Start()
-	wg.Wait()
+	err := sub.Start()
+	s.EqualError(err, "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, got String.")
+
 }
+
 
 func (s *StreamsTestSuite) TestStartActiveStream() {
 	var wg sync.WaitGroup
@@ -215,18 +214,19 @@ func (s *StreamsTestSuite) TestStartActiveStream() {
 	wg.Add(1)
 
 	sub := s.client.Stream(query)
-	sub.On(f.ErrorEventT, s.defaultStreamError)
-
-	sub.On("start", func(se f.StreamEvent) {
-		s.Require().Equal(f.StreamConnActive, sub.Status())
-		s.Require().EqualError(sub.Start(), "stream subscription already started")
-		sub.Close()
-		wg.Done()
-	})
-
-	s.Equal(f.StreamConnIdle, sub.Status())
 	sub.Start()
+	for evt := range sub.Messages() {
+		switch evt.Type() {
+		case f.StartEventT:
+			s.Require().Equal(f.StreamConnActive, sub.Status())
+			s.Require().EqualError(sub.Start(), "stream subscription already started")
 
+			sub.Close()
+			wg.Done()
+		case f.ErrorEventT:
+			s.defaultStreamError(evt)
+		}
+	}
 	wg.Wait()
 	s.Equal(f.StreamConnClosed, sub.Status())
 }
@@ -246,35 +246,33 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 	client := s.client.NewSessionClient(secret)
 
 	sub := client.Stream(ref)
-	sub.On("start", func(se f.StreamEvent) {
-		s.Equal(f.StartEventT, se.Type())
-		s.NotZero(se.Txn())
-		e := se.(f.StartEvent)
-		s.NotNil(e.Event())
-
-		_, err := f.AdminQuery(f.Delete(serverKeyRef))
-		s.Require().NoError(err)
-
-		s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-	})
-
-	sub.On("version", func(se f.StreamEvent) {})
-
-	sub.On("error", func(se f.StreamEvent) {
-		evt := se.(f.ErrorEvent)
-		if evt.Error() == io.EOF {
-			return
-		}
-		s.EqualError(evt.Error(), `stream_error: code='permission denied' description='Authorization lost during stream evaluation.'`)
-		wg.Done()
-	})
-
 	sub.Start()
+	for evt := range sub.Messages() {
+		switch evt.Type() {
+		case f.StartEventT:
+			s.Equal(f.StartEventT, evt.Type())
+			s.NotZero(evt.Txn())
+			e := evt.(f.StartEvent)
+			s.NotNil(e.Event())
+
+			_, err := f.AdminQuery(f.Delete(serverKeyRef))
+			s.Require().NoError(err)
+
+			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+		case f.ErrorEventT:
+			evt := evt.(f.ErrorEvent)
+			if evt.Error() == io.EOF {
+				return
+			}
+			s.EqualError(evt.Error(), `stream_error: code='permission denied' description='Authorization lost during stream evaluation.'`)
+			wg.Done()
+		}
+	}
 	wg.Wait()
 
 }
 
-*/func (s *StreamsTestSuite) defaultStreamError(evt f.StreamEvent) {
+func (s *StreamsTestSuite) defaultStreamError(evt f.StreamEvent) {
 	s.Equal(f.ErrorEventT, evt.Type())
 	s.NotZero(evt.Txn())
 	e := evt.(f.ErrorEvent)
