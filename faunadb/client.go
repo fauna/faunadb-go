@@ -24,7 +24,6 @@ const (
 	apiVersion        = "4"
 	defaultEndpoint   = "https://db.fauna.com"
 	requestTimeout    = 60 * time.Second
-	streamTimeout     = 60 * time.Minute
 	headerTxnTime     = "X-Txn-Time"
 	headerLastSeenTxn = "X-Last-Seen-Txn"
 	headerFaunaDriver = "go"
@@ -269,8 +268,8 @@ func (client *FaunaClient) NewWithObserver(observer ObserverCallback) *FaunaClie
 // the subscription's Start method is called. Make sure to
 // subscribe to the events of interest, otherwise the received events are simply
 // ignored.
-func (client *FaunaClient) Stream(query Expr, config ...StreamConfig) StreamSubscription {
-	return newSubscription(client, query, config...)
+func (client *FaunaClient) Stream(query Expr) StreamSubscription {
+	return newSubscription(client, query)
 }
 
 func (client *FaunaClient) startStream(subscription *StreamSubscription) (err error) {
@@ -304,10 +303,10 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 			if err = checkForResponseErrors(httpResponse); err != nil {
 
 				subscription.status.Set(StreamConnError)
-				subscription.dispatcher.Dispatch(ErrorEvent{
+				subscription.messages <- ErrorEvent{
 					txn: startTime.Unix(),
 					err: err,
-				})
+				}
 
 				httpResponse.Body.Close()
 				response.cncl()
@@ -333,7 +332,7 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 							var event StreamEvent
 							if event, err = unMarshalStreamEvent(obj); err == nil {
 								client.SyncLastTxnTime(event.Txn())
-								subscription.dispatcher.Dispatch(event)
+								subscription.messages <- event
 							}
 						}
 					} else {
@@ -342,10 +341,11 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 						} else {
 							subscription.status.Set(StreamConnError)
 						}
-						subscription.dispatcher.Dispatch(ErrorEvent{
+						subscription.messages <- ErrorEvent{
 							txn: startTime.Unix(),
 							err: err,
-						})
+						}
+
 						break
 					}
 				}
@@ -400,9 +400,11 @@ func (client *FaunaClient) performRequest(body io.Reader, endpoint string, strea
 	var request *http.Request
 	var timeout time.Duration = requestTimeout
 	if streaming {
-		timeout = streamTimeout
+		response.ctx, response.cncl = context.WithCancel(context.Background())
+
+	} else {
+		response.ctx, response.cncl = context.WithTimeout(context.Background(), timeout)
 	}
-	response.ctx, response.cncl = context.WithTimeout(context.Background(), timeout)
 	if request, err = client.prepareRequest(response.ctx, body, endpoint, configs); err == nil {
 		response.response, err = client.http.Do(request)
 	}
