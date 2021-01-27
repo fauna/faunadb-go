@@ -63,6 +63,7 @@ func (sub *StreamSubscription) Start() error {
 // Close eventually closes the stream
 func (sub *StreamSubscription) Close() {
 	sub.status.Set(StreamConnClosed)
+	close(sub.messages)
 }
 
 func (sub *StreamSubscription) Messages() <-chan StreamEvent {

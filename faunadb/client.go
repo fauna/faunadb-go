@@ -304,10 +304,6 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 			if err = checkForResponseErrors(httpResponse); err != nil {
 
 				subscription.status.Set(StreamConnError)
-				subscription.messages <- ErrorEvent{
-					txn: startTime.Unix(),
-					err: err,
-				}
 
 				httpResponse.Body.Close()
 				response.cncl()
