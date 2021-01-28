@@ -110,56 +110,6 @@ func (s *StreamsTestSuite) TestSelectFields() {
 	wg.Wait()
 }
 
-/*func (s *StreamsTestSuite) TestMultipleActiveStreams() {
-	var wg sync.WaitGroup
-	var counter counterMutex
-	var activeStreams int64 = 4
-
-	wg.Add(int(activeStreams))
-
-	ref := s.createDocument()
-
-	for i := 0; i < int(activeStreams); i++ {
-		sub := s.client.Stream(ref)
-		sub.Start()
-		for evt := range sub.Messages() {
-			switch evt.Type() {
-
-			case f.StartEventT:
-				s.Equal(f.StartEventT, evt.Type())
-				s.NotZero(evt.Txn())
-				e := evt.(f.StartEvent)
-				s.NotNil(e.Event())
-				_, err := s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-				s.NoError(err)
-
-			case f.VersionEventT:
-				s.Equal(f.VersionEventT, evt.Type())
-				s.NotZero(evt.Txn())
-				evt := evt.(f.VersionEvent)
-				body := evt.Event()
-				s.NotNil(body)
-
-				counter.Inc()
-				sub.Close()
-
-				//for {
-				//	if counter.Value() == activeStreams {
-				//		break
-				//	}
-				//	runtime.Gosched()
-				//}
-				wg.Done()
-			case f.ErrorEventT:
-				s.defaultStreamError(evt)
-			}
-		}
-	}
-
-	wg.Wait()
-	s.Require().Equal(activeStreams, counter.Value())
-}*/
-
 func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 	var wg sync.WaitGroup
 	ref := s.createDocument()

@@ -60,10 +60,22 @@ func (sub *StreamSubscription) Start() error {
 	return sub.client.startStream(sub)
 }
 
+func isClosed(ch <-chan StreamEvent) bool {
+	select {
+	case <-ch:
+		return true
+	default:
+	}
+
+	return false
+}
+
 // Close eventually closes the stream
 func (sub *StreamSubscription) Close() {
-	sub.status.Set(StreamConnClosed)
-	close(sub.messages)
+	if !isClosed(sub.messages) {
+		sub.status.Set(StreamConnClosed)
+		close(sub.messages)
+	}
 }
 
 func (sub *StreamSubscription) Messages() <-chan StreamEvent {
