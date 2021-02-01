@@ -134,7 +134,7 @@ func (event HistoryRewriteEvent) String() string {
 
 // Type returns the stream event type
 func (event HistoryRewriteEvent) Type() StreamEventType {
-	return VersionEventT
+	return HistoryRewriteEventT
 }
 
 // ErrorEvent represents an error event fired both for client and server errors
