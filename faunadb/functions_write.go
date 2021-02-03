@@ -252,3 +252,27 @@ type removeFn struct {
 	Ts     Expr `json:"ts"`
 	Action Expr `json:"action"`
 }
+
+// CreateAccessProvider creates a new AccessProvider
+//
+// Parameters:
+// params  Object - An object of parameters used to create a new access provider.
+//     - name: A valid schema name
+//     - issuer: A unique string
+//     - jwks_uri: A valid HTTPS URL
+//     - allowed_roles: An optional list of Role refs
+//     - allowed_collections: An optional list of user-defined Collection refs
+//
+// Returns:
+// Object - The new created access provider.
+//
+// See: the [docs](https://app.fauna.com/documentation/reference/queryapi#write-functions).
+//
+func CreateAccessProvider(params interface{}) Expr {
+	return createAccessProviderFn{CreateAccessProvider: wrap(params)}
+}
+
+type createAccessProviderFn struct {
+	fnApply
+	CreateAccessProvider Expr `json:"create_access_provider"`
+}

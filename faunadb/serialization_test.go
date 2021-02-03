@@ -1770,3 +1770,52 @@ func assertMarshal(t *testing.T, value Value, expected string) {
 
 	require.Equal(t, expectedUnmarshal, valueUnmarshal)
 }
+
+func TestSerializeCreateAccessProvider(t *testing.T) {
+	assertJSON(t,
+		CreateAccessProvider(Obj{
+			"name":     "a_provider",
+			"issuer":   "supported_issuer",
+			"jwks_uri": "https://xxxx.auth0.com",
+		}),
+		`{"create_access_provider":{"object":{"name":"a_provider","issuer":`+
+			`"supported_issuer","jwks_uri":"https://xxxx.auth0.com"}}}`,
+	)
+
+	assertJSON(t,
+		CreateAccessProvider(Obj{
+			"name":     "a_provider",
+			"issuer":   "supported_issuer",
+			"jwks_uri": "https://xxxx.auth0.com",
+			"roles":    Arr{"roles"},
+			"data":     Obj{"key": "value"},
+		}),
+		`{"create_access_provider":{"object":{"name":"a_provider","issuer":`+
+			`"supported_issuer","jwks_uri":"https://xxxx.auth0.com",`+
+			`"roles":["roles"],"data":{"object":{"key":"value"}}}}}`,
+	)
+}
+
+func TestSerializeAccessProvider(t *testing.T) {
+	assertJSON(t,
+		AccessProvider("auth0"),
+		`{"access_provider":"auth0"}`,
+	)
+
+	assertJSON(t,
+		ScopedAccessProvider("auth0", Database("auth_db")),
+		`{"access_provider":"auth0","scope":{"database":"auth_db"}}`,
+	)
+}
+
+func TestSerializeAccessProviders(t *testing.T) {
+	assertJSON(t,
+		AccessProviders(),
+		`{"access_providers":null}`,
+	)
+
+	assertJSON(t,
+		ScopedAccessProviders(Database("auth_db")),
+		`{"access_providers":{"database":"auth_db"}}`,
+	)
+}

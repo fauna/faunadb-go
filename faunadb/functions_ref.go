@@ -536,3 +536,74 @@ type newIDFn struct {
 	fnApply
 	NewId Expr `json:"new_id" faunarepr:"noargs"`
 }
+
+
+// AccessProvider create a new access provider ref.
+//
+// Parameters:
+//  name string - The name of the access provider.
+//
+// Returns:
+//  Ref - The access provider reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func AccessProvider(name interface{}) Expr {
+	return accessProviderFn{
+		AccessProvider: wrap(name),
+	}
+}
+
+// ScopedAccessProvider create a new access provider ref.
+//
+// Parameters:
+//  name string - The name of the access provider.
+//  scope Ref - The reference of the scope.
+//
+// Returns:
+//  Ref - The access provider reference.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedAccessProvider(name interface{}, scope interface{}) Expr {
+	return accessProviderFn{
+		AccessProvider: wrap(name),
+		Scope:          wrap(scope),
+	}
+}
+
+type accessProviderFn struct {
+	fnApply
+	AccessProvider Expr `json:"access_provider"`
+	Scope          Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
+}
+
+// AccessProviders creates a native ref for access providers.
+//
+// Returns:
+//  Ref - The reference of the access providers set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func AccessProviders() Expr {
+	return accessProvidersFn{
+		AccessProviders: NullV{},
+	}
+}
+
+// ScopedAccessProviders creates a native ref for access providers inside a database.
+//
+// Parameters:
+//  scope Ref - The reference of the access provider's set scope.
+//
+// Returns:
+//  Ref - The reference of the access providers set.
+//
+// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+func ScopedAccessProviders(scope interface{}) Expr {
+	return accessProvidersFn{
+		AccessProviders: wrap(scope),
+	}
+}
+
+type accessProvidersFn struct {
+	fnApply
+	AccessProviders Expr `json:"access_providers" faunarepr:"scopedfn"`
+}
