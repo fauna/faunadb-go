@@ -34,7 +34,7 @@ type StreamEvent interface {
 type StartEvent struct {
 	StreamEvent
 	txn   int64
-	event int64
+	event Value
 }
 
 // Type returns the stream event type
@@ -47,8 +47,8 @@ func (event StartEvent) Txn() int64 {
 	return event.txn
 }
 
-// Event returns the stream event as a `f.ObjectV`
-func (event StartEvent) Event() int64 {
+// Event returns the stream event as a `f.Value`
+func (event StartEvent) Event() Value {
 	return event.event
 }
 
@@ -142,7 +142,7 @@ func unMarshalStreamEvent(data Obj) (evt StreamEvent, err error) {
 	case StartEventT:
 		evt = StartEvent{
 			txn:   int64(data["txn"].(LongV)),
-			event: int64(data["event"].(LongV)),
+			event: data["event"].(LongV),
 		}
 	case VersionEventT:
 		evt = VersionEvent{

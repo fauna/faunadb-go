@@ -96,10 +96,10 @@ func (s *StreamsTestSuite) TestSelectFields() {
 			body := evt.Event()
 			s.NotNil(body)
 
-			s.True(s.keyInMap("diff", body))
-			s.True(s.keyInMap("prev", body))
-			s.True(s.keyInMap("document", body))
-			s.False(s.keyInMap("action", body))
+			s.True(s.keyInMap("diff", body.(f.ObjectV)))
+			s.True(s.keyInMap("prev", body.(f.ObjectV)))
+			s.True(s.keyInMap("document", body.(f.ObjectV)))
+			s.False(s.keyInMap("action", body.(f.ObjectV)))
 
 			sub.Close()
 			wg.Done()

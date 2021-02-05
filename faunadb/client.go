@@ -458,7 +458,7 @@ func (client *FaunaClient) parseResponse(response *http.Response, expr Expr, str
 		}
 	}
 
-	if parsedResponse, err = ParseJSON(response.Body); err == nil {
+	if parsedResponse, err = parseJSON(response.Body); err == nil {
 		if streaming {
 			value = parsedResponse
 		} else {
