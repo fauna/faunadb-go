@@ -28,7 +28,7 @@ commands:
 
       - restore_cache:
           keys:
-            - v1-deps-{{ checksum "go.sum" }}
+          - v1-deps-{{ checksum "go.sum" }}
 
       - run:
           name: Install dependencies
@@ -38,7 +38,7 @@ commands:
 
       - save_cache:
           paths:
-            - /go/pkg
+          - /go/pkg
           key: v1-deps-{{ checksum "go.sum" }}
 
       - run:
