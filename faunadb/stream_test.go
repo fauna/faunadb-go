@@ -215,6 +215,7 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 				return
 			}
 			s.EqualError(evt.Error(), `stream_error: code='permission denied' description='Authorization lost during stream evaluation.'`)
+			sub.Close()
 			wg.Done()
 		}
 	}
