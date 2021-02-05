@@ -37,33 +37,6 @@ type StartEvent struct {
 	event int64
 }
 
-func unMarshalStreamEvent(data Obj) (evt StreamEvent, err error) {
-	switch StreamEventType(data["type"].(StringV)) {
-	case StartEventT:
-		evt = StartEvent{
-			txn:   int64(data["txn"].(LongV)),
-			event: int64(data["event"].(LongV)),
-		}
-	case VersionEventT:
-		evt = VersionEvent{
-			txn:   int64(data["txn"].(LongV)),
-			event: data["event"].(ObjectV),
-		}
-	case ErrorEventT:
-		evt = ErrorEvent{
-			txn: int64(data["txn"].(LongV)),
-			err: errorFromStreamError(data["event"].(ObjectV)),
-		}
-
-	case HistoryRewriteEventT:
-		evt = HistoryRewriteEvent{
-			txn:   int64(data["txn"].(LongV)),
-			event: data["event"].(ObjectV),
-		}
-	}
-	return
-}
-
 // Type returns the stream event type
 func (event StartEvent) Type() StreamEventType {
 	return StartEventT
@@ -88,7 +61,7 @@ func (event StartEvent) String() string {
 type VersionEvent struct {
 	StreamEvent
 	txn   int64
-	event ObjectV
+	event Value
 }
 
 // Txn returns the stream event timestamp
@@ -96,8 +69,8 @@ func (event VersionEvent) Txn() int64 {
 	return event.txn
 }
 
-// Event returns the stream event as a `f.ObjectV`
-func (event VersionEvent) Event() ObjectV {
+// Event returns the stream event as a `Value`
+func (event VersionEvent) Event() Value {
 	return event.event
 }
 
@@ -115,7 +88,7 @@ func (event VersionEvent) Type() StreamEventType {
 type HistoryRewriteEvent struct {
 	StreamEvent
 	txn   int64
-	event ObjectV
+	event Value
 }
 
 // Txn returns the stream event timestamp
@@ -123,8 +96,8 @@ func (event HistoryRewriteEvent) Txn() int64 {
 	return event.txn
 }
 
-// Event returns the stream event as a `f.ObjectV`
-func (event HistoryRewriteEvent) Event() ObjectV {
+// Event returns the stream event as a `Value`
+func (event HistoryRewriteEvent) Event() Value {
 	return event.event
 }
 
@@ -162,4 +135,31 @@ func (event ErrorEvent) Error() error {
 
 func (event ErrorEvent) String() string {
 	return fmt.Sprintf("ErrorEvent{error=%s}", event.err)
+}
+
+func unMarshalStreamEvent(data Obj) (evt StreamEvent, err error) {
+	switch StreamEventType(data["type"].(StringV)) {
+	case StartEventT:
+		evt = StartEvent{
+			txn:   int64(data["txn"].(LongV)),
+			event: int64(data["event"].(LongV)),
+		}
+	case VersionEventT:
+		evt = VersionEvent{
+			txn:   int64(data["txn"].(LongV)),
+			event: data["event"].(ObjectV),
+		}
+	case ErrorEventT:
+		evt = ErrorEvent{
+			txn: int64(data["txn"].(LongV)),
+			err: errorFromStreamError(data["event"].(ObjectV)),
+		}
+
+	case HistoryRewriteEventT:
+		evt = HistoryRewriteEvent{
+			txn:   int64(data["txn"].(LongV)),
+			event: data["event"].(ObjectV),
+		}
+	}
+	return
 }

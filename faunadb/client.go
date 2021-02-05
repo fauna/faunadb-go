@@ -280,76 +280,86 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	}
 
 	startTime := time.Now()
-	if payload, err := client.prepareRequestBody(subscription.query); err == nil {
-		body := ioutil.NopCloser(bytes.NewReader(payload))
+	payload, err := client.prepareRequestBody(subscription.query)
+	if err != nil {
+		err = errors.New("not able to form request body")
+		return
+	}
+	body := ioutil.NopCloser(bytes.NewReader(payload))
 
-		var endpoint strings.Builder
-		endpoint.WriteString(client.streamEndpoint)
+	var endpoint strings.Builder
+	endpoint.WriteString(client.streamEndpoint)
 
-		if len(subscription.config.Fields) > 0 {
-			endpoint.WriteString("?fields=")
-			count := len(subscription.config.Fields)
-			for i := 0; i < count; i++ {
-				endpoint.WriteString(string(subscription.config.Fields[i]))
-				if i <= count-1 {
-					endpoint.WriteString(",")
-				}
+	if len(subscription.config.Fields) > 0 {
+		endpoint.WriteString("?fields=")
+		count := len(subscription.config.Fields)
+		for i := 0; i < count; i++ {
+			endpoint.WriteString(string(subscription.config.Fields[i]))
+			if i <= count-1 {
+				endpoint.WriteString(",")
 			}
 		}
+	}
 
-		subscription.status.Set(StreamConnOpening)
-		if response, err := client.performRequest(body, endpoint.String(), true, nil); err == nil {
-			httpResponse := response.response
-			_ = client.storeLastTxnTime(httpResponse.Header)
-			if err = checkForResponseErrors(httpResponse); err != nil {
+	subscription.status.Set(StreamConnOpening)
 
-				subscription.status.Set(StreamConnError)
+	response, err := client.performRequest(body, endpoint.String(), true, nil)
+	if err != nil {
+		err = errors.New("not able to perform request")
+		return
+	}
 
-				httpResponse.Body.Close()
-				response.cncl()
-				return err
+	httpResponse := response.response
+	_ = client.storeLastTxnTime(httpResponse.Header)
+	if err = checkForResponseErrors(httpResponse); err != nil {
+
+		subscription.status.Set(StreamConnError)
+
+		httpResponse.Body.Close()
+		response.cncl()
+		return err
+	}
+
+	go func() {
+		subscription.status.Set(StreamConnActive)
+
+		defer httpResponse.Body.Close()
+		defer response.cncl()
+
+		for {
+			if subscription.status.Get() != StreamConnActive {
+				break
 			}
 
-			go func() {
-				subscription.status.Set(StreamConnActive)
+			var val Value
+			var obj Obj
 
-				defer httpResponse.Body.Close()
-				defer response.cncl()
-
-				for {
-					if subscription.status.Get() != StreamConnActive {
-						break
-					}
-
-					var val Value
-					var obj Obj
-
-					if val, err = client.parseResponse(httpResponse, subscription.query, true, startTime); err == nil {
-						if err = val.Get(&obj); err == nil {
-							var event StreamEvent
-							if event, err = unMarshalStreamEvent(obj); err == nil {
-								client.SyncLastTxnTime(event.Txn())
-								subscription.messages <- event
-							}
-						}
+			if val, err = client.parseResponse(httpResponse, subscription.query, true, startTime); err == nil {
+				if err = val.Get(&obj); err == nil {
+					var event StreamEvent
+					if event, err = unMarshalStreamEvent(obj); err == nil {
+						client.SyncLastTxnTime(event.Txn())
+						subscription.messages <- event
 					} else {
-						if err == io.EOF {
-							subscription.status.Set(StreamConnClosed)
-						} else {
-							subscription.status.Set(StreamConnError)
-						}
 						subscription.messages <- ErrorEvent{
 							txn: startTime.Unix(),
 							err: err,
 						}
-
-						break
 					}
 				}
-			}()
-
+			} else {
+				if err == io.EOF {
+					subscription.status.Set(StreamConnClosed)
+					break
+				} else {
+					subscription.messages <- ErrorEvent{
+						txn: startTime.Unix(),
+						err: err,
+					}
+				}
+			}
 		}
-	}
+	}()
 
 	return
 }
@@ -448,7 +458,7 @@ func (client *FaunaClient) parseResponse(response *http.Response, expr Expr, str
 		}
 	}
 
-	if parsedResponse, err = parseJSON(response.Body); err == nil {
+	if parsedResponse, err = ParseJSON(response.Body); err == nil {
 		if streaming {
 			value = parsedResponse
 		} else {
@@ -464,8 +474,15 @@ func (client *FaunaClient) callObserver(response *http.Response, expr Expr, stre
 	var event StreamEvent
 	if streaming {
 		var obj Obj
-		value.Get(&obj)
-		event, _ = unMarshalStreamEvent(obj)
+		if err := value.Get(&obj); err != nil {
+			event = ErrorEvent{
+				txn: time.Now().Unix(),
+				err: err,
+			}
+		} else {
+			event, _ = unMarshalStreamEvent(obj)
+		}
+
 		value = nil
 	}
 	queryResult := &QueryResult{
