@@ -351,14 +351,13 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 					} else {
 						subscription.messages <- ErrorEvent{
 							txn: startTime.Unix(),
-							err: errors.New(err.Error() + "111111"),
+							err: err,
 						}
 					}
 				} else {
-					fmt.Println(val.Get(&obj), "===========")
 					subscription.messages <- ErrorEvent{
 						txn: startTime.Unix(),
-						err: errors.New(err.Error() + "22222222"),
+						err: err,
 					}
 				}
 			}
