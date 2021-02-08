@@ -274,16 +274,17 @@ func (client *FaunaClient) Stream(query Expr, config ...StreamConfig) StreamSubs
 
 
 func (client *FaunaClient) startStream(subscription *StreamSubscription) (err error) {
+	var payload []byte
+	var response faunaResponse
 	if subscription.Status() != StreamConnIdle {
 		err = errors.New("stream subscription already started")
 		return
 	}
 
 	startTime := time.Now()
-	payload, err := client.prepareRequestBody(subscription.query)
+	payload, err = client.prepareRequestBody(subscription.query)
 	if err != nil {
-		err = errors.New("not able to form request body")
-		return
+		err = errors.New("test error")
 	}
 	body := ioutil.NopCloser(bytes.NewReader(payload))
 
@@ -302,11 +303,9 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	}
 
 	subscription.status.Set(StreamConnOpening)
-
-	response, err := client.performRequest(body, endpoint.String(), true, nil)
+	response, err = client.performRequest(body, endpoint.String(), true, nil)
 	if err != nil {
-		err = errors.New("not able to perform request")
-		return
+		err = errors.New("test error")
 	}
 
 	httpResponse := response.response
@@ -331,10 +330,19 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 				break
 			}
 
-			var val Value
 			var obj Obj
 
-			if val, err = client.parseResponse(httpResponse, subscription.query, true, startTime); err == nil {
+
+			if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
+				if err == io.EOF {
+					subscription.status.Set(StreamConnClosed)
+					break
+				}
+				subscription.messages <- ErrorEvent{
+					txn: startTime.Unix(),
+					err: err,
+				}
+			} else {
 				if err = val.Get(&obj); err == nil {
 					var event StreamEvent
 					if event, err = unMarshalStreamEvent(obj); err == nil {
@@ -343,25 +351,21 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 					} else {
 						subscription.messages <- ErrorEvent{
 							txn: startTime.Unix(),
-							err: err,
+							err: errors.New(err.Error() + "111111"),
 						}
 					}
-				}
-			} else {
-				if err == io.EOF {
-					subscription.status.Set(StreamConnClosed)
-					break
 				} else {
+					fmt.Println(val.Get(&obj), "===========")
 					subscription.messages <- ErrorEvent{
 						txn: startTime.Unix(),
-						err: err,
+						err: errors.New(err.Error() + "22222222"),
 					}
 				}
 			}
 		}
 	}()
 
-	return
+	return err
 }
 
 // GetLastTxnTime gets the freshest timestamp reported to this client.
@@ -465,6 +469,8 @@ func (client *FaunaClient) parseResponse(response *http.Response, expr Expr, str
 			value, err = parsedResponse.At(resource).GetValue()
 		}
 		client.callObserver(response, expr, streaming, value, startTime)
+	} else {
+		return nil, err
 	}
 
 	return
