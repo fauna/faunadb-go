@@ -260,8 +260,8 @@ type removeFn struct {
 //     - name: A valid schema name
 //     - issuer: A unique string
 //     - jwks_uri: A valid HTTPS URL
-//     - allowed_roles: An optional list of Role refs
-//     - allowed_collections: An optional list of user-defined Collection refs
+//     - roles: An optional list of Role refs
+//     - data: An optional user-defined metadata for the AccessProvider
 //
 // Returns:
 // Object - The new created access provider.
