@@ -316,7 +316,7 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 
 		httpResponse.Body.Close()
 		response.cncl()
-		return err
+		return
 	}
 
 	go func() {
@@ -364,7 +364,7 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 		}
 	}()
 
-	return err
+	return
 }
 
 // GetLastTxnTime gets the freshest timestamp reported to this client.
