@@ -2,6 +2,7 @@ package faunadb_test
 
 import (
 	"io"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -221,6 +222,46 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 	}
 	wg.Wait()
 
+}
+
+
+
+func (s *StreamsTestSuite) TestListenToLargeEvents() {
+	type Val struct {
+		Value string
+	}
+	var arr []Val
+
+	for i := 0; i < 4096; i++ {
+		arr = append(arr, Val{Value: strconv.Itoa(i)})
+	}
+	var wg sync.WaitGroup
+	ref := s.createDocument()
+
+	wg.Add(1)
+
+	sub := s.client.Stream(ref)
+	sub.Start()
+	for evt := range sub.Messages() {
+		switch evt.Type() {
+
+		case f.StartEventT:
+			s.Require().Equal(f.StreamConnActive, sub.Status())
+			s.Require().EqualError(sub.Start(), "stream subscription already started")
+			s.client.Query(f.Update(&ref, f.Obj{"data": f.Obj{"values": arr }}))
+
+		case f.VersionEventT:
+			s.Equal(f.VersionEventT, evt.Type())
+			e := evt.(f.VersionEvent)
+			var expected []Val
+			e.Event().At(f.ObjKey("document", "data", "values")).Get(&expected)
+			s.Equal(expected, arr)
+			sub.Close()
+			wg.Done()
+		}
+	}
+	wg.Wait()
+	s.Equal(f.StreamConnClosed, sub.Status())
 }
 
 func (s *StreamsTestSuite) defaultStreamError(evt f.StreamEvent) {
