@@ -272,7 +272,6 @@ func (client *FaunaClient) Stream(query Expr, config ...StreamConfig) StreamSubs
 	return newSubscription(client, query, config...)
 }
 
-
 func (client *FaunaClient) startStream(subscription *StreamSubscription) (err error) {
 	var payload []byte
 	var response faunaResponse
@@ -320,44 +319,48 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	}
 
 	go func() {
+		//subscription.Wg.Add(1)
 		subscription.status.Set(StreamConnActive)
 
 		defer httpResponse.Body.Close()
 		defer response.cncl()
 
 		for {
-			if subscription.status.Get() != StreamConnActive {
-				break
-			}
-
 			var obj Obj
 
+			select {
+			case <-subscription.closingMessage:
+				subscription.status.Set(StreamConnClosed)
+				close(subscription.eventsMessages)
+				break
+			case <-subscription.getNext:
+				if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
 
-			if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
-				if err == io.EOF {
-					subscription.status.Set(StreamConnClosed)
-					break
-				}
-				subscription.messages <- ErrorEvent{
-					txn: startTime.Unix(),
-					err: err,
-				}
-			} else {
-				if err = val.Get(&obj); err == nil {
-					var event StreamEvent
-					if event, err = unMarshalStreamEvent(obj); err == nil {
-						client.SyncLastTxnTime(event.Txn())
-						subscription.messages <- event
+					if err == io.EOF {
+						subscription.status.Set(StreamConnClosed)
+						break
+					}
+					subscription.eventsMessages <- ErrorEvent{
+						txn: startTime.Unix(),
+						err: err,
+					}
+				} else {
+					if err = val.Get(&obj); err == nil {
+						var event StreamEvent
+						if event, err = unMarshalStreamEvent(obj); err == nil {
+							client.SyncLastTxnTime(event.Txn())
+							subscription.eventsMessages <- event
+						} else {
+							subscription.eventsMessages <- ErrorEvent{
+								txn: startTime.Unix(),
+								err: err,
+							}
+						}
 					} else {
-						subscription.messages <- ErrorEvent{
+						subscription.eventsMessages <- ErrorEvent{
 							txn: startTime.Unix(),
 							err: err,
 						}
-					}
-				} else {
-					subscription.messages <- ErrorEvent{
-						txn: startTime.Unix(),
-						err: err,
 					}
 				}
 			}

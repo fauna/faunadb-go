@@ -43,29 +43,26 @@ func (c *counterMutex) Value() int64 {
 }
 
 func (s *StreamsTestSuite) TestStreamDocumentRef() {
-	var wg sync.WaitGroup
-	var sub f.StreamSubscription
+	//var wg sync.WaitGroup
+	var subscription f.StreamSubscription
 
 	ref := s.createDocument()
 
-	wg.Add(1)
-
-	sub = s.client.Stream(ref)
-	sub.Start()
-	for evt := range sub.Messages() {
+	subscription = s.client.Stream(ref)
+	subscription.Start()
+	for evt := range subscription.EventsMessages() {
 		switch evt.Type() {
 		case f.StartEventT:
-			s.NotZero(evt.Txn())
+			//s.NotZero(evt.Txn())
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+			subscription.Request()
 		case f.VersionEventT:
 			s.Equal(evt.Type(), f.VersionEventT)
-			sub.Close()
-			wg.Done()
+			subscription.Close()
 		case f.ErrorEventT:
 			s.defaultStreamError(evt)
 		}
 	}
-	wg.Wait()
 }
 
 func (s *StreamsTestSuite) TestRejectNonReadOnlyQuery() {
@@ -76,13 +73,11 @@ func (s *StreamsTestSuite) TestRejectNonReadOnlyQuery() {
 }
 
 func (s *StreamsTestSuite) TestSelectFields() {
-	var wg sync.WaitGroup
 	ref := s.createDocument()
 
-	wg.Add(1)
-	sub := s.client.Stream(ref, f.Fields("diff", "prev", "document"))
-	sub.Start()
-	for evt := range sub.Messages() {
+	subscription := s.client.Stream(ref, f.Fields("diff", "prev", "document"))
+	subscription.Start()
+	for evt := range subscription.EventsMessages() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Equal(f.StartEventT, evt.Type())
@@ -90,6 +85,7 @@ func (s *StreamsTestSuite) TestSelectFields() {
 			e := evt.(f.StartEvent)
 			s.NotNil(e.Event())
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+			subscription.Request()
 		case f.VersionEventT:
 			s.Equal(f.VersionEventT, evt.Type())
 			s.NotZero(evt.Txn())
@@ -102,24 +98,20 @@ func (s *StreamsTestSuite) TestSelectFields() {
 			s.True(s.keyInMap("document", body.(f.ObjectV)))
 			s.False(s.keyInMap("action", body.(f.ObjectV)))
 
-			sub.Close()
-			wg.Done()
+			subscription.Close()
 		case f.ErrorEventT:
 			s.defaultStreamError(evt)
 		}
 	}
-	wg.Wait()
 }
 
 func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
-	var wg sync.WaitGroup
 	ref := s.createDocument()
 	lastTxnTime := s.client.GetLastTxnTime()
 
-	wg.Add(1)
-	sub := s.client.Stream(ref)
-	sub.Start()
-	for evt := range sub.Messages() {
+	subscription := s.client.Stream(ref)
+	subscription.Start()
+	for evt := range subscription.EventsMessages() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Equal(f.StartEventT, evt.Type())
@@ -131,62 +123,50 @@ func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 			s.GreaterOrEqual(s.client.GetLastTxnTime(), e.Txn())
 
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+			subscription.Request()
+
 		case f.VersionEventT:
 			s.Equal(f.VersionEventT, evt.Type())
 
 			s.NotZero(evt.Txn())
 			s.Equal(evt.Txn(), s.client.GetLastTxnTime())
 
-			sub.Close()
-			wg.Done()
+			subscription.Close()
 		case f.ErrorEventT:
 			s.defaultStreamError(evt)
 		}
 	}
-	wg.Wait()
 }
 
 func (s *StreamsTestSuite) TestHandleBadQuery() {
-	var wg sync.WaitGroup
 	query := f.StringV("just a boring string")
 
-	wg.Add(1)
 	sub := s.client.Stream(query)
 	err := sub.Start()
 	s.EqualError(err, "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, got String.")
 
 }
 
-
 func (s *StreamsTestSuite) TestStartActiveStream() {
-	var wg sync.WaitGroup
 	query := s.createDocument()
-
-	wg.Add(1)
 
 	sub := s.client.Stream(query)
 	sub.Start()
-	for evt := range sub.Messages() {
+	for evt := range sub.EventsMessages() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Require().Equal(f.StreamConnActive, sub.Status())
 			s.Require().EqualError(sub.Start(), "stream subscription already started")
-
 			sub.Close()
-			wg.Done()
 		case f.ErrorEventT:
 			s.defaultStreamError(evt)
 		}
 	}
-	wg.Wait()
 	s.Equal(f.StreamConnClosed, sub.Status())
 }
 
 func (s *StreamsTestSuite) TestAuthRevalidation() {
-	var wg sync.WaitGroup
 	ref := s.createDocument()
-
-	wg.Add(1)
 
 	serverKey, err := f.CreateKeyWithRole("server")
 	s.Require().NoError(err)
@@ -196,9 +176,9 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 	serverKey.At(f.ObjKey("ref")).Get(&serverKeyRef)
 	client := s.client.NewSessionClient(secret)
 
-	sub := client.Stream(ref)
-	sub.Start()
-	for evt := range sub.Messages() {
+	subscription := client.Stream(ref)
+	subscription.Start()
+	for evt := range subscription.EventsMessages() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Equal(f.StartEventT, evt.Type())
@@ -210,45 +190,43 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 			s.Require().NoError(err)
 
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
+			subscription.Request()
 		case f.ErrorEventT:
 			evt := evt.(f.ErrorEvent)
 			if evt.Error() == io.EOF {
 				return
 			}
 			s.EqualError(evt.Error(), `stream_error: code='permission denied' description='Authorization lost during stream evaluation.'`)
-			sub.Close()
-			wg.Done()
+			subscription.Close()
 		}
 	}
-	wg.Wait()
-
 }
 
-
-
 func (s *StreamsTestSuite) TestListenToLargeEvents() {
+	var subscription f.StreamSubscription
+
 	type Val struct {
 		Value string
 	}
 	var arr []Val
 
-	for i := 0; i < 4096; i++ {
+	for i := 0; i < 10; i++ {
 		arr = append(arr, Val{Value: strconv.Itoa(i)})
 	}
-	var wg sync.WaitGroup
+
 	ref := s.createDocument()
+	subscription = s.client.Stream(ref)
 
-	wg.Add(1)
+	subscription.Start()
 
-	sub := s.client.Stream(ref)
-	sub.Start()
-	for evt := range sub.Messages() {
+	for evt := range subscription.EventsMessages() {
 		switch evt.Type() {
 
 		case f.StartEventT:
-			s.Require().Equal(f.StreamConnActive, sub.Status())
-			s.Require().EqualError(sub.Start(), "stream subscription already started")
-			s.client.Query(f.Update(&ref, f.Obj{"data": f.Obj{"values": arr }}))
+			s.Require().Equal(f.StreamConnActive, subscription.Status())
+			s.Require().EqualError(subscription.Start(), "stream subscription already started")
+			s.client.Query(f.Update(&ref, f.Obj{"data": f.Obj{"values": arr}}))
+			subscription.Request()
 
 		case f.VersionEventT:
 			s.Equal(f.VersionEventT, evt.Type())
@@ -256,12 +234,9 @@ func (s *StreamsTestSuite) TestListenToLargeEvents() {
 			var expected []Val
 			e.Event().At(f.ObjKey("document", "data", "values")).Get(&expected)
 			s.Equal(expected, arr)
-			sub.Close()
-			wg.Done()
+			subscription.Close()
 		}
 	}
-	wg.Wait()
-	s.Equal(f.StreamConnClosed, sub.Status())
 }
 
 func (s *StreamsTestSuite) defaultStreamError(evt f.StreamEvent) {

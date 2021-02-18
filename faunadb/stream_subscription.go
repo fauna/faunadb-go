@@ -1,6 +1,8 @@
 package faunadb
 
-import "sync"
+import (
+	"sync"
+)
 
 func newSubscription(client *FaunaClient, query Expr, config ...StreamConfig) StreamSubscription {
 	sub := StreamSubscription{
@@ -11,6 +13,8 @@ func newSubscription(client *FaunaClient, query Expr, config ...StreamConfig) St
 		client,
 		streamConnectionStatus{status: StreamConnIdle},
 		make(chan StreamEvent),
+		make(chan bool),
+		make(chan bool),
 	}
 	for _, fn := range config {
 		fn(&sub)
@@ -38,11 +42,13 @@ func (s *streamConnectionStatus) Get() StreamConnectionStatus {
 // StreamSubscription dispatches events received to the registered listener functions.
 // New subscriptions must be constructed via the FaunaClient stream method.
 type StreamSubscription struct {
-	query    Expr
-	config   streamConfig
-	client   *FaunaClient
-	status   streamConnectionStatus
-	messages chan StreamEvent
+	query          Expr
+	config         streamConfig
+	client         *FaunaClient
+	status         streamConnectionStatus
+	eventsMessages chan StreamEvent
+	closingMessage chan bool
+	getNext        chan bool
 }
 
 // Query returns the query used to initiate the stream
@@ -57,27 +63,27 @@ func (sub *StreamSubscription) Status() StreamConnectionStatus {
 
 // Start initiates the stream subscription.
 func (sub *StreamSubscription) Start() error {
+	if sub.status.Get() != StreamConnActive {
+		go func() {
+			sub.getNext <- true
+		}()
+	}
+
 	return sub.client.startStream(sub)
 }
 
-func isClosed(ch <-chan StreamEvent) bool {
-	select {
-	case <-ch:
-		return true
-	default:
-	}
-
-	return false
-}
-
-// Close eventually closes the stream
 func (sub *StreamSubscription) Close() {
-	if !isClosed(sub.messages) {
-		sub.status.Set(StreamConnClosed)
-		close(sub.messages)
-	}
+	go func() {
+		sub.closingMessage <- true
+	}()
 }
 
-func (sub *StreamSubscription) Messages() <-chan StreamEvent {
-	return sub.messages
+func (sub *StreamSubscription) EventsMessages() chan StreamEvent {
+	return sub.eventsMessages
+}
+
+func (sub *StreamSubscription) Request() {
+	go func() {
+		sub.getNext <- true
+	}()
 }
