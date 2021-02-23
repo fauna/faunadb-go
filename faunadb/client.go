@@ -10,7 +10,10 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
+	"runtime"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -147,7 +150,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 
 		client.http = &http.Client{
 			Transport: transport,
-			Timeout: requestTimeout,
+			Timeout:   requestTimeout,
 		}
 	}
 
@@ -156,9 +159,12 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	}
 
 	client.headers = map[string]string{
-		"Content-Type":          "application/json; charset=utf-8",
-		"X-FaunaDB-API-Version": apiVersion,
-		"X-Fauna-Driver":        headerFaunaDriver,
+		"Content-Type":             "application/json; charset=utf-8",
+		"X-FaunaDB-API-Version":    apiVersion,
+		"X-Fauna-Driver":           headerFaunaDriver,
+		"X-Runtime-Environment-OS": getRuntimeEnvironmentOs(),
+		"X-Runtime-Environment":    getRuntimeEnvironment(),
+		"X-GO-Version":             runtime.Version(),
 	}
 
 	if client.queryTimeoutMs > 0 {
@@ -166,6 +172,53 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	}
 
 	return client
+}
+
+func getRuntimeEnvironmentOs() string {
+	os := runtime.GOOS
+	switch os {
+	case "windows":
+		return "Windows"
+	case "darwin":
+		return "MAC"
+	case "linux":
+		return "Linux"
+	default:
+		return "Unknown"
+	}
+}
+func getRuntimeEnvironment() string {
+	var env = map[string]string{
+		"NETLIFY_IMAGES_CDN_DOMAIN":                 "Netlify",
+		"VERCEL":                                    "Vercel",
+		"AWS_LAMBDA_FUNCTION_VERSION":               "AWS Lambda",
+		"GOOGLE_CLOUD_PROJECT":                      "GCP Compute Instances",
+		"WEBSITE_FUNCTIONS_AZUREMONITOR_CATEGORIES": "Azure Cloud Functions",
+		"RENDER_SERVICE_ID":                         "Render",
+		"BEGIN_DATA_SCOPE_ID":                       "Begin",
+	}
+	for k := range env {
+		if _, ok := os.LookupEnv(k); ok {
+			return env[k]
+		}
+
+		if _, ok := os.LookupEnv("PATH"); ok && strings.Contains(os.Getenv("PATH"), ".heroku") {
+			return "Heroku"
+		}
+
+		if _, ok := os.LookupEnv("_"); ok && strings.Contains(os.Getenv("_"), "google") {
+			return "GCP Cloud Functions"
+		}
+
+		if _, ok := os.LookupEnv("WEBSITE_INSTANCE_ID"); ok {
+			if _, ok = os.LookupEnv("ORYX_ENV_TYPE"); ok &&
+				strings.Contains(os.Getenv("ORYX_ENV_TYPE"), "AppService") {
+
+				return "Azure Compute"
+			}
+		}
+	}
+	return "Unknown"
 }
 
 // QueryResult run and return the cost headers associated with this query.
