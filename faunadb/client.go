@@ -177,12 +177,8 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 func getRuntimeEnvironmentOs() string {
 	envOS := runtime.GOOS
 	switch envOS {
-	case "windows":
-		return "windows"
-	case "darwin":
-		return "darwin"
-	case "linux":
-		return "linux"
+	case "windows", "darwin", "linux":
+		return envOS
 	default:
 		return "unknown"
 	}
