@@ -78,7 +78,7 @@ func (sub *StreamSubscription) Close() {
 	}()
 }
 
-func (sub *StreamSubscription) EventsMessages() chan StreamEvent {
+func (sub *StreamSubscription) StreamEvents() <-chan StreamEvent {
 	return sub.eventsMessages
 }
 

@@ -50,7 +50,7 @@ func (s *StreamsTestSuite) TestStreamDocumentRef() {
 
 	subscription = s.client.Stream(ref)
 	subscription.Start()
-	for evt := range subscription.EventsMessages() {
+	for evt := range subscription.StreamEvents() {
 		switch evt.Type() {
 		case f.StartEventT:
 			//s.NotZero(evt.Txn())
@@ -77,7 +77,7 @@ func (s *StreamsTestSuite) TestSelectFields() {
 
 	subscription := s.client.Stream(ref, f.Fields("diff", "prev", "document"))
 	subscription.Start()
-	for evt := range subscription.EventsMessages() {
+	for evt := range subscription.StreamEvents() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Equal(f.StartEventT, evt.Type())
@@ -111,7 +111,7 @@ func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 
 	subscription := s.client.Stream(ref)
 	subscription.Start()
-	for evt := range subscription.EventsMessages() {
+	for evt := range subscription.StreamEvents() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Equal(f.StartEventT, evt.Type())
@@ -152,7 +152,7 @@ func (s *StreamsTestSuite) TestStartActiveStream() {
 
 	sub := s.client.Stream(query)
 	sub.Start()
-	for evt := range sub.EventsMessages() {
+	for evt := range sub.StreamEvents() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Require().Equal(f.StreamConnActive, sub.Status())
@@ -178,7 +178,7 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 
 	subscription := client.Stream(ref)
 	subscription.Start()
-	for evt := range subscription.EventsMessages() {
+	for evt := range subscription.StreamEvents() {
 		switch evt.Type() {
 		case f.StartEventT:
 			s.Equal(f.StartEventT, evt.Type())
@@ -219,7 +219,7 @@ func (s *StreamsTestSuite) TestListenToLargeEvents() {
 
 	subscription.Start()
 
-	for evt := range subscription.EventsMessages() {
+	for evt := range subscription.StreamEvents() {
 		switch evt.Type() {
 
 		case f.StartEventT:

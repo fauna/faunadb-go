@@ -283,7 +283,7 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	startTime := time.Now()
 	payload, err = client.prepareRequestBody(subscription.query)
 	if err != nil {
-		err = errors.New("test error")
+		return
 	}
 	body := ioutil.NopCloser(bytes.NewReader(payload))
 
@@ -304,7 +304,7 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	subscription.status.Set(StreamConnOpening)
 	response, err = client.performRequest(body, endpoint.String(), true, nil)
 	if err != nil {
-		err = errors.New("test error")
+		return
 	}
 
 	httpResponse := response.response
@@ -319,11 +319,12 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	}
 
 	go func() {
-		//subscription.Wg.Add(1)
 		subscription.status.Set(StreamConnActive)
 
-		defer httpResponse.Body.Close()
-		defer response.cncl()
+		defer func() {
+			httpResponse.Body.Close()
+			response.cncl()
+		}()
 
 		for {
 			var obj Obj
@@ -337,7 +338,6 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 				if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
 
 					if err == io.EOF {
-						subscription.status.Set(StreamConnClosed)
 						break
 					}
 					subscription.eventsMessages <- ErrorEvent{
