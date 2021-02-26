@@ -178,7 +178,10 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 
 	if client.queryTimeoutMs > 0 {
 		client.headers["X-Query-Timeout"] = strconv.FormatUint(client.queryTimeoutMs, 10)
+	} else {
+		client.headers["X-Query-Timeout"] = strconv.FormatUint(uint64(requestTimeout.Milliseconds()), 10)
 	}
+
 
 	return client
 }
