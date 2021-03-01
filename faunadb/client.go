@@ -316,8 +316,6 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	}()
 
 	go func() {
-		//subscription.status.Set(StreamConnActive)
-
 		defer func() {
 			httpResponse.Body.Close()
 			response.cncl()
