@@ -24,8 +24,6 @@ type StreamConnectionStatus int
 const (
 	// StreamConnIdle represents an idle stream subscription
 	StreamConnIdle StreamConnectionStatus = iota
-	// StreamConnOpening describes an opening stream subscription
-	StreamConnOpening
 	// StreamConnActive describes an active/established stream subscription
 	StreamConnActive
 	// StreamConnClosed describes a closed stream subscription

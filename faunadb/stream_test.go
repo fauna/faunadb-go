@@ -43,7 +43,6 @@ func (c *counterMutex) Value() int64 {
 }
 
 func (s *StreamsTestSuite) TestStreamDocumentRef() {
-	//var wg sync.WaitGroup
 	var subscription f.StreamSubscription
 
 	ref := s.createDocument()
@@ -53,9 +52,7 @@ func (s *StreamsTestSuite) TestStreamDocumentRef() {
 	for evt := range subscription.StreamEvents() {
 		switch evt.Type() {
 		case f.StartEventT:
-			//s.NotZero(evt.Txn())
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-			subscription.Request()
 		case f.VersionEventT:
 			s.Equal(evt.Type(), f.VersionEventT)
 			subscription.Close()
@@ -85,7 +82,6 @@ func (s *StreamsTestSuite) TestSelectFields() {
 			e := evt.(f.StartEvent)
 			s.NotNil(e.Event())
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-			subscription.Request()
 		case f.VersionEventT:
 			s.Equal(f.VersionEventT, evt.Type())
 			s.NotZero(evt.Txn())
@@ -123,7 +119,6 @@ func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 			s.GreaterOrEqual(s.client.GetLastTxnTime(), e.Txn())
 
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-			subscription.Request()
 
 		case f.VersionEventT:
 			s.Equal(f.VersionEventT, evt.Type())
@@ -190,7 +185,6 @@ func (s *StreamsTestSuite) TestAuthRevalidation() {
 			s.Require().NoError(err)
 
 			s.client.Query(f.Update(ref, f.Obj{"data": f.Obj{"x": time.Now().String()}}))
-			subscription.Request()
 		case f.ErrorEventT:
 			evt := evt.(f.ErrorEvent)
 			if evt.Error() == io.EOF {
@@ -226,7 +220,6 @@ func (s *StreamsTestSuite) TestListenToLargeEvents() {
 			s.Require().Equal(f.StreamConnActive, subscription.Status())
 			s.Require().EqualError(subscription.Start(), "stream subscription already started")
 			s.client.Query(f.Update(&ref, f.Obj{"data": f.Obj{"values": arr}}))
-			subscription.Request()
 
 		case f.VersionEventT:
 			s.Equal(f.VersionEventT, evt.Type())

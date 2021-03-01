@@ -1,20 +1,32 @@
 package faunadb
 
 import (
+	"errors"
 	"sync"
 )
 
+// StreamSubscription dispatches events received to the registered listener functions.
+// New subscriptions must be constructed via the FaunaClient stream method.
+type StreamSubscription struct {
+	mu     sync.Mutex
+	query  Expr
+	config streamConfig
+	client *FaunaClient
+	status StreamConnectionStatus
+	events chan StreamEvent
+	closed chan bool
+}
+
 func newSubscription(client *FaunaClient, query Expr, config ...StreamConfig) StreamSubscription {
 	sub := StreamSubscription{
-		query,
-		streamConfig{
+		query: query,
+		config: streamConfig{
 			[]StreamField{},
 		},
-		client,
-		streamConnectionStatus{status: StreamConnIdle},
-		make(chan StreamEvent),
-		make(chan bool),
-		make(chan bool),
+		client: client,
+		status: StreamConnIdle,
+		events: make(chan StreamEvent),
+		closed: make(chan bool),
 	}
 	for _, fn := range config {
 		fn(&sub)
@@ -39,18 +51,6 @@ func (s *streamConnectionStatus) Get() StreamConnectionStatus {
 	return s.status
 }
 
-// StreamSubscription dispatches events received to the registered listener functions.
-// New subscriptions must be constructed via the FaunaClient stream method.
-type StreamSubscription struct {
-	query          Expr
-	config         streamConfig
-	client         *FaunaClient
-	status         streamConnectionStatus
-	eventsMessages chan StreamEvent
-	closingMessage chan bool
-	getNext        chan bool
-}
-
 // Query returns the query used to initiate the stream
 func (sub *StreamSubscription) Query() Expr {
 	return sub.query
@@ -58,32 +58,37 @@ func (sub *StreamSubscription) Query() Expr {
 
 // Status returns the current stream status
 func (sub *StreamSubscription) Status() StreamConnectionStatus {
-	return sub.status.Get()
+	sub.mu.Lock()
+	defer sub.mu.Unlock()
+	return sub.status
 }
 
-// Start initiates the stream subscription.
-func (sub *StreamSubscription) Start() error {
-	if sub.status.Get() != StreamConnActive {
-		go func() {
-			sub.getNext <- true
-		}()
+func (sub *StreamSubscription) Start() (err error) {
+	sub.mu.Lock()
+	defer sub.mu.Unlock()
+
+	if sub.status != StreamConnIdle {
+		err = errors.New("stream subscription already started")
+	} else {
+		sub.status = StreamConnActive
+		if err = sub.client.startStream(sub); err != nil {
+			sub.status = StreamConnError
+		}
 	}
-
-	return sub.client.startStream(sub)
+	return
 }
+
 
 func (sub *StreamSubscription) Close() {
-	go func() {
-		sub.closingMessage <- true
-	}()
+	sub.mu.Lock()
+	defer sub.mu.Unlock()
+	if sub.status == StreamConnActive {
+		sub.status = StreamConnClosed
+		close(sub.closed)
+		close(sub.events)
+	}
 }
 
 func (sub *StreamSubscription) StreamEvents() <-chan StreamEvent {
-	return sub.eventsMessages
-}
-
-func (sub *StreamSubscription) Request() {
-	go func() {
-		sub.getNext <- true
-	}()
+	return sub.events
 }

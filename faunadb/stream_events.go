@@ -1,6 +1,7 @@
 package faunadb
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -138,28 +139,31 @@ func (event ErrorEvent) String() string {
 }
 
 func unMarshalStreamEvent(data Obj) (evt StreamEvent, err error) {
-	switch StreamEventType(data["type"].(StringV)) {
-	case StartEventT:
-		evt = StartEvent{
-			txn:   int64(data["txn"].(LongV)),
-			event: data["event"].(LongV),
+	if tpe, ok := data["type"]; ok {
+		switch StreamEventType(tpe.(StringV)) {
+		case StartEventT:
+			evt = StartEvent{
+				txn:   int64(data["txn"].(LongV)),
+				event: data["event"].(LongV),
+			}
+		case VersionEventT:
+			evt = VersionEvent{
+				txn:   int64(data["txn"].(LongV)),
+				event: data["event"].(ObjectV),
+			}
+		case ErrorEventT:
+			evt = ErrorEvent{
+				txn: int64(data["txn"].(LongV)),
+				err: errorFromStreamError(data["event"].(ObjectV)),
+			}
+		case HistoryRewriteEventT:
+			evt = HistoryRewriteEvent{
+				txn:   int64(data["txn"].(LongV)),
+				event: data["event"].(ObjectV),
+			}
 		}
-	case VersionEventT:
-		evt = VersionEvent{
-			txn:   int64(data["txn"].(LongV)),
-			event: data["event"].(ObjectV),
-		}
-	case ErrorEventT:
-		evt = ErrorEvent{
-			txn: int64(data["txn"].(LongV)),
-			err: errorFromStreamError(data["event"].(ObjectV)),
-		}
-
-	case HistoryRewriteEventT:
-		evt = HistoryRewriteEvent{
-			txn:   int64(data["txn"].(LongV)),
-			event: data["event"].(ObjectV),
-		}
+	} else {
+		err = errors.New("unparseable event type")
 	}
 	return
 }

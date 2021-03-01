@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -275,10 +274,6 @@ func (client *FaunaClient) Stream(query Expr, config ...StreamConfig) StreamSubs
 func (client *FaunaClient) startStream(subscription *StreamSubscription) (err error) {
 	var payload []byte
 	var response faunaResponse
-	if subscription.Status() != StreamConnIdle {
-		err = errors.New("stream subscription already started")
-		return
-	}
 
 	startTime := time.Now()
 	payload, err = client.prepareRequestBody(subscription.query)
@@ -301,7 +296,6 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 		}
 	}
 
-	subscription.status.Set(StreamConnOpening)
 	response, err = client.performRequest(body, endpoint.String(), true, nil)
 	if err != nil {
 		return
@@ -310,16 +304,19 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	httpResponse := response.response
 	_ = client.storeLastTxnTime(httpResponse.Header)
 	if err = checkForResponseErrors(httpResponse); err != nil {
-
-		subscription.status.Set(StreamConnError)
-
 		httpResponse.Body.Close()
 		response.cncl()
 		return
 	}
 
 	go func() {
-		subscription.status.Set(StreamConnActive)
+		<-subscription.closed
+		httpResponse.Body.Close()
+		response.cncl()
+	}()
+
+	go func() {
+		//subscription.status.Set(StreamConnActive)
 
 		defer func() {
 			httpResponse.Body.Close()
@@ -329,38 +326,30 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 		for {
 			var obj Obj
 
-			select {
-			case <-subscription.closingMessage:
-				subscription.status.Set(StreamConnClosed)
-				close(subscription.eventsMessages)
-				break
-			case <-subscription.getNext:
-				if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
-
-					if err == io.EOF {
-						break
-					}
-					subscription.eventsMessages <- ErrorEvent{
-						txn: startTime.Unix(),
-						err: err,
-					}
-				} else {
-					if err = val.Get(&obj); err == nil {
-						var event StreamEvent
-						if event, err = unMarshalStreamEvent(obj); err == nil {
-							client.SyncLastTxnTime(event.Txn())
-							subscription.eventsMessages <- event
-						} else {
-							subscription.eventsMessages <- ErrorEvent{
-								txn: startTime.Unix(),
-								err: err,
-							}
-						}
+			if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
+				if err == io.EOF || err.Error() == "http2: response body closed" {
+					break
+				}
+				subscription.events <- ErrorEvent{
+					txn: startTime.Unix(),
+					err: err,
+				}
+			} else {
+				if err = val.Get(&obj); err == nil {
+					var event StreamEvent
+					if event, err = unMarshalStreamEvent(obj); err == nil {
+						client.SyncLastTxnTime(event.Txn())
+						subscription.events <- event
 					} else {
-						subscription.eventsMessages <- ErrorEvent{
+						subscription.events <- ErrorEvent{
 							txn: startTime.Unix(),
 							err: err,
 						}
+					}
+				} else {
+					subscription.events <- ErrorEvent{
+						txn: startTime.Unix(),
+						err: err,
 					}
 				}
 			}
