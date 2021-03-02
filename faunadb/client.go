@@ -316,20 +316,16 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 	}()
 
 	go func() {
-		defer func() {
-			httpResponse.Body.Close()
-			response.cncl()
-		}()
 
 		for {
 			var obj Obj
 
 			if val, err := client.parseResponse(httpResponse, subscription.query, true, startTime); err != nil {
 				if err == io.EOF || err.Error() == "http2: response body closed" {
+					subscription.Close()
 					break
 				}
 				subscription.events <- ErrorEvent{
-					txn: startTime.Unix(),
 					err: err,
 				}
 			} else {
@@ -340,13 +336,11 @@ func (client *FaunaClient) startStream(subscription *StreamSubscription) (err er
 						subscription.events <- event
 					} else {
 						subscription.events <- ErrorEvent{
-							txn: startTime.Unix(),
 							err: err,
 						}
 					}
 				} else {
 					subscription.events <- ErrorEvent{
-						txn: startTime.Unix(),
 						err: err,
 					}
 				}
@@ -471,7 +465,6 @@ func (client *FaunaClient) callObserver(response *http.Response, expr Expr, stre
 		var obj Obj
 		if err := value.Get(&obj); err != nil {
 			event = ErrorEvent{
-				txn: time.Now().Unix(),
 				err: err,
 			}
 		} else {
