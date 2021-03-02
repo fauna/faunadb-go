@@ -133,6 +133,10 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		client.endpoint = defaultEndpoint
 	}
 
+	if client.queryTimeoutMs <= 0 {
+		client.queryTimeoutMs = uint64(requestTimeout / time.Millisecond)
+	}
+
 	if client.http == nil {
 		dial := func(network, addr string, cfg *tls.Config) (net.Conn, error) {
 			return net.Dial(network, addr)
@@ -147,7 +151,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 
 		client.http = &http.Client{
 			Transport: transport,
-			Timeout: requestTimeout,
+			Timeout:   time.Duration(client.queryTimeoutMs) * time.Millisecond,
 		}
 	}
 
@@ -159,13 +163,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		"Content-Type":          "application/json; charset=utf-8",
 		"X-FaunaDB-API-Version": apiVersion,
 		"X-Fauna-Driver":        headerFaunaDriver,
-	}
-
-	if client.queryTimeoutMs > 0 {
-		client.headers["X-Query-Timeout"] = strconv.FormatUint(client.queryTimeoutMs, 10)
-	} else {
-		client.queryTimeoutMs = uint64(requestTimeout.Milliseconds())
-		client.headers["X-Query-Timeout"] = strconv.FormatUint(uint64(requestTimeout.Milliseconds()), 10)
+		"X-Query-Timeout":       strconv.FormatUint(client.queryTimeoutMs, 10),
 	}
 
 	return client
