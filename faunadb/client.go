@@ -69,14 +69,6 @@ func DisableTxnTimePassthrough() ClientConfig {
 //QueryConfig is the base type for query specific configuration parameters.
 type QueryConfig func(*faunaRequest)
 
-// TimeoutMS sets the server timeout for a specific query.
-// This is not the http request timeout.
-func TimeoutMS(millis uint64) QueryConfig {
-	return func(req *faunaRequest) {
-		req.headers["X-Query-Timeout"] = strconv.FormatUint(millis, 10)
-	}
-}
-
 type faunaRequest struct {
 	headers map[string]string
 }
