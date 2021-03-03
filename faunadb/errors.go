@@ -1,8 +1,10 @@
 package faunadb
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -115,4 +117,25 @@ func parseErrorResponse(response *http.Response) FaunaError {
 	}
 
 	return errorResponse{false, response.StatusCode, errors}
+}
+
+func errorFromStreamError(obj ObjectV) (err error) {
+	var sb strings.Builder
+	sb.WriteString("stream_error:")
+	keys := make([]string, len(obj))
+	for k := range obj {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		if _, ok := obj[k]; ok {
+			sb.WriteString(" ")
+			sb.WriteString(k)
+			sb.WriteString("=")
+			sb.WriteString(fmt.Sprintf("'%s'", obj[k]))
+		}
+
+	}
+	err = errors.New(sb.String())
+	return
 }

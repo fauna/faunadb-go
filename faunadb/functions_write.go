@@ -184,7 +184,9 @@ type updateFn struct {
 //  Object - The replaced object.
 //
 // See: https://app.fauna.com/documentation/reference/queryapi#write-functions
-func Replace(ref, params interface{}) Expr { return replaceFn{Replace: wrap(ref), Params: wrap(params)} }
+func Replace(ref, params interface{}) Expr {
+	return replaceFn{Replace: wrap(ref), Params: wrap(params)}
+}
 
 type replaceFn struct {
 	fnApply
