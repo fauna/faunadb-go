@@ -76,7 +76,7 @@ For more information about FaunaDB query language, consult our query language
 [reference documentation](https://docs.fauna.com/fauna/current/reference/queryapi/).
 
 Specific reference documentation for the driver is hosted at
-[GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb).
+[GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v3).
 
 
 Most users found tests for the driver as a very useful form of documentation
