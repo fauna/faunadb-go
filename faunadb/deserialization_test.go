@@ -504,8 +504,8 @@ func TestDeserializeStructWithOmitEmptyTags(t *testing.T) {
 
 	var obj object
 
-	require.NoError(t, decodeJSON(`{ "name": "Jhon", "age": 0 }`, &obj))
-	require.Equal(t, object{"Jhon", 0}, obj)
+	require.NoError(t, decodeJSON(`{ "name": "John", "age": 0 }`, &obj))
+	require.Equal(t, object{"John", 0}, obj)
 }
 
 func decodeJSON(raw string, target interface{}) (err error) {
