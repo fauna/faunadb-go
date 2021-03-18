@@ -23,9 +23,16 @@ func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
 			continue
 		}
 
-		fieldName := fieldName(aStructType.Field(i))
+		fieldName, ignore, omitempty, err := parseTag(aStructType.Field(i))
+		if err != nil {
+			//TODO Handle error in case of bad tag options? Currently invalid options are just skipped
+		}
 
-		if fieldName != "-" {
+		if omitempty && isEmptyValue(field) {
+			continue
+		}
+
+		if !ignore && fieldName != "" {
 			fields[fieldName] = field
 		}
 	}
@@ -68,4 +75,26 @@ func indirectValue(i interface{}) (reflect.Value, reflect.Type) {
 	}
 
 	return value, value.Type()
+}
+
+func allStructFields(aStruct reflect.Value) map[string]reflect.Value {
+	fields := make(map[string]reflect.Value)
+	aStructType := aStruct.Type()
+
+	for i, size := 0, aStruct.NumField(); i < size; i++ {
+		field := aStruct.Field(i)
+		structTypeField := aStructType.Field(i)
+		if !field.CanInterface() {
+			continue
+		}
+
+		fieldName, ignore, _, _ := parseTag(aStructType.Field(i))
+
+		if !ignore && fieldName != "" {
+			fields[fieldName] = field
+		}
+		fields[structTypeField.Name] = field
+	}
+
+	return fields
 }
