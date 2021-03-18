@@ -1819,3 +1819,70 @@ func TestSerializeAccessProviders(t *testing.T) {
 		`{"access_providers":{"database":"auth_db"}}`,
 	)
 }
+
+type OmitStruct struct {
+	Name           string   `fauna:"name,omitempty"`
+	Age            int      `fauna:"age,omitempty"`
+	Payment        float64  `fauna:"payment,omitempty"`
+	AgePointer     *int     `fauna:"agePointer,omitempty"`
+	PaymentPointer *float64 `fauna:"paymentPointer,omitempty"`
+}
+
+func TestSerializeStructWithOmitEmptyTags(t *testing.T) {
+	x := 10
+	y := 42.42
+	tests := []struct {
+		name string
+		expr Expr
+		want string
+	}{
+		{
+			name: "Empty Int",
+			expr: Obj{"data": OmitStruct{Name: "John", Age: 0}},
+			want: `{"object":{"data":{"object":{"name":"John"}}}}`,
+		},
+		{
+			name: "Empty String",
+			expr: Obj{"data": OmitStruct{Name: "", Age: 30}},
+			want: `{"object":{"data":{"object":{"age":30}}}}`,
+		},
+		{
+			name: "Empty Float",
+			expr: Obj{"data": OmitStruct{Name: "John", Payment: 0.0}},
+			want: `{"object":{"data":{"object":{"name":"John"}}}}`,
+		},
+		{
+			name: "Int pointer",
+			expr: Obj{"data": OmitStruct{Name: "", AgePointer: &x}},
+			want: `{"object":{"data":{"object":{"agePointer":10}}}}`,
+		},
+		{
+			name: "Empty Int pointer",
+			expr: Obj{"data": OmitStruct{Name: "John", AgePointer: nil}},
+			want: `{"object":{"data":{"object":{"name":"John"}}}}`,
+		},
+		{
+			name: "Float pointer",
+			expr: Obj{"data": OmitStruct{Name: "", PaymentPointer: &y}},
+			want: `{"object":{"data":{"object":{"paymentPointer":42.42}}}}`,
+		},
+		{
+			name: "Empty Float pointer",
+			expr: Obj{"data": OmitStruct{Name: "John", PaymentPointer: nil}},
+			want: `{"object":{"data":{"object":{"name":"John"}}}}`,
+		},
+		{
+			name: "All data is empty",
+			expr: Obj{"data": OmitStruct{Name: "", Age: 0, Payment: 0.0, AgePointer: nil, PaymentPointer: nil}},
+			want: `{"object":{"data":{"object":{}}}}`,
+		},
+
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := json.Marshal(tt.expr)
+			require.NoError(t, err)
+			require.JSONEq(t, tt.want, string(got))
+		})
+	}
+}
