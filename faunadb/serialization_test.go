@@ -1820,17 +1820,19 @@ func TestSerializeAccessProviders(t *testing.T) {
 	)
 }
 
-type OmitStruct struct {
-	Name           string   `fauna:"name,omitempty"`
-	Age            int      `fauna:"age,omitempty"`
-	Payment        float64  `fauna:"payment,omitempty"`
-	AgePointer     *int     `fauna:"agePointer,omitempty"`
-	PaymentPointer *float64 `fauna:"paymentPointer,omitempty"`
-}
-
 func TestSerializeStructWithOmitEmptyTags(t *testing.T) {
+	type TestStruct struct{}
+	type OmitStruct struct {
+		Name           string      `fauna:"name,omitempty"`
+		Age            int         `fauna:"age,omitempty"`
+		Payment        float64     `fauna:"payment,omitempty"`
+		AgePointer     *int        `fauna:"agePointer,omitempty"`
+		PaymentPointer *float64    `fauna:"paymentPointer,omitempty"`
+		Struct         *TestStruct `fauna:"struct,omitempty"`
+	}
 	x := 10
 	y := 42.42
+	z := TestStruct{}
 	tests := []struct {
 		name string
 		expr Expr
@@ -1876,7 +1878,16 @@ func TestSerializeStructWithOmitEmptyTags(t *testing.T) {
 			expr: Obj{"data": OmitStruct{Name: "", Age: 0, Payment: 0.0, AgePointer: nil, PaymentPointer: nil}},
 			want: `{"object":{"data":{"object":{}}}}`,
 		},
-
+		{
+			name: "Non-empty struct",
+			expr: Obj{"data": OmitStruct{Struct: &z}},
+			want: `{"object":{"data":{"object":{"struct":{"object":{}}}}}}`,
+		},
+		{
+			name: "Empty struct",
+			expr: Obj{"data": OmitStruct{Struct: nil}},
+			want: `{"object":{"data":{"object":{}}}}`,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
