@@ -200,7 +200,6 @@ func getRuntimeEnvironment() string {
 		"AWS_LAMBDA_FUNCTION_VERSION":               "AWS Lambda",
 		"GOOGLE_CLOUD_PROJECT":                      "GCP Compute Instances",
 		"WEBSITE_FUNCTIONS_AZUREMONITOR_CATEGORIES": "Azure Cloud Functions",
-		"XDG_SESSION_ID":                            "AWS EC2",
 	}
 	for k := range env {
 		if _, ok := os.LookupEnv(k); ok {
