@@ -73,14 +73,6 @@ func DisableTxnTimePassthrough() ClientConfig {
 //QueryConfig is the base type for query specific configuration parameters.
 type QueryConfig func(*faunaRequest)
 
-// TimeoutMS sets the server timeout for a specific query.
-// This is not the http request timeout.
-func TimeoutMS(millis uint64) QueryConfig {
-	return func(req *faunaRequest) {
-		req.headers["X-Query-Timeout"] = strconv.FormatUint(millis, 10)
-	}
-}
-
 type faunaRequest struct {
 	headers map[string]string
 }
@@ -145,6 +137,9 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 	if client.endpoint == "" {
 		client.endpoint = defaultEndpoint
 	}
+	if client.queryTimeoutMs <= 0 {
+		client.queryTimeoutMs = uint64(requestTimeout / time.Millisecond)
+	}
 	streamURI := "stream"
 	if client.endpoint[len(streamURI)-1:] != "/" {
 		streamURI = "/" + streamURI
@@ -164,7 +159,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		}
 		client.http = &http.Client{
 			Transport: transport,
-			Timeout:   requestTimeout,
+			Timeout:   time.Duration(client.queryTimeoutMs) * time.Millisecond,
 		}
 	}
 
@@ -179,6 +174,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		"X-Runtime-Environment-OS": getRuntimeEnvironmentOs(),
 		"X-Runtime-Environment":    getRuntimeEnvironment(),
 		"X-GO-Version":             runtime.Version(),
+		"X-Query-Timeout":          strconv.FormatUint(client.queryTimeoutMs, 10),
 	}
 
 	if client.queryTimeoutMs > 0 {
@@ -204,7 +200,6 @@ func getRuntimeEnvironment() string {
 		"AWS_LAMBDA_FUNCTION_VERSION":               "AWS Lambda",
 		"GOOGLE_CLOUD_PROJECT":                      "GCP Compute Instances",
 		"WEBSITE_FUNCTIONS_AZUREMONITOR_CATEGORIES": "Azure Cloud Functions",
-		"XDG_SESSION_ID":                            "AWS EC2",
 	}
 	for k := range env {
 		if _, ok := os.LookupEnv(k); ok {
