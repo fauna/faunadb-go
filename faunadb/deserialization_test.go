@@ -267,7 +267,7 @@ func TestDeserializeObjectV(t *testing.T) {
 func TestDeserializeObject(t *testing.T) {
 	var object map[string]string
 
-	require.NoError(t, decodeJSON(`{ "key": "value" }`, &object))
+	require.NoError(t, decodeJSON(`{ "key": "value"} `, &object))
 	require.Equal(t, map[string]string{"key": "value"}, object)
 }
 
