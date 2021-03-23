@@ -5,14 +5,15 @@ import "reflect"
 func structToMap(aStruct reflect.Value) map[string]interface{} {
 	res := make(map[string]interface{}, aStruct.NumField())
 
-	for key, value := range exportedStructFields(aStruct) {
-		res[key] = value.Interface()
+	if expStructFields, err := exportedStructFields(aStruct); err == nil {
+		for key, value := range expStructFields {
+			res[key] = value.Interface()
+		}
 	}
-
 	return res
 }
 
-func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
+func exportedStructFields(aStruct reflect.Value) (map[string]reflect.Value, error) {
 	fields := make(map[string]reflect.Value)
 	aStructType := aStruct.Type()
 
@@ -25,7 +26,7 @@ func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
 
 		fieldName, ignore, omitempty, err := parseTag(aStructType.Field(i))
 		if err != nil {
-			//TODO Handle error in case of bad tag options? Currently invalid options are just skipped
+			return nil, err
 		}
 
 		if omitempty && isEmptyValue(field) {
@@ -37,7 +38,7 @@ func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
 		}
 	}
 
-	return fields
+	return fields, nil
 }
 
 func indirectValue(i interface{}) (reflect.Value, reflect.Type) {
@@ -84,6 +85,7 @@ func allStructFields(aStruct reflect.Value) map[string]reflect.Value {
 	for i, size := 0, aStruct.NumField(); i < size; i++ {
 		field := aStruct.Field(i)
 		structTypeField := aStructType.Field(i)
+
 		if !field.CanInterface() {
 			continue
 		}
