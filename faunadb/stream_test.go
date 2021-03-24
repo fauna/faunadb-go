@@ -66,7 +66,7 @@ func (s *StreamsTestSuite) TestRejectNonReadOnlyQuery() {
 	query := f.CreateCollection(f.Obj{"name": "collection"})
 	sub := s.client.Stream(query)
 	err := sub.Start()
-	s.EqualError(err, "Response error 400. Errors: [](invalid expression): Write effect in read-only query expression.")
+	s.EqualError(err, "Response error 400. Errors: [](invalid expression): Write effect in read-only query expression., details: []")
 }
 
 func (s *StreamsTestSuite) TestSelectFields() {
@@ -138,7 +138,7 @@ func (s *StreamsTestSuite) TestHandleBadQuery() {
 
 	sub := s.client.Stream(query)
 	err := sub.Start()
-	s.EqualError(err, "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, got String.")
+	s.EqualError(err, "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, got String., details: []")
 
 }
 
