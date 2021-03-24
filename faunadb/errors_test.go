@@ -57,9 +57,9 @@ func TestParseErrorResponse(t *testing.T) {
 				"position": [ "data", "token" ],
 				"code": "invalid token",
 				"description": "Invalid token.",
-				"failures": [
+				"cause": [
 					{
-						"field": [ "data", "token" ],
+						"position": [ "data", "token" ],
 						"code": "invalid token",
 						"description": "invalid token"
 					}
@@ -78,9 +78,9 @@ func TestParseErrorResponse(t *testing.T) {
 					Position:    []string{"data", "token"},
 					Code:        "invalid token",
 					Description: "Invalid token.",
-					Failures: []ValidationFailure{
+					Cause: []ValidationFailure{
 						{
-							Field:       []string{"data", "token"},
+							Position:    []string{"data", "token"},
 							Code:        "invalid token",
 							Description: "invalid token",
 						},
@@ -91,7 +91,7 @@ func TestParseErrorResponse(t *testing.T) {
 	}
 
 	require.Equal(t, expectedError, err)
-	require.EqualError(t, err, "Response error 401. Errors: [data/token](invalid token): Invalid token.")
+	require.EqualError(t, err, "Response error 401. Errors: [data/token](invalid token): Invalid token., details: [{[data token] invalid token invalid token}]")
 }
 
 func TestUnparseableResponse(t *testing.T) {
@@ -116,3 +116,4 @@ func errorResponseWith(status int, errors []QueryError) errorResponse {
 		errors:    errors,
 	}
 }
+
