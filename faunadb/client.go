@@ -159,7 +159,6 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		}
 		client.http = &http.Client{
 			Transport: transport,
-			Timeout:   time.Duration(client.queryTimeoutMs) * time.Millisecond,
 		}
 	}
 
@@ -435,7 +434,7 @@ func (client *FaunaClient) newClient(basicAuth string, observer ObserverCallback
 
 func (client *FaunaClient) performRequest(body io.Reader, endpoint string, streaming bool, configs []QueryConfig) (response faunaResponse, err error) {
 	var request *http.Request
-	var timeout time.Duration = requestTimeout
+	var timeout = time.Duration(client.queryTimeoutMs) * time.Millisecond
 	if streaming {
 		response.ctx, response.cncl = context.WithCancel(context.Background())
 
