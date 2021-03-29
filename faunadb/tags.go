@@ -48,7 +48,7 @@ func parseTag(field reflect.StructField) (name string, ignore, omitempty bool, e
 		name = field.Name
 	}
 
-	return name, ignore, omitempty, nil
+	return
 }
 
 func isEmptyValue(v reflect.Value) bool {
