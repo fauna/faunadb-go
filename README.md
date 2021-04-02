@@ -1,7 +1,7 @@
 # FaunaDB Go Driver
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
-[![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v3)
+[![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/master/LICENSE)
 
 A Go lang driver for [FaunaDB](https://fauna.com/).
@@ -9,10 +9,9 @@ A Go lang driver for [FaunaDB](https://fauna.com/).
 ## Supported Go Versions
 
 Currently, the driver is tested on:
-- 1.11
-- 1.12
 - 1.13
 - 1.14
+- 1.15
 
 ## Using the Driver
 
@@ -21,7 +20,7 @@ Currently, the driver is tested on:
 To get the latest version run:
 
 ```bash
-go get github.com/fauna/faunadb-go/v3/faunadb
+go get github.com/fauna/faunadb-go/v4/faunadb
 ```
 
 Please note that our driver undergoes breaking changes from time to time, so depending on our `master` branch is not recommended.
@@ -36,7 +35,7 @@ For better usage, we recommend that you import this driver with an alias import.
 To import a specific version when using `go get`, use:
 
 ```go
-import f "github.com/fauna/faunadb-go/v3/faunadb"
+import f "github.com/fauna/faunadb-go/v4/faunadb"
 ```
 
 ### Basic Usage
@@ -47,7 +46,7 @@ package main
 import (
 	"fmt"
 
-	f "github.com/fauna/faunadb-go/v3/faunadb"
+	f "github.com/fauna/faunadb-go/v4/faunadb"
 )
 
 type User struct {
@@ -72,11 +71,52 @@ func main() {
 }
 ```
 
+### Streaming feature usage
+```go
+package main
+
+import f "github.com/fauna/faunadb-go/v4/faunadb"
+
+func main() {
+	secret := ""
+	dbClient = f.NewFaunaClient(secret)
+	var ref f.RefV
+	value, err := dbClient.Query(f.Get(&ref))
+	if err != nil {
+		panic(err)
+	}
+	err = value.At(f.ObjKey("ref")).Get(&docRef)
+	var subscription f.StreamSubscription
+	subscription = dbClient.Stream(docRef)
+	err = subscription.Start()
+	if err != nil {
+		panic("Panic")
+	}
+	for a := range subscription.StreamEvents() {
+		switch a.Type() {
+	
+		case f.StartEventT:
+			// do smth on start event
+	
+		case f.HistoryRewriteEventT:
+			// do smth on historyRewrite event	
+			
+		case f.VersionEventT:
+			// do smth on version event
+			
+		case f.ErrorEventT:
+			// do smth on error event
+			subscription.Close() // if you want to close streaming on errors
+		}
+	}
+}
+```
+
 For more information about FaunaDB query language, consult our query language
 [reference documentation](https://docs.fauna.com/fauna/current/reference/queryapi/).
 
 Specific reference documentation for the driver is hosted at
-[GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v3).
+[GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v4).
 
 
 Most users found tests for the driver as a very useful form of documentation

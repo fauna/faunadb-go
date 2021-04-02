@@ -1,4 +1,11 @@
-# v3.0.0 (August, 2020) [current]
+# v4.0.0 (April, 2021) [current]
+
+- Add streaming feature
+- 3rd party Auth support
+- Omitempty tag support
+- Runtime partners info via header support
+
+# v3.0.0 (August, 2020)
 
 - Added Reverse()
 - Add ContainsPath(), ContainsField(), ContainsValue()
