@@ -496,6 +496,18 @@ func TestDeserializeComplexStruct(t *testing.T) {
 	require.Equal(t, expected, object)
 }
 
+func TestDeserializeStructWithOmitEmptyTags(t *testing.T) {
+	type object struct {
+		Name string `fauna:"name,omitempty"`
+		Age  int64  `fauna:"age,omitempty"`
+	}
+
+	var obj object
+
+	require.NoError(t, decodeJSON(`{ "name": "John", "age": 0 }`, &obj))
+	require.Equal(t, object{"John", 0}, obj)
+}
+
 func decodeJSON(raw string, target interface{}) (err error) {
 	buffer := []byte(raw)
 

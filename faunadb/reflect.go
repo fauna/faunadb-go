@@ -5,14 +5,15 @@ import "reflect"
 func structToMap(aStruct reflect.Value) map[string]interface{} {
 	res := make(map[string]interface{}, aStruct.NumField())
 
-	for key, value := range exportedStructFields(aStruct) {
-		res[key] = value.Interface()
+	if expStructFields, err := exportedStructFields(aStruct); err == nil {
+		for key, value := range expStructFields {
+			res[key] = value.Interface()
+		}
 	}
-
 	return res
 }
 
-func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
+func exportedStructFields(aStruct reflect.Value) (map[string]reflect.Value, error) {
 	fields := make(map[string]reflect.Value)
 	aStructType := aStruct.Type()
 
@@ -23,14 +24,21 @@ func exportedStructFields(aStruct reflect.Value) map[string]reflect.Value {
 			continue
 		}
 
-		fieldName := fieldName(aStructType.Field(i))
+		fieldName, ignore, omitempty, err := parseTag(aStructType.Field(i))
+		if err != nil {
+			return nil, err
+		}
 
-		if fieldName != "-" {
+		if omitempty && isEmptyValue(field) {
+			continue
+		}
+
+		if !ignore && fieldName != "" {
 			fields[fieldName] = field
 		}
 	}
 
-	return fields
+	return fields, nil
 }
 
 func indirectValue(i interface{}) (reflect.Value, reflect.Type) {
@@ -68,4 +76,27 @@ func indirectValue(i interface{}) (reflect.Value, reflect.Type) {
 	}
 
 	return value, value.Type()
+}
+
+func allStructFields(aStruct reflect.Value) map[string]reflect.Value {
+	fields := make(map[string]reflect.Value)
+	aStructType := aStruct.Type()
+
+	for i, size := 0, aStruct.NumField(); i < size; i++ {
+		field := aStruct.Field(i)
+		structTypeField := aStructType.Field(i)
+
+		if !field.CanInterface() {
+			continue
+		}
+
+		fieldName, ignore, _, _ := parseTag(aStructType.Field(i))
+
+		if !ignore && fieldName != "" {
+			fields[fieldName] = field
+		}
+		fields[structTypeField.Name] = field
+	}
+
+	return fields
 }
