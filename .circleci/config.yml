@@ -128,6 +128,8 @@ workflows:
     jobs:
       - core-stable-1-16-3:
           context: faunadb-drivers
+      - core-nightly-1-16-3:
+          context: faunadb-drivers
       - core-stable-1-15-6:
           context: faunadb-drivers
       - core-nightly-1-15-6:
