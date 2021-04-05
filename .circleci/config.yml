@@ -58,6 +58,21 @@ commands:
           path: results/
 
 jobs:
+  core-stable-1-16-3:
+    executor:
+      name: core
+      go_version: "1.16.3"
+      version: stable
+    steps:
+      - build_and_test
+
+    core-nightly-1-16-3:
+      executor:
+        name: core
+        go_version: "1.16.3"
+        version: nightly
+      steps:
+        - build_and_test
   core-stable-1-15-6:
     executor:
       name: core

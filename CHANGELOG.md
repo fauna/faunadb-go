@@ -1,9 +1,10 @@
 # v4.0.0 (April, 2021) [current]
 
-- Add streaming feature
-- 3rd party Auth support
-- Omitempty tag support
-- Runtime partners info via header support
+- Add support for document streaming
+- Add support for 3rd party Auth
+- Add support for Omitempty tag
+- Add header for tracking runtime environments
+
 
 # v3.0.0 (August, 2020)
 
