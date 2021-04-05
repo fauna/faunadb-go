@@ -1820,6 +1820,34 @@ func TestSerializeAccessProviders(t *testing.T) {
 	)
 }
 
+func TestSerializeCurrentIdentity(t *testing.T) {
+	assertJSON(t,
+		CurrentIdentity(),
+		`{"current_identity":null}`,
+	)
+}
+
+func TestSerializeCurrentToken(t *testing.T) {
+	assertJSON(t,
+		CurrentToken(),
+		`{"current_token":null}`,
+	)
+}
+
+func TestSerializeHasCurrentIdentity(t *testing.T) {
+	assertJSON(t,
+		HasCurrentIdentity(),
+		`{"has_current_identity":null}`,
+	)
+}
+
+func TestSerializeHasCurrentToken(t *testing.T) {
+	assertJSON(t,
+		HasCurrentToken(),
+		`{"has_current_token":null}`,
+	)
+}
+
 func TestSerializeStructWithOmitEmptyTags(t *testing.T) {
 	type TestStruct struct{}
 	type OmitStruct struct {
