@@ -61,7 +61,7 @@ jobs:
   core-stable-1-16-3:
     executor:
       name: core
-      go_version: "1.16.3"
+      go_version: "1.16"
       version: stable
     steps:
       - build_and_test
@@ -69,7 +69,7 @@ jobs:
   core-nightly-1-16-3:
     executor:
       name: core
-      go_version: "1.16.3"
+      go_version: "1.16"
       version: nightly
     steps:
       - build_and_test
