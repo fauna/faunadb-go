@@ -3,7 +3,7 @@
 - Add document streaming.
 - Add third-party authentication functions: AccessProvider, AccessProviders, CreateAccessProvider,
   CurrentIdentity, CurrentToken, HasCurrentIdentity, HasCurrentToken.
-- Add `omitempty` tag support
+- Add `omitempty` support for JSON encodings.
 - Add support for partners info via request headers.
 
 # v3.0.0 (August, 2020)
