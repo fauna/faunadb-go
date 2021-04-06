@@ -1,9 +1,10 @@
 # v4.0.0 (April, 2021) [current]
 
-- Add streaming feature
-- 3rd party Auth support
-- Omitempty tag support
-- Runtime partners info via header support
+- Add document streaming.
+- Add third-party authentication functions: AccessProvider, AccessProviders, CreateAccessProvider,
+  CurrentIdentity, CurrentToken, HasCurrentIdentity, HasCurrentToken.
+- Add `omitempty` tag support
+- Add support for partners info via request headers.
 
 # v3.0.0 (August, 2020)
 

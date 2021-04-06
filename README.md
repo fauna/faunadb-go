@@ -12,6 +12,7 @@ Currently, the driver is tested on:
 - 1.13
 - 1.14
 - 1.15
+- 1.16
 
 ## Using the Driver
 
