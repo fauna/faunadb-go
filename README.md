@@ -141,7 +141,7 @@ func main() {
 	}
 }
 ```
-###Result (empty/zero fields will be ignored):
+**Result (empty/zero fields will be ignored):**
 ```text
 {
   "ref": Ref(Collection("categories"), "295143889346494983"),
