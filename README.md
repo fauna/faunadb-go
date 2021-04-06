@@ -113,8 +113,8 @@ func main() {
 }
 ```
 
-For more information about FaunaDB query language, consult our query language
-[reference documentation](https://docs.fauna.com/fauna/current/reference/queryapi/).
+For more information about Fauna Query Language (FQL), consult our query language
+[reference documentation](https://docs.fauna.com/fauna/current/api/fql/).
 
 Specific reference documentation for the driver is hosted at
 [GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v4).
