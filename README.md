@@ -113,6 +113,46 @@ func main() {
 }
 ```
 
+### Omitempty usage
+```go
+package main
+
+import f "github.com/fauna/faunadb-go/v4/faunadb"
+
+func main() {
+	secret := ""
+	dbClient = f.NewFaunaClient(secret)
+	var ref f.RefV
+	value, err := dbClient.Query(f.Get(&ref))
+	if err != nil {
+		panic(err)
+	}
+	type OmitStruct struct {
+		Name           string      `fauna:"name,omitempty"`
+		Age            int         `fauna:"age,omitempty"`
+		Payment        float64     `fauna:"payment,omitempty"`
+		AgePointer     *int        `fauna:"agePointer,omitempty"`
+		PaymentPointer *float64    `fauna:"paymentPointer,omitempty"`
+	}
+	_, err := dbClient.Query(
+		f.Create(f.Collection("categories"), f.Obj{"data": OmitStruct{Name: "John", Age: 0}}))
+	if err != nil {
+		panic(err)
+	}
+}
+```
+###Result (empty/zero fields will be ignored):
+```text
+{
+  "ref": Ref(Collection("categories"), "295143889346494983"),
+  "ts": 1617729997710000,
+  "data": {
+    "name": "John"
+  }
+}
+```
+
+<br>
 For more information about Fauna Query Language (FQL), consult our query language
 [reference documentation](https://docs.fauna.com/fauna/current/api/fql/).
 
