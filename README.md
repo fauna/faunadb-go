@@ -151,7 +151,19 @@ func main() {
   }
 }
 ```
+### Http2 support
+Driver uses http2 by default. To use http 1.x provide custom http client to `FaunaClient`
+```go
+package main
 
+import f "github.com/fauna/faunadb-go/v4/faunadb"
+
+func main() {
+	secret := ""
+	customHttpClient := http.Client{}
+	dbClient = f.NewFaunaClient(secret, f.HTTP(&customHttpClient))
+}
+```
 <br>
 For more information about Fauna Query Language (FQL), consult our query language
 [reference documentation](https://docs.fauna.com/fauna/current/api/fql/).
