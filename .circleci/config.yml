@@ -73,6 +73,7 @@ jobs:
       version: nightly
     steps:
       - build_and_test
+
   core-stable-1-15-6:
     executor:
       name: core
