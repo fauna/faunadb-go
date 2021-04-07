@@ -1,4 +1,12 @@
-# v3.0.0 (August, 2020) [current]
+# v4.0.0 (April, 2021) [current]
+
+- Add document streaming.
+- Add third-party authentication functions: AccessProvider, AccessProviders, CreateAccessProvider,
+  CurrentIdentity, CurrentToken, HasCurrentIdentity, HasCurrentToken.
+- Add `omitempty` support for JSON encodings.
+- Add support for partners info via request headers.
+
+# v3.0.0 (August, 2020)
 
 - Added Reverse()
 - Add ContainsPath(), ContainsField(), ContainsValue()

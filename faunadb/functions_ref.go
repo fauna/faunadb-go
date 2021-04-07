@@ -607,3 +607,48 @@ type accessProvidersFn struct {
 	fnApply
 	AccessProviders Expr `json:"access_providers" faunarepr:"scopedfn"`
 }
+
+
+func CurrentIdentity() Expr {
+	return currentIdentityFn {
+		CurrentIdentity: NullV{},
+	}
+}
+
+type currentIdentityFn struct {
+	fnApply
+	CurrentIdentity Expr `json:"current_identity"`
+}
+
+func CurrentToken() Expr {
+	return currentTokenFn {
+		CurrentToken: NullV{},
+	}
+}
+
+type currentTokenFn struct {
+	fnApply
+	CurrentToken Expr `json:"current_token"`
+}
+
+func HasCurrentIdentity() Expr {
+	return hasCurrentIdentityFn {
+		HasCurrentIdentity: NullV{},
+	}
+}
+
+type hasCurrentIdentityFn struct {
+	fnApply
+	HasCurrentIdentity Expr `json:"has_current_identity"`
+}
+
+func HasCurrentToken() Expr {
+	return hasCurrentTokenFn {
+		HasCurrentToken: NullV{},
+	}
+}
+
+type hasCurrentTokenFn struct {
+	fnApply
+	HasCurrentToken Expr `json:"has_current_token"`
+}
