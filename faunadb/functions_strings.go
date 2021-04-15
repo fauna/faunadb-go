@@ -5,15 +5,15 @@ package faunadb
 // Format formats values into a string.
 //
 // Parameters:
-//  format string - format a string with format specifiers.
+//  format string - Format a string with format specifiers.
 //
 // Optional parameters:
-//  values []string - list of values to format into string.
+//  values []string - List of values to format into string.
 //
 // Returns:
 //  string - A string.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/format?lang=go
 func Format(format interface{}, values ...interface{}) Expr {
 	return formatFn{Format: wrap(format), Values: wrap(varargs(values...))}
 }
@@ -30,12 +30,13 @@ type formatFn struct {
 //  terms []string - A list of strings to concatenate.
 //
 // Optional parameters:
-//  separator string - The separator to use between each string. See Separator() function.
+//  separator string - The separator to use between each string. See
+//                     Separator() function.
 //
 // Returns:
 //  string - A string with all terms concatenated.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/concat?lang=go
 func Concat(terms interface{}, options ...OptionalParameter) Expr {
 	fn := concatFn{Concat: wrap(terms)}
 	return applyOptionals(fn, options)
@@ -47,18 +48,21 @@ type concatFn struct {
 	Separator Expr `json:"separator,omitempty" faunarepr:"optfn"`
 }
 
-// Casefold normalizes strings according to the Unicode Standard section 5.18 "Case Mappings".
+// Casefold normalizes strings according to the Unicode Standard section
+// 5.18 "Case Mappings".
 //
 // Parameters:
 //  str string - The string to casefold.
 //
 // Optional parameters:
-//  normalizer string - The algorithm to use. One of: NormalizerNFKCCaseFold, NormalizerNFC, NormalizerNFD, NormalizerNFKC, NormalizerNFKD.
+//  normalizer string - The algorithm to use. One of:
+//                      NormalizerNFKCCaseFold, NormalizerNFC,
+//                      NormalizerNFD, NormalizerNFKC, NormalizerNFKD.
 //
 // Returns:
 //  string - The normalized string.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/casefold?lang=go
 func Casefold(str interface{}, options ...OptionalParameter) Expr {
 	fn := casefoldFn{Casefold: wrap(str)}
 	return applyOptionals(fn, options)
@@ -70,17 +74,17 @@ type casefoldFn struct {
 	Normalizer Expr `json:"normalizer,omitempty" faunarepr:"optfn"`
 }
 
-// StartsWith returns true if the string starts with the given prefix value, or false if otherwise
+// StartsWith returns true if the string starts with the given prefix
+// value, or false if otherwise.
 //
 // Parameters:
-//
-//  value  string -  the string to evaluate
-//  search string -  the prefix to search for
+//  value  string - The string to evaluate.
+//  search string - The prefix to search for.
 //
 // Returns:
-//   boolean       - does `value` start with `search
+//   bool - Does `value` start with `search`?
 //
-// See https://docs.fauna.com/fauna/current/api/fql/functions/startswith
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/startswith?lang=go
 func StartsWith(value interface{}, search interface{}) Expr {
 	return startsWithFn{StartsWith: wrap(value), Search: wrap(search)}
 }
@@ -91,17 +95,17 @@ type startsWithFn struct {
 	Search     Expr `json:"search"`
 }
 
-// EndsWith returns true if the string ends with the given suffix value, or false if otherwise
+// EndsWith returns true if the string ends with the given suffix value,
+// or false if otherwise.
 //
 // Parameters:
-//
-// value  string  -  the string to evaluate
-// search  string -  the suffix to search for
+//  value  string  - The string to evaluate.
+//  search  string - The suffix to search for.
 //
 // Returns:
-// boolean       - does `value` end with `search`
+//  bool - Does `value` end with `search`?
 //
-// See https://docs.fauna.com/fauna/current/api/fql/functions/endswith
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/endswith?lang=go
 func EndsWith(value interface{}, search interface{}) Expr {
 	return endsWithFn{EndsWith: wrap(value), Search: wrap(search)}
 }
@@ -112,17 +116,17 @@ type endsWithFn struct {
 	Search   Expr `json:"search"`
 }
 
-// ContainsStr returns true if the string contains the given substring, or false if otherwise
+// ContainsStr returns true if the string contains the given substring,
+// or false if otherwise.
 //
 // Parameters:
-//
-// value string  -  the string to evaluate
-// search string -  the substring to search for
+//  value string  - The string to evaluate.
+//  search string - The substring to search for.
 //
 // Returns:
-// boolean      - was the search result found
+//  boolean - Was the search result found?
 //
-// See https://docs.fauna.com/fauna/current/api/fql/functions/containsstr
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/containsstr?lang=go
 func ContainsStr(value interface{}, search interface{}) Expr {
 	return containsStrFn{ContainsStr: wrap(value), Search: wrap(search)}
 }
@@ -133,17 +137,17 @@ type containsStrFn struct {
 	Search      Expr `json:"search"`
 }
 
-// ContainsStrRegex returns true if the string contains the given pattern, or false if otherwise
+// ContainsStrRegex returns true if the string contains the given
+// pattern, or false if otherwise
 //
 // Parameters:
-//
-// value   string      -  the string to evaluate
-// pattern string      -  the pattern to search for
+//  value   string - The string to evaluate.
+//  pattern string - The pattern to search for.
 //
 // Returns:
-// boolean      - was the search result found
+//  boolean - Was the search result found?
 //
-// See https://docs.fauna.com/fauna/current/api/fql/functions/containsstrregex
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/containsstrregex?lang=go
 func ContainsStrRegex(value interface{}, pattern interface{}) Expr {
 	return containsStrRegexFn{ContainsStrRegex: wrap(value), Pattern: wrap(pattern)}
 }
@@ -154,17 +158,17 @@ type containsStrRegexFn struct {
 	Pattern          Expr `json:"pattern"`
 }
 
-// RegexEscape It takes a string and returns a regex which matches the input string verbatim.
+// RegexEscape takes a string and returns a regex which matches the
+// input string verbatim.
 //
 // Parameters:
-//
-// value  string     - the string to analyze
-// pattern       -  the pattern to search for
+//  value  string - The string to analyze.
+//  pattern       - The pattern to search for.
 //
 // Returns:
-// boolean      - was the search result found
+//  boolean - Was the search result found?
 //
-// See https://docs.fauna.com/fauna/current/api/fql/functions/regexescape
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/regexescape?lang=go
 func RegexEscape(value interface{}) Expr {
 	return regexEscapeFn{RegexEscape: wrap(value)}
 }
@@ -174,19 +178,20 @@ type regexEscapeFn struct {
 	RegexEscape Expr `json:"regexescape"`
 }
 
-// FindStr locates a substring in a source string.  Optional parameters: Start
+// FindStr locates a substring in a source string.
+// Optional parameters: Start
 //
 // Parameters:
-//  str string  - The source string
-//  find string - The string to locate
+//  str string  - The source string.
+//  find string - The string to locate.
 //
 // Optional parameters:
-//  start int - a position to start the search. See Start() function.
+//  start int - A position to start the search. See Start() function.
 //
 // Returns:
 //  string - The offset of where the substring starts or -1 if not found
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/findstr?lang=go
 func FindStr(str, find interface{}, options ...OptionalParameter) Expr {
 	fn := findStrFn{FindStr: wrap(str), Find: wrap(find)}
 	return applyOptionals(fn, options)
@@ -199,19 +204,20 @@ type findStrFn struct {
 	Start   Expr `json:"start,omitempty" faunarepr:"optfn"`
 }
 
-// FindStrRegex locates a java regex pattern in a source string.  Optional parameters: Start
+// FindStrRegex locates a Java regex pattern in a source string.
+// Optional parameters: Start
 //
 // Parameters:
-//  str string      - The sourcestring
-//  pattern string  - The pattern to locate.
+//  str string     - The source string.
+//  pattern string - The pattern to locate.
 //
 // Optional parameters:
-//  start long - a position to start the search.  See Start() function.
+//  start long - A position to start the search. See Start() function.
 //
 // Returns:
-//  string - The offset of where the substring starts or -1 if not found
+//  string - The offset of where the substring starts, or -1 if not found.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/findstrregex?lang=go
 func FindStrRegex(str, pattern interface{}, options ...OptionalParameter) Expr {
 	fn := findStrRegexFn{FindStrRegex: wrap(str), Pattern: wrap(pattern)}
 	return applyOptionals(fn, options)
@@ -225,15 +231,15 @@ type findStrRegexFn struct {
 	NumResults   Expr `json:"num_results,omitempty" faunarepr:"optfn"`
 }
 
-// Length finds the length of a string in codepoints
+// Length finds the length of a string in codepoints.
 //
 // Parameters:
-//  str string - A string to find the length in codepoints
+//  str string - A string to find the length in codepoints.
 //
 // Returns:
 //  int - A length of a string.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/length?lang=go
 func Length(str interface{}) Expr { return lengthFn{Length: wrap(str)} }
 
 type lengthFn struct {
@@ -249,7 +255,7 @@ type lengthFn struct {
 // Returns:
 //  string - A string in lowercase.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/lowercase?lang=go
 func LowerCase(str interface{}) Expr { return lowercaseFn{Lowercase: wrap(str)} }
 
 type lowercaseFn struct {
@@ -257,15 +263,15 @@ type lowercaseFn struct {
 	Lowercase Expr `json:"lowercase"`
 }
 
-// LTrim returns a string wtih leading white space removed.
+// LTrim returns a string with leading white space removed.
 //
 // Parameters:
-//  str string - A string to remove leading white space
+//  str string - A string to remove leading white space.
 //
 // Returns:
-//  string - A string with all leading white space removed
+//  string - A string with all leading white space removed.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/ltrim?lang=go
 func LTrim(str interface{}) Expr { return lTrimFn{LTrim: wrap(str)} }
 
 type lTrimFn struct {
@@ -273,19 +279,20 @@ type lTrimFn struct {
 	LTrim Expr `json:"ltrim"`
 }
 
-// Repeat returns a string wtih repeated n times
+// Repeat returns a string with repeated n times.
 //
 // Parameters:
-//  str string - A string to repeat
-//  number int - The number of times to repeat the string
+//  str string - A string to repeat.
+//  number int - The number of times to repeat the string.
 //
 // Optional parameters:
-//  Number - Only replace the first found pattern.  See OnlyFirst() function.
+//  Number - Only replace the first found pattern.
+//           See OnlyFirst() function.
 //
 // Returns:
 //  string - A string concatendanted the specified number of times
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/repeat?lang=go
 func Repeat(str interface{}, options ...OptionalParameter) Expr {
 	fn := repeatFn{Repeat: wrap(str)}
 	return applyOptionals(fn, options)
@@ -297,17 +304,19 @@ type repeatFn struct {
 	Number Expr `json:"number,omitempty" faunarepr:"fn=optfn,name=Number"`
 }
 
-// ReplaceStr returns a string with every occurence of the "find" string changed to "replace" string
+// ReplaceStr returns a string with every occurrence of the "find" string
+// changed to "replace" string.
 //
 // Parameters:
-//  str string     - A source string
-//  find string    - The substring to locate in in the source string
-//  replace string - The string to replaice the "find" string when located
+//  str string     - A source string.
+//  find string    - The substring to locate in in the source string.
+//  replace string - The string to replaice the "find" string when located.
 //
 // Returns:
-//  string - returns a string with every occurence of the "find" string changed to "replace"
+//  string - A string with every occurrence of the "find" string changed to
+//  "replace".
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/replacestr?lang=go
 func ReplaceStr(str, find, replace interface{}) Expr {
 	return replaceStrFn{
 		ReplaceStr: wrap(str),
@@ -323,20 +332,24 @@ type replaceStrFn struct {
 	Replace    Expr `json:"replace"`
 }
 
-// ReplaceStrRegex returns a string with occurence(s) of the java regular expression "pattern" changed to "replace" string.   Optional parameters: OnlyFirst
+// ReplaceStrRegex returns a string with occurrence(s) of the Java regular
+// expression "pattern" changed to "replace" string.
+// Optional parameters: OnlyFirst
 //
 // Parameters:
-//  value string   - The source string
-//  pattern string - A java regular expression to locate
-//  replace string - The string to replace the pattern when located
+//  value string   - The source string.
+//  pattern string - A Java regular expression to locate.
+//  replace string - The string to replace the pattern when located.
 //
 // Optional parameters:
-//  OnlyFirst - Only replace the first found pattern.  See OnlyFirst() function.
+//  OnlyFirst - Only replace the first found pattern.
+//              See OnlyFirst() function.
 //
 // Returns:
-//  string - A string with occurence(s) of the java regular expression "pattern" changed to "replace" string
+//  string - A string with occurrence(s) of the Java regular expression
+//           "pattern" changed to "replace" string
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/replacestrregex?lang=go
 func ReplaceStrRegex(value, pattern, replace interface{}, options ...OptionalParameter) Expr {
 	fn := replaceStrRegexFn{
 		ReplaceStrRegex: wrap(value),
@@ -354,15 +367,15 @@ type replaceStrRegexFn struct {
 	First           Expr `json:"first,omitempty" faunarepr:"fn=optfn,name=OnlyFirst,noargs=true"`
 }
 
-// RTrim returns a string wtih trailing white space removed.
+// RTrim returns a string with trailing white space removed.
 //
 // Parameters:
-//  str string - A string to remove trailing white space
+//  str string - A string to remove trailing white space.
 //
 // Returns:
-//  string - A string with all trailing white space removed
+//  string - A string with all trailing white space removed.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/rtrim?lang=go
 func RTrim(str interface{}) Expr { return rTrimFn{RTrim: wrap(str)} }
 
 type rTrimFn struct {
@@ -370,15 +383,15 @@ type rTrimFn struct {
 	RTrim Expr `json:"rtrim"`
 }
 
-// Space function returns "N" number of spaces
+// Space function returns "N" number of spaces.
 //
 // Parameters:
-//  value int - the number of spaces
+//  value int - The number of spaces.
 //
 // Returns:
-//  string - function returns string with n spaces
+//  string - A string with n spaces.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/space?lang=go
 func Space(value interface{}) Expr { return spaceFn{Space: wrap(value)} }
 
 type spaceFn struct {
@@ -386,19 +399,22 @@ type spaceFn struct {
 	Space Expr `json:"space"`
 }
 
-// SubString returns a subset of the source string.   Optional parameters: StrLength
+// SubString returns a subset of the source string.
+// Optional parameters: StrLength
 //
 // Parameters:
-//  str string - A source string
-//  start int  - The position in the source string where SubString starts extracting characters
+//  str string - A source string.
+//  start int  - The position in the source string where SubString
+//               starts extracting characters.
 //
 // Optional parameters:
-//  StrLength int - A value for the length of the extracted substring. See StrLength() function.
+//  StrLength int - A value for the length of the extracted substring.
+//                  See StrLength() function.
 //
 // Returns:
-//  string - function returns a subset of the source string
+//  string - The subset of the source string.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/substring?lang=go
 func SubString(str, start interface{}, options ...OptionalParameter) Expr {
 	fn := subStringFn{SubString: wrap(str), Start: wrap(start)}
 	return applyOptionals(fn, options)
@@ -411,15 +427,15 @@ type subStringFn struct {
 	Length    Expr `json:"length,omitempty" faunarepr:"fn=optfn,name=StrLength"`
 }
 
-// TitleCase changes all characters in the string to TitleCase
+// TitleCase changes all characters in the string to TitleCase.
 //
 // Parameters:
-//  str string - A string to convert to TitleCase
+//  str string - A string to convert to TitleCase.
 //
 // Returns:
 //  string - A string in TitleCase.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/titlecase?lang=go
 func TitleCase(str interface{}) Expr { return titleCaseFn{Titlecase: wrap(str)} }
 
 type titleCaseFn struct {
@@ -427,15 +443,15 @@ type titleCaseFn struct {
 	Titlecase Expr `json:"titlecase"`
 }
 
-// Trim returns a string wtih trailing white space removed.
+// Trim returns a string with trailing white space removed.
 //
 // Parameters:
-//  str string - A string to remove trailing white space
+//  str string - A string to remove trailing white space.
 //
 // Returns:
-//  string - A string with all trailing white space removed
+//  string - A string with all trailing white space removed.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/trim?lang=go
 func Trim(str interface{}) Expr { return trimFn{Trim: wrap(str)} }
 
 type trimFn struct {
@@ -443,15 +459,15 @@ type trimFn struct {
 	Trim Expr `json:"trim"`
 }
 
-// UpperCase changes all characters in the string to uppercase
+// UpperCase changes all characters in the string to uppercase.
 //
 // Parameters:
-//  string - A string to convert to uppercase
+//  string - A string to convert to uppercase.
 //
 // Returns:
 //  string - A string in uppercase.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/uppercase?lang=go
 func UpperCase(str interface{}) Expr { return upperCaseFn{UpperCase: wrap(str)} }
 
 type upperCaseFn struct {

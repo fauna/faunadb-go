@@ -10,7 +10,7 @@ package faunadb
 // Returns:
 //  time - A time object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/time?lang=go
 func Time(str interface{}) Expr { return timeFn{Time: wrap(str)} }
 
 type timeFn struct {
@@ -22,14 +22,14 @@ type timeFn struct {
 // added.
 //
 // Parameters:
-// base        -  the base time or data
-// offset      -  the number of units
-// unit        -  the unit type
+//  base   - The base time or data.
+//  offset - The number of units.
+//  unit   - The unit type.
 //
 // Returns:
-// Expr
+//  Expr - A new time object after adding the offset unit.
 //
-//See: https://docs.fauna.com/fauna/current/api/fql/functions/timeadd
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timeadd?lang=go
 func TimeAdd(base interface{}, offset interface{}, unit interface{}) Expr {
 	return timeAddFn{TimeAdd: wrap(base), Offset: wrap(offset), Unit: wrap(unit)}
 }
@@ -41,18 +41,18 @@ type timeAddFn struct {
 	Unit    Expr `json:"unit"`
 }
 
-// TimeSubtract returns a new time or date with the offset in terms of the unit
-// subtracted.
+// TimeSubtract returns a new time or date with the offset in terms of
+// the unit subtracted.
 //
 // Parameters:
-// base        -  the base time or data
-// offset      -  the number of units
-// unit        -  the unit type
+//  base   - The base time or data.
+//  offset - The number of units.
+//  unit   - The unit type.
 //
 // Returns:
-// Expr
+//  Expr - A new time object after subtracting the offset unit.
 //
-//See: https://docs.fauna.com/fauna/current/api/fql/functions/timesubtract
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timesubtract?lang=go
 func TimeSubtract(base interface{}, offset interface{}, unit interface{}) Expr {
 	return timeSubtractFn{TimeSubtract: wrap(base), Offset: wrap(offset), Unit: wrap(unit)}
 }
@@ -69,13 +69,15 @@ type timeSubtractFn struct {
 // type.
 //
 // Parameters:
-//   start the starting time or date, inclusive
-//   finish the ending time or date, exclusive
-//   unit the unit type//
+//  start   - The starting time or date, inclusive.
+//  finish  - The ending time or date, exclusive.
+//  unit    - The unit type//.
+
 // Returns:
-// Expr
+//  Expr - A new time object representing the different between start
+//         and finish.
 //
-//See: https://docs.fauna.com/fauna/current/api/fql/functions/timediff
+//See: https://docs.fauna.com/fauna/current/api/fql/functions/timediff?lang=go
 func TimeDiff(start interface{}, finish interface{}, unit interface{}) Expr {
 	return timeDiffFn{TimeDiff: wrap(start), Other: wrap(finish), Unit: wrap(unit)}
 }
@@ -95,7 +97,7 @@ type timeDiffFn struct {
 // Returns:
 //  date - A date object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/date?lang=go
 func Date(str interface{}) Expr { return dateFn{Date: wrap(str)} }
 
 type dateFn struct {
@@ -106,13 +108,15 @@ type dateFn struct {
 // Epoch constructs a time relative to the epoch "1970-01-01T00:00:00Z".
 //
 // Parameters:
-//  num int64 - The number of units from Epoch.
-//  unit string - The unit of number. One of TimeUnitSecond, TimeUnitMillisecond, TimeUnitMicrosecond, TimeUnitNanosecond.
+//  num int64   - The number of units from Epoch.
+//  unit string - The unit of number. One of: TimeUnitSecond,
+//                TimeUnitMillisecond, TimeUnitMicrosecond,
+//                TimeUnitNanosecond.
 //
 // Returns:
 //  time - A time object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#time-and-date
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/epoch?lang=go
 func Epoch(num, unit interface{}) Expr { return epochFn{Epoch: wrap(num), Unit: wrap(unit)} }
 
 type epochFn struct {
@@ -124,9 +128,9 @@ type epochFn struct {
 // Now returns the current snapshot time.
 //
 // Returns:
-// Expr
+//  Expr - A time object representing the current query time.
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/now
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/now?lang=go
 func Now() Expr {
 	return nowFn{Now: NullV{}}
 }
@@ -139,10 +143,12 @@ type nowFn struct {
 // ToSeconds converts a time expression to seconds since the UNIX epoch.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - A time literal.
+//  time - A time literal.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/toseconds?lang=go
 func ToSeconds(value interface{}) Expr {
 	return toSecondsFn{ToSeconds: wrap(value)}
 }
@@ -155,10 +161,12 @@ type toSecondsFn struct {
 // ToMillis converts a time expression to milliseconds since the UNIX epoch.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - A time literal.
+//  time - A time literal.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/tomillis?lang=go
 func ToMillis(value interface{}) Expr {
 	return toMillisFn{ToMillis: wrap(value)}
 }
@@ -175,6 +183,8 @@ type toMillisFn struct {
 //
 // Returns:
 //   time - A time literal.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/tomicros?lang=go
 func ToMicros(value interface{}) Expr {
 	return toMicrosFn{ToMicros: wrap(value)}
 }
@@ -187,10 +197,12 @@ type toMicrosFn struct {
 // Year returns the time expression's year, following the ISO-8601 standard.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - year.
+//   time - The year from the value.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/year?lang=go
 func Year(value interface{}) Expr {
 	return yearFn{Year: wrap(value)}
 }
@@ -203,10 +215,12 @@ type yearFn struct {
 // Month returns a time expression's month of the year, from 1 to 12.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - Month.
+//  time - The month from the value.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/month?lang=go
 func Month(value interface{}) Expr {
 	return monthFn{Month: wrap(value)}
 }
@@ -219,10 +233,12 @@ type monthFn struct {
 // Hour returns a time expression's hour of the day, from 0 to 23.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - year.
+//  time - The hour from the value.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/hour?lang=go
 func Hour(value interface{}) Expr {
 	return hourFn{Hour: wrap(value)}
 }
@@ -235,10 +251,12 @@ type hourFn struct {
 // Minute returns a time expression's minute of the hour, from 0 to 59.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - year.
+//  time - The minutes from the value.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/minute?lang=go
 func Minute(value interface{}) Expr {
 	return minuteFn{Minute: wrap(value)}
 }
@@ -251,10 +269,12 @@ type minuteFn struct {
 // Second returns a time expression's second of the minute, from 0 to 59.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - year.
+//  time - The seconds from the value.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/second?lang=go
 func Second(value interface{}) Expr {
 	return secondFn{Second: wrap(value)}
 }
@@ -267,10 +287,12 @@ type secondFn struct {
 // DayOfMonth returns a time expression's day of the month, from 1 to 31.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - day of month.
+//  time - Day of the month.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/dayofmonth?lang=go
 func DayOfMonth(value interface{}) Expr {
 	return dayOfMonthFn{DayOfMonth: wrap(value)}
 }
@@ -280,13 +302,16 @@ type dayOfMonthFn struct {
 	DayOfMonth Expr `json:"day_of_month"`
 }
 
-// DayOfWeek returns a time expression's day of the week following ISO-8601 convention, from 1 (Monday) to 7 (Sunday).
+// DayOfWeek returns a time expression's day of the week following
+// ISO-8601 convention, from 1 (Monday) to 7 (Sunday).
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - day of week.
+//  time - Day of the week.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/dayofweek?lang=go
 func DayOfWeek(value interface{}) Expr {
 	return dayOfWeekFn{DayOfWeek: wrap(value)}
 }
@@ -296,13 +321,16 @@ type dayOfWeekFn struct {
 	DayOfWeek Expr `json:"day_of_week"`
 }
 
-// DayOfYear eturns a time expression's day of the year, from 1 to 365, or 366 in a leap year.
+// DayOfYear returns a time expression's day of the year, from 1 to 365,
+// or 366 in a leap year.
 //
 // Parameters:
-//    value Object - The expression to convert.
+//  value Object - The expression to convert.
 //
 // Returns:
-//   time - Day of the year.
+//  time - Day of the year.
+//
+// https://docs.fauna.com/fauna/current/api/fql/functions/dayofyear?lang=go
 func DayOfYear(value interface{}) Expr {
 	return dayOfYearFn{DayOfYear: wrap(value)}
 }

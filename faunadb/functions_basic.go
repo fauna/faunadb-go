@@ -2,7 +2,7 @@ package faunadb
 
 // Basic forms
 
-// Abort aborts the execution of the query
+// Abort aborts the execution of the query.
 //
 // Parameters:
 //  msg string - An error message.
@@ -10,7 +10,7 @@ package faunadb
 // Returns:
 //  Error
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/abort?lang=go
 func Abort(msg interface{}) Expr { return abortFn{Abort: wrap(msg)} }
 
 type abortFn struct {
@@ -18,8 +18,8 @@ type abortFn struct {
 	Abort Expr `json:"abort"`
 }
 
-// Do sequentially evaluates its arguments, and returns the last expression.
-// If no expressions are provided, do returns an error.
+// Do sequentially evaluates its arguments, and returns the last
+// expression. If no expressions are provided, do returns an error.
 //
 // Parameters:
 //  exprs []Expr - A variable number of expressions to be evaluated.
@@ -27,7 +27,7 @@ type abortFn struct {
 // Returns:
 //  Value - The result of the last expression in the list.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/do?lang=go
 func Do(exprs ...interface{}) Expr { return doFn{Do: wrap(varargs(exprs))} }
 
 type doFn struct {
@@ -36,7 +36,8 @@ type doFn struct {
 }
 
 // If evaluates and returns then or elze depending on the value of cond.
-// If cond evaluates to anything other than a boolean, if returns an “invalid argument” error
+// If cond evaluates to anything other than a boolean, if returns an
+// "invalid argument" error.
 //
 // Parameters:
 //  cond bool - A boolean expression.
@@ -46,7 +47,7 @@ type doFn struct {
 // Returns:
 //  Value - The result of either then or elze expression.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/if?lang=go
 func If(cond, then, elze interface{}) Expr {
 	return ifFn{
 		If:   wrap(cond),
@@ -62,16 +63,19 @@ type ifFn struct {
 	Else Expr `json:"else"`
 }
 
-// Lambda creates an anonymous function. Mostly used with Collection functions.
+// Lambda creates an anonymous function. Mostly used with Collection
+// functions.
 //
 // Parameters:
-//  varName string|[]string - A string or an array of strings of arguments name to be bound in the body of the lambda.
-//  expr Expr - An expression used as the body of the lambda.
+//  varName string|[]string - A string or an array of strings of
+//                            arguments name to be bound in the body of
+//                            the lambda.
+//  expr Expr               - An expression used as the body of the lambda.
 //
 // Returns:
 //  Value - The result of the body expression.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/lambda?lang=go
 func Lambda(varName, expr interface{}) Expr {
 	return lambdaFn{
 		Lambda:     wrap(varName),
@@ -88,13 +92,14 @@ type lambdaFn struct {
 // At execute an expression at a given timestamp.
 //
 // Parameters:
-//  timestamp time - The timestamp in which the expression will be evaluated.
-//  expr Expr - An expression to be evaluated.
+//  timestamp time - The timestamp in which the expression will be
+//                   evaluated.
+//  expr Expr      - An expression to be evaluated.
 //
 // Returns:
 //  Value - The result of the given expression.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/at?lang=go
 func At(timestamp, expr interface{}) Expr {
 	return atFn{
 		At:         wrap(timestamp),
@@ -140,7 +145,7 @@ func (lb *LetBuilder) In(in Expr) Expr {
 // Returns:
 //  *LetBuilder - Returns a LetBuilder.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/let?lang=go
 func Let() *LetBuilder { return &LetBuilder{nil} }
 
 // Var refers to a value of a variable on the current lexical scope.
@@ -151,7 +156,7 @@ func Let() *LetBuilder { return &LetBuilder{nil} }
 // Returns:
 //  Value - The variable value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/var?lang=go
 func Var(name string) Expr { return varFn{Var: wrap(name)} }
 
 type varFn struct {
@@ -159,16 +164,18 @@ type varFn struct {
 	Var Expr `json:"var"`
 }
 
-// Call invokes the specified function passing in a variable number of arguments
+// Call invokes the specified function passing in a variable number of
+// arguments.
 //
 // Parameters:
-//  ref Ref - The reference to the user defined functions to call.
-//  args []Value - A series of values to pass as arguments to the user defined function.
+//  ref Ref      - The reference to the user defined functions to call.
+//  args []Value - A series of values to pass as arguments to the user
+//                 defined function.
 //
 // Returns:
 //  Value - The return value of the user defined function.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/call?lang=go
 func Call(ref interface{}, args ...interface{}) Expr {
 	return callFn{Call: wrap(ref), Params: wrap(varargs(args...))}
 }
@@ -179,7 +186,8 @@ type callFn struct {
 	Params Expr `json:"arguments"`
 }
 
-// Query creates an instance of the @query type with the specified lambda
+// Query creates an instance of the @query type with the specified
+// lambda.
 //
 // Parameters:
 //  lambda Lambda - A lambda representation. See Lambda() function.
@@ -187,7 +195,7 @@ type callFn struct {
 // Returns:
 //  Query - The lambda wrapped in a @query type.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#basic-forms
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/query?lang=go
 func Query(lambda interface{}) Expr { return queryFn{Query: wrap(lambda)} }
 
 type queryFn struct {
@@ -195,10 +203,12 @@ type queryFn struct {
 	Query Expr `json:"query"`
 }
 
-// Select traverses into the provided value, returning the value at the given path.
+// Select traverses into the provided value, returning the value at the
+// given path.
 //
 // Parameters:
-//  path []Path - An array representing a path to pull from an object. Path can be either strings or numbers.
+//  path []Path  - An array representing a path to pull from an object.
+//                 Path can be either strings or numbers.
 //  value Object - The object to select from.
 //
 // Optional parameters:
@@ -207,7 +217,7 @@ type queryFn struct {
 // Returns:
 //  Value - The value at the given path location.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#read-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/select?lang=go
 func Select(path, value interface{}, options ...OptionalParameter) Expr {
 	fn := selectFn{Select: wrap(path), From: wrap(value)}
 	return applyOptionals(fn, options)
@@ -220,16 +230,21 @@ type selectFn struct {
 	Default Expr `json:"default,omitempty" faunarepr:"optfn"`
 }
 
-// SelectAll traverses into the provided value flattening all values under the desired path.
+// SelectAll traverses into the provided value flattening all values
+// under the desired path.
+//
+// Deprecated: Many users assume this is similar to SQL's SELECT
+// statement, and it is not.
 //
 // Parameters:
-//  path []Path - An array representing a path to pull from an object. Path can be either strings or numbers.
+//  path []Path  - An array representing a path to pull from an object.
+//                 Path can be either strings or numbers.
 //  value Object - The object to select from.
 //
 // Returns:
 //  Value - The value at the given path location.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#read-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/selectall?lang=go
 func SelectAll(path, value interface{}) Expr {
 	return selectAllFn{SelectAll: wrap(path), From: wrap(value)}
 }

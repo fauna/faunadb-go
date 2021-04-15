@@ -2,17 +2,19 @@ package faunadb
 
 // Collections
 
-// Map applies the lambda expression on each element of a collection or Page.
-// It returns the result of each application on a collection of the same type.
+// Map applies the lambda expression on each element of a collection or
+// Page. It returns the result of each application on a collection of
+// the same type.
 //
 // Parameters:
-//  coll []Value - The collection of elements to iterate.
-//  lambda Lambda - A lambda function to be applied to each element of the collection. See Lambda() function.
+//  coll []Value  - The collection of elements to iterate.
+//  lambda Lambda - A lambda function to be applied to each element of
+//                  the collection. See Lambda() function.
 //
 // Returns:
 //  []Value - A new collection with elements transformed by the lambda function.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/map?lang=go
 func Map(coll, lambda interface{}) Expr { return mapFn{Map: wrap(lambda), Collection: wrap(coll)} }
 
 type mapFn struct {
@@ -21,17 +23,18 @@ type mapFn struct {
 	Collection Expr `json:"collection"`
 }
 
-// Foreach applies the lambda expression on each element of a collection or Page.
-// The original collection is returned.
+// Foreach applies the lambda expression on each element of a collection
+// or Page. The original collection is returned.
 //
 // Parameters:
-//  coll []Value - The collection of elements to iterate.
-//  lambda Lambda - A lambda function to be applied to each element of the collection. See Lambda() function.
+//  coll []Value  - The collection of elements to iterate.
+//  lambda Lambda - A lambda function to be applied to each element of
+//                  the collection. See Lambda() function.
 //
 // Returns:
 //  []Value - The original collection.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/foreach?lang=go
 func Foreach(coll, lambda interface{}) Expr {
 	return foreachFn{Foreach: wrap(lambda), Collection: wrap(coll)}
 }
@@ -42,18 +45,20 @@ type foreachFn struct {
 	Collection Expr `json:"collection"`
 }
 
-// Filter applies the lambda expression on each element of a collection or Page.
-// It returns a new collection of the same type containing only the elements in which the
-// function application returned true.
+// Filter applies the lambda expression on each element of a collection
+// or Page. It returns a new collection of the same type containing
+// only the elements in which the function application returned true.
 //
 // Parameters:
-//  coll []Value - The collection of elements to iterate.
-//  lambda Lambda - A lambda function to be applied to each element of the collection. The lambda function must return a boolean value. See Lambda() function.
+//  coll []Value  - The collection of elements to iterate.
+//  lambda Lambda - A lambda function to be applied to each element of
+//                  the collection. The lambda function must return a
+//                  boolean value. See Lambda() function.
 //
 // Returns:
 //  []Value - A new collection.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/filter?lang=go
 func Filter(coll, lambda interface{}) Expr {
 	return filterFn{Filter: wrap(lambda), Collection: wrap(coll)}
 }
@@ -67,13 +72,13 @@ type filterFn struct {
 // Take returns a new collection containing num elements from the head of the original collection.
 //
 // Parameters:
-//  num int64 - The number of elements to take from the collection.
+//  num int64    - The number of elements to take from the collection.
 //  coll []Value - The collection of elements.
 //
 // Returns:
 //  []Value - A new collection.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/take?lang=go
 func Take(num, coll interface{}) Expr { return takeFn{Take: wrap(num), Collection: wrap(coll)} }
 
 type takeFn struct {
@@ -92,7 +97,7 @@ type takeFn struct {
 // Returns:
 //  []Value - A new collection.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/drop?lang=go
 func Drop(num, coll interface{}) Expr { return dropFn{Drop: wrap(num), Collection: wrap(coll)} }
 
 type dropFn struct {
@@ -110,7 +115,7 @@ type dropFn struct {
 // Returns:
 //  []Value - A new collection.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/prepend?lang=go
 func Prepend(elems, coll interface{}) Expr {
 	return prependFn{Prepend: wrap(elems), Collection: wrap(coll)}
 }
@@ -125,12 +130,12 @@ type prependFn struct {
 //
 // Parameters:
 //  elems []Value - Elements to add to the end of the other collection.
-//  coll []Value - The collection of elements.
+//  coll []Value  - The collection of elements.
 //
 // Returns:
 //  []Value - A new collection.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/append?lang=go
 func Append(elems, coll interface{}) Expr {
 	return appendFn{Append: wrap(elems), Collection: wrap(coll)}
 }
@@ -149,7 +154,7 @@ type appendFn struct {
 // Returns:
 //   bool - True if the collection is empty, else false.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/isempty?lang=go
 func IsEmpty(coll interface{}) Expr { return isEmptyFn{IsEmpty: wrap(coll)} }
 
 type isEmptyFn struct {
@@ -165,7 +170,7 @@ type isEmptyFn struct {
 // Returns:
 //   bool - True if the collection is not empty, else false.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#collections
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/isnonempty?lang=go
 func IsNonEmpty(coll interface{}) Expr { return isNonEmptyFn{IsNonEmpty: wrap(coll)} }
 
 type isNonEmptyFn struct {
@@ -175,16 +180,18 @@ type isNonEmptyFn struct {
 
 // Contains checks if the provided value contains the path specified.
 //
+// Deprecated: Use ContainsPath instead. Contains is kept for backwards
+// compatibility.
+//
 // Parameters:
-//  path Path - An array representing a path to check for the existence of. Path can be either strings or ints.
+//  path Path    - An array representing a path to check for the
+//                 existence of. Path can be either strings or ints.
 //  value Object - An object to search against.
 //
 // Returns:
-//  bool - true if the path contains any value, false otherwise.
+//  bool - True if the path contains any value, false otherwise.
 //
-// Deprecated: Use ContainsPath instead. Contains will be removed in API v4.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/contains?lang=go
 func Contains(path, value interface{}) Expr {
 	return containsFn{Contains: wrap(path), Value: wrap(value)}
 }
@@ -198,13 +205,14 @@ type containsFn struct {
 // ContainsPath checks if the provided value contains the path specified.
 //
 // Parameters:
-//  path Path - An array representing a path to check for the existence of. Path can be either strings or ints.
+//  path Path    - An array representing a path to check for the
+//                 existence of. Path can be either strings or ints.
 //  value Object - Value to search against.
 //
 // Returns:
-//  bool - true if the path contains any value, false otherwise.
+//  bool - True if the path contains any value, false otherwise.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/containspath?lang=go
 func ContainsPath(path, value interface{}) Expr {
 	return containsPathFn{ContainsPath: wrap(path), Value: wrap(value)}
 }
@@ -219,12 +227,12 @@ type containsPathFn struct {
 //
 // Parameters:
 //  value Expr - Value to check for the existence of.
-//  in Expr - An object/array/page/ref to search against.
+//  in Expr    - An object/array/page/ref to search against.
 //
 // Returns:
-//  bool - true if the value is found, false otherwise.
+//  bool - True if the value is found, false otherwise.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/containsvalue?lang=go
 func ContainsValue(value, in interface{}) Expr {
 	return containsValueFn{ContainsValue: wrap(value), Value: wrap(in)}
 }
@@ -238,13 +246,14 @@ type containsValueFn struct {
 // ContainsField checks if the provided value contains the field specified.
 //
 // Parameters:
-//  field Expr - The field to check for the existence of. Field can only be a string.
+//  field Expr - The field to check for the existence of. Field can only
+//               be a string.
 //  value Expr - Value to search against.
 //
 // Returns:
-//  bool - true if the field exists, false otherwise.
+//  bool - True if the field exists, false otherwise.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/containsfield?lang=go
 func ContainsField(field, value interface{}) Expr {
 	return containsFieldFn{ContainsField: wrap(field), Value: wrap(value)}
 }
@@ -258,12 +267,12 @@ type containsFieldFn struct {
 // Count returns the number of elements in the collection.
 //
 // Parameters:
-// collection Expr - the collection
+//  collection Expr - The collection whose elements should be counted.
 //
 // Returns:
-// a new Expr instance
+//  Expr - A new Expr instance.
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/count
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/count?lang=go
 func Count(collection interface{}) Expr {
 	return countFn{Count: wrap(collection)}
 }
@@ -276,12 +285,12 @@ type countFn struct {
 // Sum sums the elements in the collection.
 //
 // Parameters:
-// collection Expr - the collection
+//  collection Expr - The collection whose elements should be summed.
 //
 // Returns:
-// a new Expr instance
+//  Expr - A new Expr instance
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/sum
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sum?lang=go
 func Sum(collection interface{}) Expr {
 	return sumFn{Sum: wrap(collection)}
 }
@@ -294,13 +303,12 @@ type sumFn struct {
 // Mean returns the mean of all elements in the collection.
 //
 // Parameters:
-//
-// collection Expr - the collection
+//  collection Expr - The collection.
 //
 // Returns:
-// a new Expr instance
+//  Expr - A new Expr instance.
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/mean
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/mean?lang=go
 func Mean(collection interface{}) Expr {
 	return meanFn{Mean: wrap(collection)}
 }
@@ -310,16 +318,16 @@ type meanFn struct {
 	Mean Expr `json:"mean"`
 }
 
-// Reverse accepts a set, array or page and returns the same type with elements in reversed order.
+// Reverse accepts a set, array or page and returns the same type with
+// elements in reversed order.
 //
 // Parameters:
-//
-// collection Expr - the collection
+//  collection Expr - The collection whose elements should be reversed.
 //
 // Returns:
-// a new Expr instance
+//  Expr - A new Expr instance.
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/reverse
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/reverse?lang=go
 func Reverse(collection interface{}) Expr {
 	return reverseFn{Reverse: wrap(collection)}
 }

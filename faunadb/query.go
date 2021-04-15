@@ -21,7 +21,7 @@ func applyOptionals(expr Expr, options []OptionalParameter) Expr {
 
 // Event's action types. Usually used as a parameter for Insert or Remove functions.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#simple-type-events
+// See: https://docs.fauna.com/fauna/current/api/fql/types?lang=go#events
 const (
 	ActionCreate = "create"
 	ActionUpdate = "update"
@@ -32,7 +32,7 @@ const (
 
 // Time unit. Usually used as a parameter for Time functions.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#epochnum-unit
+// See: https://docs.fauna.com/fauna/current/api/fql/types?lang=go#timestamp
 const (
 	TimeUnitDay         = "day"
 	TimeUnitHalfDay     = "half day"
@@ -46,7 +46,7 @@ const (
 
 // Normalizers for Casefold
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#string-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/casefold?lang=go
 const (
 	NormalizerNFKCCaseFold = "NFKCCaseFold"
 	NormalizerNFC          = "NFC"
@@ -68,7 +68,8 @@ func varargs(expr ...interface{}) interface{} {
 // Optional parameters
 
 // EventsOpt is an boolean optional parameter that describes if the query should include historical events.
-// For more information about events, check https://app.fauna.com/documentation/reference/queryapi#simple-type-events.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/types?lang=go#events
 //
 // Functions that accept this optional parameter are: Paginate.
 //
@@ -128,8 +129,14 @@ func (fn getFn) setTS(e Expr) Expr {
 	return fn
 }
 
-// After is an optional parameter used when cursoring that refers to the specified cursor's the next page, inclusive.
-// For more information about pages, check https://app.fauna.com/documentation/reference/queryapi#simple-type-pages.
+// After is an optional parameter used when cursoring that refers to the
+// specified cursor's the next page, inclusive.
+//
+// See:
+//
+// * https://docs.fauna.com/fauna/current/api/fql/functions/paginate?lang=go#page
+//
+// * https://docs.fauna.com/fauna/current/api/fql/functions/paginate?lang=go#cursor
 //
 // Functions that accept this optional parameter are: Paginate.
 func After(ref interface{}) OptionalParameter {
@@ -153,7 +160,12 @@ func (fn paginateFn) setAfter(e Expr) Expr {
 }
 
 // Before is an optional parameter used when cursoring that refers to the specified cursor's previous page, exclusive.
-// For more information about pages, check https://app.fauna.com/documentation/reference/queryapi#simple-type-pages.
+//
+// See:
+//
+// * https://docs.fauna.com/fauna/current/api/fql/functions/paginate?lang=go#page
+//
+// * https://docs.fauna.com/fauna/current/api/fql/functions/paginate?lang=go#cursor
 //
 // Functions that accept this optional parameter are: Paginate.
 func Before(ref interface{}) OptionalParameter {

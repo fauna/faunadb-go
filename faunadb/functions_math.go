@@ -3,12 +3,12 @@ package faunadb
 // Abs computes the absolute value of a number.
 //
 // Parameters:
-//  value number - The number to take the absolute value of
+//  value number - The number to take the absolute value of.
 //
 // Returns:
-//  number - The abosulte value of a number
+//  number - The absolute value of a number.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/abs?lang=go
 func Abs(value interface{}) Expr { return absFn{Abs: wrap(value)} }
 
 type absFn struct {
@@ -16,15 +16,15 @@ type absFn struct {
 	Abs Expr `json:"abs"`
 }
 
-// Acos computes the arccosine of a number.
+// Acos computes the arc cosine of a number.
 //
 // Parameters:
-//  value number - The number to take the arccosine of
+//  value number - The number to take the arc cosine of.
 //
 // Returns:
-//  number - The arccosine of a number
+//  number - The arc cosine of a number.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/acos?lang=go
 func Acos(value interface{}) Expr { return acosFn{Acos: wrap(value)} }
 
 type acosFn struct {
@@ -32,15 +32,15 @@ type acosFn struct {
 	Acos Expr `json:"acos"`
 }
 
-// Asin computes the arcsine of a number.
+// Asin computes the arc sine of a number.
 //
 // Parameters:
-//  value number - The number to take the arcsine of
+//  value number - The number to take the arc sine of.
 //
 // Returns:
-//  number - The arcsine of a number
+//  number - The arc sine of a number.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/asin?lang=go
 func Asin(value interface{}) Expr { return asinFn{Asin: wrap(value)} }
 
 type asinFn struct {
@@ -48,15 +48,15 @@ type asinFn struct {
 	Asin Expr `json:"asin"`
 }
 
-// Atan computes the arctan of a number.
+// Atan computes the arc tan of a number.
 //
 // Parameters:
-//  value number - The number to take the arctan of
+//  value number - The number to take the arc tan of.
 //
 // Returns:
-//  number - The arctan of a number
+//  number - The arc tan of a number.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/atan?lang=go
 func Atan(value interface{}) Expr { return atanFn{Atan: wrap(value)} }
 
 type atanFn struct {
@@ -72,7 +72,7 @@ type atanFn struct {
 // Returns:
 //  number - The sum of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/add?lang=go
 func Add(args ...interface{}) Expr { return addFn{Add: wrap(varargs(args...))} }
 
 type addFn struct {
@@ -88,7 +88,7 @@ type addFn struct {
 // Returns:
 //  number - The and of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/bitand?lang=go
 func BitAnd(args ...interface{}) Expr { return bitAndFn{BitAnd: wrap(varargs(args...))} }
 
 type bitAndFn struct {
@@ -96,15 +96,15 @@ type bitAndFn struct {
 	BitAnd Expr `json:"bitand" faunarepr:"varargs"`
 }
 
-// BitNot computes the 2's complement of a number
+// BitNot computes the two's complement of a number.
 //
 // Parameters:
-//  value number - A numbers to not
+//  value number - A numbers to not.
 //
 // Returns:
-//  number - The not of an element
+//  number - The not of an element.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/bitnot?lang=go
 func BitNot(value interface{}) Expr { return bitNotFn{BitNot: wrap(value)} }
 
 type bitNotFn struct {
@@ -120,7 +120,7 @@ type bitNotFn struct {
 // Returns:
 //  number - The OR of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/bitor?lang=go
 func BitOr(args ...interface{}) Expr { return bitOrFn{BitOr: wrap(varargs(args...))} }
 
 type bitOrFn struct {
@@ -136,7 +136,7 @@ type bitOrFn struct {
 // Returns:
 //  number - The XOR of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/bitxor?lang=go
 func BitXor(args ...interface{}) Expr { return bitXorFn{BitXor: wrap(varargs(args...))} }
 
 type bitXorFn struct {
@@ -144,15 +144,15 @@ type bitXorFn struct {
 	BitXor Expr `json:"bitxor" faunarepr:"varargs"`
 }
 
-// Ceil computes the largest integer greater than or equal to
+// Ceil computes the largest integer greater than or equal to.
 //
 // Parameters:
-//  value number - A numbers to compute the ceil of
+//  value number - A numbers to compute the ceil of.
 //
 // Returns:
-//  number - The ceil of value
+//  number - The ceil of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/ceil?lang=go
 func Ceil(value interface{}) Expr { return ceilFn{Ceil: wrap(value)} }
 
 type ceilFn struct {
@@ -160,15 +160,15 @@ type ceilFn struct {
 	Ceil Expr `json:"ceil"`
 }
 
-// Cos computes the Cosine of a number
+// Cos computes the cosine of a number.
 //
 // Parameters:
-//  value number - A number to compute the cosine of
+//  value number - A number to compute the cosine of.
 //
 // Returns:
-//  number - The cosine of value
+//  number - The cosine of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/cos?lang=go
 func Cos(value interface{}) Expr { return cosFn{Cos: wrap(value)} }
 
 type cosFn struct {
@@ -176,15 +176,15 @@ type cosFn struct {
 	Cos Expr `json:"cos"`
 }
 
-// Cosh computes the Hyperbolic Cosine of a number
+// Cosh computes the hyperbolic cosine of a number.
 //
 // Parameters:
-//  value number - A number to compute the Hyperbolic cosine of
+//  value number - A number to compute the hyperbolic cosine of.
 //
 // Returns:
-//  number - The Hyperbolic cosine of value
+//  number - The hyperbolic cosine of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/cosh?lang=go
 func Cosh(value interface{}) Expr { return coshFn{Cosh: wrap(value)} }
 
 type coshFn struct {
@@ -192,15 +192,15 @@ type coshFn struct {
 	Cosh Expr `json:"cosh"`
 }
 
-// Degrees computes the degress of a number
+// Degrees computes the degrees of a number.
 //
 // Parameters:
-//  value number - A number to compute the degress of
+//  value number - A number to compute the degrees of.
 //
 // Returns:
-//  number - The degrees of value
+//  number - The degrees of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/degrees?lang=go
 func Degrees(value interface{}) Expr { return degreesFn{Degrees: wrap(value)} }
 
 type degreesFn struct {
@@ -216,7 +216,7 @@ type degreesFn struct {
 // Returns:
 //  number - The quotient of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/divide?lang=go
 func Divide(args ...interface{}) Expr { return divideFn{Divide: wrap(varargs(args...))} }
 
 type divideFn struct {
@@ -224,15 +224,15 @@ type divideFn struct {
 	Divide Expr `json:"divide" faunarepr:"varargs"`
 }
 
-// Exp computes the Exp of a number
+// Exp computes the exponent of a number.
 //
 // Parameters:
-//  value number - A number to compute the exp of
+//  value number - A number to compute the exponent of.
 //
 // Returns:
-//  number - The exp of value
+//  number - The exponent of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/exp?lang=go
 func Exp(value interface{}) Expr { return expFn{Exp: wrap(value)} }
 
 type expFn struct {
@@ -240,15 +240,15 @@ type expFn struct {
 	Exp Expr `json:"exp"`
 }
 
-// Floor computes the Floor of a number
+// Floor computes the floor of a number.
 //
 // Parameters:
-//  value number - A number to compute the Floor of
+//  value number - A number to compute the floor of.
 //
 // Returns:
-//  number - The Floor of value
+//  number - The floor of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/floor?lang=go
 func Floor(value interface{}) Expr { return floorFn{Floor: wrap(value)} }
 
 type floorFn struct {
@@ -256,16 +256,16 @@ type floorFn struct {
 	Floor Expr `json:"floor"`
 }
 
-// Hypot computes the Hypotenuse of two numbers
+// Hypot computes the hypotenuse of two numbers.
 //
 // Parameters:
-//  a number - A side of a right triangle
-//  b number - A side of a right triangle
+//  a number - A side of a right triangle.
+//  b number - A side of a right triangle.
 //
 // Returns:
-//  number - The hypotenuse of value
+//  number - The hypotenuse of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/hypot?lang=go
 func Hypot(a, b interface{}) Expr { return hypotFn{Hypot: wrap(a), B: wrap(b)} }
 
 type hypotFn struct {
@@ -274,15 +274,15 @@ type hypotFn struct {
 	B     Expr `json:"b"`
 }
 
-// Ln computes the natural log of a number
+// Ln computes the natural log of a number.
 //
 // Parameters:
-//  value number - A number to compute the natural log of
+//  value number - A number to compute the natural log of.
 //
 // Returns:
-//  number - The ln of value
+//  number - The ln of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/ln?lang=go
 func Ln(value interface{}) Expr { return lnFn{Ln: wrap(value)} }
 
 type lnFn struct {
@@ -298,7 +298,7 @@ type lnFn struct {
 // Returns:
 //  number - The Log of value
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/log?lang=go
 func Log(value interface{}) Expr { return logFn{Log: wrap(value)} }
 
 type logFn struct {
@@ -314,7 +314,7 @@ type logFn struct {
 // Returns:
 //  number - The max of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/max?lang=go
 func Max(args ...interface{}) Expr { return maxFn{Max: wrap(varargs(args...))} }
 
 type maxFn struct {
@@ -330,7 +330,7 @@ type maxFn struct {
 // Returns:
 //  number - The min of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/min?lang=go
 func Min(args ...interface{}) Expr { return minFn{Min: wrap(varargs(args...))} }
 
 type minFn struct {
@@ -341,12 +341,13 @@ type minFn struct {
 // Modulo computes the reminder after the division of a list of numbers.
 //
 // Parameters:
-//  args []number - A collection of numbers to compute the quotient of. The remainder will be returned.
+//  args []number - A collection of numbers to compute the quotient of.
+//                  The remainder is returned.
 //
 // Returns:
 //  number - The remainder of the quotient of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/modulo?lang=go
 func Modulo(args ...interface{}) Expr { return moduloFn{Modulo: wrap(varargs(args...))} }
 
 type moduloFn struct {
@@ -362,7 +363,7 @@ type moduloFn struct {
 // Returns:
 //  number - The multiplication of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/multiply?lang=go
 func Multiply(args ...interface{}) Expr { return multiplyFn{Multiply: wrap(varargs(args...))} }
 
 type multiplyFn struct {
@@ -370,16 +371,16 @@ type multiplyFn struct {
 	Multiply Expr `json:"multiply" faunarepr:"varargs"`
 }
 
-// Pow computes the Power of a number
+// Pow computes the power of a number.
 //
 // Parameters:
-//  base number - A number which is the base
-//  exp number  - A number which is the exponent
+//  base number - A number which is the base.
+//  exp number  - A number which is the exponent.
 //
 // Returns:
-//  number - The Pow of value
+//  number - The power of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/pow?lang=go
 func Pow(base, exp interface{}) Expr { return powFn{Pow: wrap(base), Exp: wrap(exp)} }
 
 type powFn struct {
@@ -388,15 +389,15 @@ type powFn struct {
 	Pow Expr `json:"pow"`
 }
 
-// Radians computes the Radians of a number
+// Radians computes the radians of a number.
 //
 // Parameters:
-//  value number - A number which is convert to radians
+//  value number - A number which is converted to radians.
 //
 // Returns:
-//  number - The Radians of value
+//  number - The radians of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/radians?lang=go
 func Radians(value interface{}) Expr { return radiansFn{Radians: wrap(value)} }
 
 type radiansFn struct {
@@ -404,16 +405,16 @@ type radiansFn struct {
 	Radians Expr `json:"radians"`
 }
 
-// Round a number at the given percission
+// Round a number at the given precision.
 //
 // Parameters:
-//  value number - The number to truncate
-//  precision number - precision where to truncate, defaults is 2
+//  value number     - The number to truncate.
+//  precision number - The decimal precision to round to, default is 2.
 //
 // Returns:
-//  number - The Rounded value.
+//  number - The rounded value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/round?lang=go
 func Round(value interface{}, options ...OptionalParameter) Expr {
 	fn := roundFn{Round: wrap(value)}
 	return applyOptionals(fn, options)
@@ -425,15 +426,17 @@ type roundFn struct {
 	Precision Expr `json:"precision,omitempty" faunarepr:"optfn"`
 }
 
-// Sign computes the Sign of a number
+// Sign computes the sign of a number, returning 1 when the value is
+// positive, 0 when the value is zero, and -1 when the value is
+// negative.
 //
 // Parameters:
-//  value number - A number to compute the Sign of
+//  value number - A number to compute the sign of.
 //
 // Returns:
-//  number - The Sign of value
+//  number - The sign of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sign?lang=go
 func Sign(value interface{}) Expr { return signFn{Sign: wrap(value)} }
 
 type signFn struct {
@@ -441,15 +444,15 @@ type signFn struct {
 	Sign Expr `json:"sign"`
 }
 
-// Sin computes the Sine of a number
+// Sin computes the sine of a number.
 //
 // Parameters:
-//  value number - A number to compute the Sine of
+//  value number - A number to compute the sine of.
 //
 // Returns:
-//  number - The Sine of value
+//  number - The sine of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sin?lang=go
 func Sin(value interface{}) Expr { return sinFn{Sin: wrap(value)} }
 
 type sinFn struct {
@@ -457,15 +460,15 @@ type sinFn struct {
 	Sin Expr `json:"sin"`
 }
 
-// Sinh computes the Hyperbolic Sine of a number
+// Sinh computes the hyperbolic sine of a number.
 //
 // Parameters:
-//  value number - A number to compute the Hyperbolic Sine of
+//  value number - A number to compute the hyperbolic sine of.
 //
 // Returns:
-//  number - The Hyperbolic Sine of value
+//  number - The hyperbolic sine of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sinh?lang=go
 func Sinh(value interface{}) Expr { return sinhFn{Sinh: wrap(value)} }
 
 type sinhFn struct {
@@ -473,15 +476,15 @@ type sinhFn struct {
 	Sinh Expr `json:"sinh"`
 }
 
-// Sqrt computes the square root of a number
+// Sqrt computes the square root of a number.
 //
 // Parameters:
-//  value number - A number to compute the square root of
+//  value number - A number to compute the square root of.
 //
 // Returns:
-//  number - The square root of value
+//  number - The square root of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/sqrt?lang=go
 func Sqrt(value interface{}) Expr { return sqrtFn{Sqrt: wrap(value)} }
 
 type sqrtFn struct {
@@ -497,7 +500,7 @@ type sqrtFn struct {
 // Returns:
 //  number - The difference of all elements.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/subtract?lang=go
 func Subtract(args ...interface{}) Expr { return subtractFn{Subtract: wrap(varargs(args...))} }
 
 type subtractFn struct {
@@ -505,15 +508,15 @@ type subtractFn struct {
 	Subtract Expr `json:"subtract" faunarepr:"varargs"`
 }
 
-// Tan computes the Tangent of a number
+// Tan computes the tangent of a number.
 //
 // Parameters:
-//  value number - A number to compute the Tangent of
+//  value number - A number to compute the tangent of.
 //
 // Returns:
-//  number - The Tangent of value
+//  number - The tangent of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/tan?lang=go
 func Tan(value interface{}) Expr { return tanFn{Tan: wrap(value)} }
 
 type tanFn struct {
@@ -521,15 +524,15 @@ type tanFn struct {
 	Tan Expr `json:"tan"`
 }
 
-// Tanh computes the Hyperbolic Tangent of a number
+// Tanh computes the hyperbolic tangent of a number.
 //
 // Parameters:
-//  value number - A number to compute the Hyperbolic Tangent of
+//  value number - A number to compute the hyperbolic tangent of.
 //
 // Returns:
-//  number - The Hyperbolic Tangent of value
+//  number - The hyperbolic tangent of value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/tanh?lang=go
 func Tanh(value interface{}) Expr { return tanhFn{Tanh: wrap(value)} }
 
 type tanhFn struct {
@@ -537,16 +540,16 @@ type tanhFn struct {
 	Tanh Expr `json:"tanh"`
 }
 
-// Trunc truncates a number at the given percission
+// Trunc truncates a number at the given precision.
 //
 // Parameters:
-//  value number - The number to truncate
-//  precision number - precision where to truncate, defaults is 2
+//  value number     - The number to truncate.
+//  precision number - The decimal precision to truncate to, defaults is 2
 //
 // Returns:
 //  number - The truncated value.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#mathematical-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/trunc?lang=go
 func Trunc(value interface{}, options ...OptionalParameter) Expr {
 	fn := truncFn{Trunc: wrap(value)}
 	return applyOptionals(fn, options)

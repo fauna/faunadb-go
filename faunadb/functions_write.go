@@ -5,13 +5,13 @@ package faunadb
 // Create creates an document of the specified collection.
 //
 // Parameters:
-//  ref Ref - A collection reference.
+//  ref Ref       - A collection reference.
 //  params Object - An object with attributes of the document created.
 //
 // Returns:
 //  Object - A new document of the collection referenced.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/create?lang=go
 func Create(ref, params interface{}) Expr { return createFn{Create: wrap(ref), Params: wrap(params)} }
 
 type createFn struct {
@@ -25,12 +25,13 @@ type createFn struct {
 // Parameters:
 //  params Object - An object with attributes of the class.
 //
-// Deprecated: Use CreateCollection instead, CreateClass is kept for backwards compatibility
+// Deprecated: Use CreateCollection instead, CreateClass is kept for
+// backwards compatibility.
 //
 // Returns:
 //  Object - The new created class object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createclass?lang=go
 func CreateClass(params interface{}) Expr { return createClassFn{CreateClass: wrap(params)} }
 
 type createClassFn struct {
@@ -46,7 +47,7 @@ type createClassFn struct {
 // Returns:
 //  Object - The new created collection object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createcollection?lang=go
 func CreateCollection(params interface{}) Expr {
 	return createCollectionFn{CreateCollection: wrap(params)}
 }
@@ -64,7 +65,7 @@ type createCollectionFn struct {
 // Returns:
 //  Object - The new created database object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createdatabase?lang=go
 func CreateDatabase(params interface{}) Expr { return createDatabaseFn{CreateDatabase: wrap(params)} }
 
 type createDatabaseFn struct {
@@ -80,7 +81,7 @@ type createDatabaseFn struct {
 // Returns:
 //  Object - The new created index object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createindex?lang=go
 func CreateIndex(params interface{}) Expr { return createIndexFn{CreateIndex: wrap(params)} }
 
 type createIndexFn struct {
@@ -96,7 +97,7 @@ type createIndexFn struct {
 // Returns:
 //  Object - The new created key object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createkey?lang=go
 func CreateKey(params interface{}) Expr { return createKeyFn{CreateKey: wrap(params)} }
 
 type createKeyFn struct {
@@ -112,7 +113,7 @@ type createKeyFn struct {
 // Returns:
 //  Object - The new created function object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createfunction?lang=go
 func CreateFunction(params interface{}) Expr { return createFunctionFn{CreateFunction: wrap(params)} }
 
 type createFunctionFn struct {
@@ -128,7 +129,7 @@ type createFunctionFn struct {
 // Returns:
 //  Object - The new created role object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createrole?lang=go
 func CreateRole(params interface{}) Expr { return createRoleFn{CreateRole: wrap(params)} }
 
 type createRoleFn struct {
@@ -136,16 +137,16 @@ type createRoleFn struct {
 	CreateRole Expr `json:"create_role"`
 }
 
-// MoveDatabase moves a database to a new hierachy.
+// MoveDatabase moves a database to a new hierarchy.
 //
 // Parameters:
 //  from Object - Source reference to be moved.
 //  to Object   - New parent database reference.
 //
 // Returns:
-//  Object - instance.
+//  Object - An object representing the moved database.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/movedatabase?lang=go
 func MoveDatabase(from interface{}, to interface{}) Expr {
 	return moveDatabaseFn{MoveDatabase: wrap(from), To: wrap(to)}
 }
@@ -159,13 +160,13 @@ type moveDatabaseFn struct {
 // Update updates the provided document.
 //
 // Parameters:
-//  ref Ref - The reference to update.
+//  ref Ref       - The reference to update.
 //  params Object - An object representing the parameters of the document.
 //
 // Returns:
 //  Object - The updated object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/update?lang=go
 func Update(ref, params interface{}) Expr { return updateFn{Update: wrap(ref), Params: wrap(params)} }
 
 type updateFn struct {
@@ -177,13 +178,13 @@ type updateFn struct {
 // Replace replaces the provided document.
 //
 // Parameters:
-//  ref Ref - The reference to replace.
+//  ref Ref       - The reference to replace.
 //  params Object - An object representing the parameters of the document.
 //
 // Returns:
 //  Object - The replaced object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/replace?lang=go
 func Replace(ref, params interface{}) Expr {
 	return replaceFn{Replace: wrap(ref), Params: wrap(params)}
 }
@@ -202,7 +203,7 @@ type replaceFn struct {
 // Returns:
 //  Object - The deleted object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/delete?lang=go
 func Delete(ref interface{}) Expr { return deleteFn{Delete: wrap(ref)} }
 
 type deleteFn struct {
@@ -213,14 +214,15 @@ type deleteFn struct {
 // Insert adds an event to the provided document's history.
 //
 // Parameters:
-//  ref Ref - The reference to insert against.
-//  ts time - The valid time of the inserted event.
-//  action string - Whether the event shoulde be a ActionCreate, ActionUpdate or ActionDelete.
+//  ref Ref       - The reference to insert against.
+//  ts time       - The valid time of the inserted event.
+//  action string - Whether the event shoulde be a ActionCreate,
+//                  ActionUpdate or ActionDelete.
 //
 // Returns:
 //  Object - The deleted object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/insert?lang=go
 func Insert(ref, ts, action, params interface{}) Expr {
 	return insertFn{Insert: wrap(ref), TS: wrap(ts), Action: wrap(action), Params: wrap(params)}
 }
@@ -236,14 +238,16 @@ type insertFn struct {
 // Remove deletes an event from the provided document's history.
 //
 // Parameters:
-//  ref Ref - The reference of the document whose event should be removed.
-//  ts time - The valid time of the inserted event.
-//  action string - The event action (ActionCreate, ActionUpdate or ActionDelete) that should be removed.
+//  ref Ref       - The reference of the document whose event should be
+//                  removed.
+//  ts time       - The valid time of the inserted event.
+//  action string - The event action (ActionCreate, ActionUpdate or
+//                  ActionDelete) that should be removed.
 //
 // Returns:
 //  Object - The deleted object.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/remove?lang=go
 func Remove(ref, ts, action interface{}) Expr {
 	return removeFn{Remove: wrap(ref), Ts: wrap(ts), Action: wrap(action)}
 }
@@ -258,17 +262,18 @@ type removeFn struct {
 // CreateAccessProvider creates a new AccessProvider
 //
 // Parameters:
-// params  Object - An object of parameters used to create a new access provider.
-//     - name: A valid schema name
-//     - issuer: A unique string
-//     - jwks_uri: A valid HTTPS URL
-//     - roles: An optional list of Role refs
-//     - data: An optional user-defined metadata for the AccessProvider
+//  params Object - An object of parameters used to create a new access
+//                  provider.
+//    - name: A valid schema name.
+//    - issuer: A unique string.
+//    - jwks_uri: A valid HTTPS URL.
+//    - roles: An optional list of Role refs.
+//    - data: An optional user-defined metadata for the AccessProvider.
 //
 // Returns:
-// Object - The new created access provider.
+//  Object - The new created access provider.
 //
-// See: the [docs](https://app.fauna.com/documentation/reference/queryapi#write-functions).
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/createaccessprovider?lang=go
 //
 func CreateAccessProvider(params interface{}) Expr {
 	return createAccessProviderFn{CreateAccessProvider: wrap(params)}

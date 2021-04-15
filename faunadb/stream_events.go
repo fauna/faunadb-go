@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// StreamEventType is a stream eveny type
+// StreamEventType is a stream event type
 type StreamEventType = string
 
 const (

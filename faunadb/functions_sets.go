@@ -2,15 +2,17 @@ package faunadb
 
 // Set
 
-// Singleton returns the history of the document's presence of the provided ref.
+// Singleton returns the history of the document's presence of the
+// provided ref.
 //
 // Parameters:
-//  ref Ref - The reference of the document for which to retrieve the singleton set.
+//  ref Ref - The reference of the document to include in the
+//            singleton set.
 //
 // Returns:
-//  SetRef - The singleton SetRef.
+//  SetRef - A reference to the set containing the single document.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/singleton?lang=go
 func Singleton(ref interface{}) Expr { return singletonFn{Singleton: wrap(ref)} }
 
 type singletonFn struct {
@@ -21,12 +23,13 @@ type singletonFn struct {
 // Events returns the history of document's data of the provided ref.
 //
 // Parameters:
-//  refSet Ref|SetRef - A reference or set reference to retrieve an event set from.
+//  refSet Ref|SetRef - A reference or set reference to retrieve an
+//                      event set from.
 //
 // Returns:
-//  SetRef - The events SetRef.
+//  SetRef - A reference to the set of events.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/events?lang=go
 func Events(refSet interface{}) Expr { return eventsFn{Events: wrap(refSet)} }
 
 type eventsFn struct {
@@ -40,9 +43,9 @@ type eventsFn struct {
 //  ref Ref - The reference of the index to match against.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set of matching documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/match?lang=go
 func Match(ref interface{}) Expr { return matchFn{Match: wrap(ref), Terms: nil} }
 
 type matchFn struct {
@@ -51,27 +54,28 @@ type matchFn struct {
 	Terms Expr `json:"terms,omitempty"`
 }
 
-// MatchTerm returns th set of documents that match the terms in an index.
+// MatchTerm returns the set of documents that match the terms in an index.
 //
 // Parameters:
-//  ref Ref - The reference of the index to match against.
+//  ref Ref       - The reference of the index to match against.
 //  terms []Value - A list of terms used in the match.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set of matching documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/match?lang=go
 func MatchTerm(ref, terms interface{}) Expr { return matchFn{Match: wrap(ref), Terms: wrap(terms)} }
 
-// Union returns the set of documents that are present in at least one of the specified sets.
+// Union returns the set of documents that are present in at least one
+// of the specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to union together.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set of unioned documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/union?lang=go
 func Union(sets ...interface{}) Expr { return unionFn{Union: wrap(varargs(sets...))} }
 
 type unionFn struct {
@@ -79,15 +83,15 @@ type unionFn struct {
 	Union Expr `json:"union" faunarepr:"varargs"`
 }
 
-// Merge two or more objects..
+// Merge two or more objects.
 //
 // Parameters:
-//   merge merge the first object.
-//   with the second object or a list of objects
-//   lambda a lambda to resolve possible conflicts
+//  merge  Object   - The first object to merge.
+//  with   Object   - The second object, or a list of objects, to merge.
+//  lambda Function - A lambda to resolve possible conflicts.
 //
 // Returns:
-// merged object
+//  object - A new object representing the merged objects.
 //
 func Merge(merge interface{}, with interface{}, lambda ...OptionalParameter) Expr {
 	fn := mergeFn{Merge: wrap(merge), With: wrap(with)}
@@ -101,17 +105,18 @@ type mergeFn struct {
 	Lambda Expr `json:"lambda,omitempty" faunarepr:"optfn,name=ConflictResolver"`
 }
 
-// Reduce function applies a reducer Lambda function serially to each member of the collection to produce a single value.
+// Reduce function applies a reducer Lambda function serially to each
+// member of the collection to produce a single value.
 //
 // Parameters:
-// lambda     Expr  - The accumulator function
-// initial    Expr  - The initial value
-// collection Expr  - The collection to be reduced
+//  lambda     Expr  - The accumulator function
+//  initial    Expr  - The initial value
+//  collection Expr  - The collection to be reduced
 //
 // Returns:
-// Expr
+//  Expr - The result of the reducer.
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/reduce
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/reduce?lang=go
 func Reduce(lambda, initial interface{}, collection interface{}) Expr {
 	return reduceFn{
 		Reduce:     wrap(lambda),
@@ -127,15 +132,16 @@ type reduceFn struct {
 	Collection Expr `json:"collection"`
 }
 
-// Intersection returns the set of documents that are present in all of the specified sets.
+// Intersection returns the set of documents that are present in all of
+// the specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to intersect.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set of intersected documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/intersection?lang=go
 func Intersection(sets ...interface{}) Expr {
 	return intersectionFn{Intersection: wrap(varargs(sets...))}
 }
@@ -145,16 +151,16 @@ type intersectionFn struct {
 	Intersection Expr `json:"intersection" faunarepr:"varargs"`
 }
 
-// Difference returns the set of documents that are present in the first set but not in
-// any of the other specified sets.
+// Difference returns the set of documents that are present in the first
+// set but not in any of the other specified sets.
 //
 // Parameters:
 //  sets []SetRef - A list of SetRef to diff.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set of differenced documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/difference?lang=go
 func Difference(sets ...interface{}) Expr { return differenceFn{Difference: wrap(varargs(sets...))} }
 
 type differenceFn struct {
@@ -168,9 +174,9 @@ type differenceFn struct {
 //  set []SetRef - A list of SetRef to remove duplicates from.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set of distinct documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/distinct?lang=go
 func Distinct(set interface{}) Expr { return distinctFn{Distinct: wrap(set)} }
 
 type distinctFn struct {
@@ -178,16 +184,18 @@ type distinctFn struct {
 	Distinct Expr `json:"distinct"`
 }
 
-// Join derives a set of resources by applying each document in the source set to the target set.
+// Join derives a set of resources by applying each document in the
+// source set to the target set.
 //
 // Parameters:
 //  source SetRef - A SetRef of the source set.
-//  target Lambda - A Lambda that will accept each element of the source Set and return a Set.
+//  target Lambda - A Lambda that will accept each element of the source
+//                  Set and return a Set.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set containing joined documents.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/join?lang=go
 func Join(source, target interface{}) Expr { return joinFn{Join: wrap(source), With: wrap(target)} }
 
 type joinFn struct {
@@ -200,13 +208,14 @@ type joinFn struct {
 //
 // Parameters:
 //  set SetRef - Set to be filtered.
-//  from - lower bound.
-//  to - upper bound
+//  from       - The lower bound of the range.
+//  to         - The upper bound of the range.
 //
 // Returns:
-//  SetRef
+//  SetRef - A reference to the set containing documents in the specific
+//           range.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#sets
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/range?lang=go
 func Range(set interface{}, from interface{}, to interface{}) Expr {
 	return rangeFn{Range: wrap(set), From: wrap(from), To: wrap(to)}
 }

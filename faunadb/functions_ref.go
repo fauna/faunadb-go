@@ -6,12 +6,12 @@ package faunadb
 //
 // Parameters:
 //  idOrRef Ref - A class reference or string repr to reference type.
-//  id string - The document ID.
+//  id string   - The document ID.
 //
 // Returns:
 //  Ref - A new reference type.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#special-type
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/ref?lang=go
 func Ref(idOrRef interface{}, id ...interface{}) Expr {
 	switch len(id) {
 	case 0:
@@ -30,16 +30,15 @@ type legacyRefFn struct {
 
 // RefClass creates a new Ref based on the provided class and ID.
 //
-// Parameters:
-//  classRef Ref - A class reference.
-//  id string|int64 - The document ID.
+// Deprecated: Use RefCollection, or just Ref, instead. RefClass is kept
+// for backwards compatibility.
 //
-// Deprecated: Use RefCollection instead, RefClass is kept for backwards compatibility
+// Parameters:
+//  classRef Ref    - A class reference.
+//  id string|int64 - The document ID.
 //
 // Returns:
 //  Ref - A new reference type.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#special-type
 func RefClass(classRef, id interface{}) Expr { return refFn{Ref: wrap(classRef), ID: wrap(id)} }
 
 type refFn struct {
@@ -50,24 +49,25 @@ type refFn struct {
 
 // RefCollection creates a new Ref based on the provided collection and ID.
 //
+// Deprecated: Use Ref instead. RefCollection is kept for backwards
+// compatibility.
+//
 // Parameters:
 //  collectionRef Ref - A collection reference.
-//  id string|int64 - The document ID.
+//  id string|int64   - The document ID.
 //
 // Returns:
 //  Ref - A new reference type.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#special-type
 func RefCollection(collectionRef, id interface{}) Expr {
 	return refFn{Ref: wrap(collectionRef), ID: wrap(id)}
 }
 
 // Null creates a NullV value.
 //
+// Note: Go's nil value can be used instead.
+//
 // Returns:
 //  Value - A null value.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#simple-type
 func Null() Expr { return NullV{} }
 
 // Database creates a new database ref.
@@ -78,7 +78,7 @@ func Null() Expr { return NullV{} }
 // Returns:
 //  Ref - The database reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/database?lang=go
 func Database(name interface{}) Expr { return databaseFn{Database: wrap(name), Scope: nil} }
 
 type databaseFn struct {
@@ -91,12 +91,12 @@ type databaseFn struct {
 //
 // Parameters:
 //  name string - The name of the database.
-//  scope Ref - The reference of the database's scope.
+//  scope Ref   - The reference of the database's database scope.
 //
 // Returns:
 //  Ref - The database reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/database?lang=go
 func ScopedDatabase(name interface{}, scope interface{}) Expr {
 	return databaseFn{
 		Database: wrap(name),
@@ -112,7 +112,7 @@ func ScopedDatabase(name interface{}, scope interface{}) Expr {
 // Returns:
 //  Ref - The index reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/iindex?lang=go
 func Index(name interface{}) Expr { return indexFn{Index: wrap(name)} }
 
 type indexFn struct {
@@ -125,12 +125,12 @@ type indexFn struct {
 //
 // Parameters:
 //  name string - The name of the index.
-//  scope Ref - The reference of the index's scope.
+//  scope Ref   - The reference of the index's database scope.
 //
 // Returns:
 //  Ref - The index reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/iindex?lang=go
 func ScopedIndex(name interface{}, scope interface{}) Expr {
 	return indexFn{
 		Index: wrap(name),
@@ -143,12 +143,13 @@ func ScopedIndex(name interface{}, scope interface{}) Expr {
 // Parameters:
 //  name string - The name of the class.
 //
-// Deprecated: Use Collection instead, Class is kept for backwards compatibility
+// Deprecated: Use Collection instead, Class is kept for backwards
+// compatibility
 //
 // Returns:
 //  Ref - The class reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/class?lang=go
 func Class(name interface{}) Expr { return classFn{Class: wrap(name)} }
 
 type classFn struct {
@@ -165,7 +166,7 @@ type classFn struct {
 // Returns:
 //  Ref - The collection reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/collection?lang=go
 func Collection(name interface{}) Expr { return collectionFn{Collection: wrap(name)} }
 
 type collectionFn struct {
@@ -174,16 +175,16 @@ type collectionFn struct {
 	Scope      Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
 }
 
-//Documents returns a set of all documents in the given collection.
+// Documents returns a set of all documents in the given collection.
 // A set must be paginated in order to retrieve its values.
 //
 // Parameters:
-// collection  ref  - a reference to the collection
+//  collection ref - A reference to the collection.
 //
 // Returns:
-// Expr  - A new Expr instance
+//  Expr  - A new Expr instance.
 //
-// See:  https://docs.fauna.com/fauna/current/api/fql/functions/Documents
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/documents?lang=go
 func Documents(collection interface{}) Expr {
 	return documentsFn{Documents: wrap(collection)}
 }
@@ -197,14 +198,15 @@ type documentsFn struct {
 //
 // Parameters:
 //  name string - The name of the class.
-//  scope Ref - The reference of the class's scope.
+//  scope Ref   - The reference of the class's database scope.
 //
-// Deprecated: Use ScopedCollection instead, ScopedClass is kept for backwards compatibility
+// Deprecated: Use ScopedCollection instead, ScopedClass is kept for
+// backwards compatibility
 //
 // Returns:
 //  Ref - The collection reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/class?lang=go
 func ScopedClass(name interface{}, scope interface{}) Expr {
 	return classFn{Class: wrap(name), Scope: wrap(scope)}
 }
@@ -213,12 +215,12 @@ func ScopedClass(name interface{}, scope interface{}) Expr {
 //
 // Parameters:
 //  name string - The name of the collection.
-//  scope Ref - The reference of the collection's scope.
+//  scope Ref   - The reference of the collection's databasescope.
 //
 // Returns:
 //  Ref - The collection reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/collection?lang=go
 func ScopedCollection(name interface{}, scope interface{}) Expr {
 	return collectionFn{Collection: wrap(name), Scope: wrap(scope)}
 }
@@ -231,7 +233,7 @@ func ScopedCollection(name interface{}, scope interface{}) Expr {
 // Returns:
 //  Ref - The function reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/function?lang=go
 func Function(name interface{}) Expr { return functionFn{Function: wrap(name)} }
 
 type functionFn struct {
@@ -244,12 +246,12 @@ type functionFn struct {
 //
 // Parameters:
 //  name string - The name of the function.
-//  scope Ref - The reference of the function's scope.
+//  scope Ref   - The reference of the function's database scope.
 //
 // Returns:
 //  Ref - The function reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/function?lang=go
 func ScopedFunction(name interface{}, scope interface{}) Expr {
 	return functionFn{Function: wrap(name), Scope: wrap(scope)}
 }
@@ -262,7 +264,7 @@ func ScopedFunction(name interface{}, scope interface{}) Expr {
 // Returns:
 //  Ref - The role reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/role?lang=go
 func Role(name interface{}) Expr { return roleFn{Role: wrap(name)} }
 
 type roleFn struct {
@@ -275,22 +277,23 @@ type roleFn struct {
 //
 // Parameters:
 //  name string - The name of the role.
-//  scope Ref - The reference of the role's scope.
+//  scope Ref   - The reference of the role's database scope.
 //
 // Returns:
 //  Ref - The role reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/role?lang=go
 func ScopedRole(name, scope interface{}) Expr { return roleFn{Role: wrap(name), Scope: wrap(scope)} }
 
 // Classes creates a native ref for classes.
 //
-// Deprecated: Use Collections instead, Classes is kept for backwards compatibility
+// Deprecated: Use Collections instead, Classes is kept for backwards
+// compatibility.
 //
 // Returns:
 //  Ref - The reference of the class set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/classes?lang=go
 func Classes() Expr { return classesFn{Classes: NullV{}} }
 
 type classesFn struct {
@@ -303,7 +306,7 @@ type classesFn struct {
 // Returns:
 //  Ref - The reference of the collections set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/collections?lang=go
 func Collections() Expr { return collectionsFn{Collections: NullV{}} }
 
 type collectionsFn struct {
@@ -314,25 +317,27 @@ type collectionsFn struct {
 // ScopedClasses creates a native ref for classes inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the class set's scope.
+//  scope Ref - The reference of the class set's database scope.
 //
-// Deprecated: Use ScopedCollections instead, ScopedClasses is kept for backwards compatibility
+// Deprecated: Use ScopedCollections instead, ScopedClasses is kept for
+// backwards compatibility.
 //
 // Returns:
 //  Ref - The reference of the class set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/classes?lang=go
 func ScopedClasses(scope interface{}) Expr { return classesFn{Classes: wrap(scope)} }
 
-// ScopedCollections creates a native ref for collections inside a database.
+// ScopedCollections creates a native ref for collections inside a
+// database.
 //
 // Parameters:
-//  scope Ref - The reference of the collections set's scope.
+//  scope Ref - The reference of the collections set's database scope.
 //
 // Returns:
 //  Ref - The reference of the collections set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/collections?lang=go
 func ScopedCollections(scope interface{}) Expr {
 	return collectionsFn{Collections: wrap(scope)}
 }
@@ -342,7 +347,7 @@ func ScopedCollections(scope interface{}) Expr {
 // Returns:
 //  Ref - The reference of the index set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/indexes?lang=go
 func Indexes() Expr { return indexesFn{Indexes: NullV{}} }
 
 type indexesFn struct {
@@ -353,20 +358,20 @@ type indexesFn struct {
 // ScopedIndexes creates a native ref for indexes inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the index set's scope.
+//  scope Ref - The reference of the index set's database scope.
 //
 // Returns:
 //  Ref - The reference of the index set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/indexes?lang=go
 func ScopedIndexes(scope interface{}) Expr { return indexesFn{Indexes: wrap(scope)} }
 
 // Databases creates a native ref for databases.
 //
 // Returns:
-//  Ref - The reference of the datbase set.
+//  Ref - The reference of the database set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/databases?lang=go
 func Databases() Expr { return databasesFn{Databases: NullV{}} }
 
 type databasesFn struct {
@@ -377,12 +382,12 @@ type databasesFn struct {
 // ScopedDatabases creates a native ref for databases inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the database set's scope.
+//  scope Ref - The reference of the database set's database scope.
 //
 // Returns:
 //  Ref - The reference of the database set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/databases?lang=go
 func ScopedDatabases(scope interface{}) Expr { return databasesFn{Databases: wrap(scope)} }
 
 // Functions creates a native ref for functions.
@@ -390,7 +395,7 @@ func ScopedDatabases(scope interface{}) Expr { return databasesFn{Databases: wra
 // Returns:
 //  Ref - The reference of the function set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/functions?lang=go
 func Functions() Expr { return functionsFn{Functions: NullV{}} }
 
 type functionsFn struct {
@@ -401,12 +406,12 @@ type functionsFn struct {
 // ScopedFunctions creates a native ref for functions inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the function set's scope.
+//  scope Ref - The reference of the function set's database scope.
 //
 // Returns:
 //  Ref - The reference of the function set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/functions?lang=go
 func ScopedFunctions(scope interface{}) Expr { return functionsFn{Functions: wrap(scope)} }
 
 // Roles creates a native ref for roles.
@@ -414,7 +419,7 @@ func ScopedFunctions(scope interface{}) Expr { return functionsFn{Functions: wra
 // Returns:
 //  Ref - The reference of the roles set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/roles?lang=go
 func Roles() Expr { return rolesFn{Roles: NullV{}} }
 
 type rolesFn struct {
@@ -425,12 +430,12 @@ type rolesFn struct {
 // ScopedRoles creates a native ref for roles inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the role set's scope.
+//  scope Ref - The reference of the role set's database scope.
 //
 // Returns:
 //  Ref - The reference of the role set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/roles?lang=go
 func ScopedRoles(scope interface{}) Expr { return rolesFn{Roles: wrap(scope)} }
 
 // Keys creates a native ref for keys.
@@ -438,7 +443,7 @@ func ScopedRoles(scope interface{}) Expr { return rolesFn{Roles: wrap(scope)} }
 // Returns:
 //  Ref - The reference of the key set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/keys?lang=go
 func Keys() Expr { return keysFn{Keys: NullV{}} }
 
 type keysFn struct {
@@ -449,12 +454,12 @@ type keysFn struct {
 // ScopedKeys creates a native ref for keys inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the key set's scope.
+//  scope Ref - The reference of the key set's database scope.
 //
 // Returns:
 //  Ref - The reference of the key set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/keys?lang=go
 func ScopedKeys(scope interface{}) Expr { return keysFn{Keys: wrap(scope)} }
 
 // Tokens creates a native ref for tokens.
@@ -462,7 +467,7 @@ func ScopedKeys(scope interface{}) Expr { return keysFn{Keys: wrap(scope)} }
 // Returns:
 //  Ref - The reference of the token set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/tokens?lang=go
 func Tokens() Expr { return tokensFn{Tokens: NullV{}} }
 
 type tokensFn struct {
@@ -473,12 +478,12 @@ type tokensFn struct {
 // ScopedTokens creates a native ref for tokens inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the token set's scope.
+//  scope Ref - The reference of the token set's database scope.
 //
 // Returns:
 //  Ref - The reference of the token set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/tokens?lang=go
 func ScopedTokens(scope interface{}) Expr { return tokensFn{Tokens: wrap(scope)} }
 
 // Credentials creates a native ref for credentials.
@@ -486,18 +491,18 @@ func ScopedTokens(scope interface{}) Expr { return tokensFn{Tokens: wrap(scope)}
 // Returns:
 //  Ref - The reference of the credential set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/credentials?lang=go
 func Credentials() Expr { return credentialsFn{Credentials: NullV{}} }
 
 // ScopedCredentials creates a native ref for credentials inside a database.
 //
 // Parameters:
-//  scope Ref - The reference of the credential set's scope.
+//  scope Ref - The reference of the credential set's database scope.
 //
 // Returns:
 //  Ref - The reference of the credential set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/credentials?lang=go
 func ScopedCredentials(scope interface{}) Expr {
 	return credentialsFn{Credentials: wrap(scope)}
 }
@@ -511,12 +516,10 @@ type credentialsFn struct {
 
 // NextID produces a new identifier suitable for use when constructing refs.
 //
-// Deprecated: Use NewId instead
+// Deprecated: Use NewId instead.
 //
 // Returns:
 //  string - The new ID.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func NextID() Expr { return nextIDFn{NextID: NullV{}} }
 
 type nextIDFn struct {
@@ -529,14 +532,13 @@ type nextIDFn struct {
 // Returns:
 //  string - The new ID.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/newid?lang=go
 func NewId() Expr { return newIDFn{NewId: NullV{}} }
 
 type newIDFn struct {
 	fnApply
 	NewId Expr `json:"new_id" faunarepr:"noargs"`
 }
-
 
 // AccessProvider create a new access provider ref.
 //
@@ -546,7 +548,7 @@ type newIDFn struct {
 // Returns:
 //  Ref - The access provider reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/accessprovider?lang=go
 func AccessProvider(name interface{}) Expr {
 	return accessProviderFn{
 		AccessProvider: wrap(name),
@@ -557,12 +559,12 @@ func AccessProvider(name interface{}) Expr {
 //
 // Parameters:
 //  name string - The name of the access provider.
-//  scope Ref - The reference of the scope.
+//  scope Ref   - The reference of the scope.
 //
 // Returns:
 //  Ref - The access provider reference.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/accessprovider?lang=go
 func ScopedAccessProvider(name interface{}, scope interface{}) Expr {
 	return accessProviderFn{
 		AccessProvider: wrap(name),
@@ -581,14 +583,15 @@ type accessProviderFn struct {
 // Returns:
 //  Ref - The reference of the access providers set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/accessproviders?lang=go
 func AccessProviders() Expr {
 	return accessProvidersFn{
 		AccessProviders: NullV{},
 	}
 }
 
-// ScopedAccessProviders creates a native ref for access providers inside a database.
+// ScopedAccessProviders creates a native ref for access providers
+// inside a database.
 //
 // Parameters:
 //  scope Ref - The reference of the access provider's set scope.
@@ -596,7 +599,7 @@ func AccessProviders() Expr {
 // Returns:
 //  Ref - The reference of the access providers set.
 //
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/accessproviders?lang=go
 func ScopedAccessProviders(scope interface{}) Expr {
 	return accessProvidersFn{
 		AccessProviders: wrap(scope),
@@ -608,7 +611,14 @@ type accessProvidersFn struct {
 	AccessProviders Expr `json:"access_providers" faunarepr:"scopedfn"`
 }
 
-
+// CurrentIdentity reports the identity used to execute the current query.
+// Results in an error if the identity document does not exist, or
+// identity-less authentication was used (e.g. a key).
+//
+// Returns:
+//  Ref - The reference to the identity documents for the current query.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/currentidentity?lang=go
 func CurrentIdentity() Expr {
 	return currentIdentityFn {
 		CurrentIdentity: NullV{},
@@ -620,6 +630,14 @@ type currentIdentityFn struct {
 	CurrentIdentity Expr `json:"current_identity"`
 }
 
+// CurrentToken reports the reference to the token used to execute the
+// current query. Results in an error if a token does not exist, such as
+// when using a key.
+//
+// Returns:
+//  Ref - The reference to the token used for the current query.
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/currenttoken?lang=go
 func CurrentToken() Expr {
 	return currentTokenFn {
 		CurrentToken: NullV{},
@@ -631,6 +649,13 @@ type currentTokenFn struct {
 	CurrentToken Expr `json:"current_token"`
 }
 
+// HasCurrentIdentity returns a boolean indicating whether the current
+// query was authenticated via an identity document.
+//
+// Returns:
+//  bool - Was the current query authenticated via an identity?
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/hascurrentidentity?lang=go
 func HasCurrentIdentity() Expr {
 	return hasCurrentIdentityFn {
 		HasCurrentIdentity: NullV{},
@@ -642,6 +667,13 @@ type hasCurrentIdentityFn struct {
 	HasCurrentIdentity Expr `json:"has_current_identity"`
 }
 
+// HasCurrentToken returns a boolean indicating whether CurrentToken
+// would return a value or not.
+//
+// Returns:
+//  bool - Would CurrentToken return a value or not?
+//
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/hascurrenttoken?lang=go
 func HasCurrentToken() Expr {
 	return hasCurrentTokenFn {
 		HasCurrentToken: NullV{},

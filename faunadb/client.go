@@ -34,7 +34,7 @@ var resource = ObjKey("resource")
 // ClientConfig is the base type for the configuration parameters of a FaunaClient.
 type ClientConfig func(*FaunaClient)
 
-// Endpoint configures the FaunaDB URL for a FaunaClient.
+// Endpoint configures the Fauna URL for a FaunaClient.
 func Endpoint(url string) ClientConfig { return func(cli *FaunaClient) { cli.endpoint = url } }
 
 // HTTP allows the user to override the http.Client used by a FaunaClient.
@@ -69,7 +69,7 @@ func DisableTxnTimePassthrough() ClientConfig {
 	return func(cli *FaunaClient) { cli.isTxnTimeEnabled = false }
 }
 
-//QueryConfig is the base type for query specific configuration parameters.
+// QueryConfig is the base type for query specific configuration parameters.
 type QueryConfig func(*faunaRequest)
 
 type faunaRequest struct {
@@ -91,10 +91,13 @@ func Observer(observer ObserverCallback) ClientConfig {
 }
 
 /*
-FaunaClient provides methods for performing queries on a FaunaDB cluster.
+FaunaClient provides methods for performing queries on a Fauna cluster.
 
-This structure should be reused as much as possible. Avoid copying this structure.
-If you need to create a client with a different secret, use the NewSessionClient method.
+This structure should be reused as much as possible. Avoid copying this
+structure.
+
+If you need to create a client with a different secret, use the
+NewSessionClient method.
 */
 type FaunaClient struct {
 	basicAuth        string
@@ -108,7 +111,8 @@ type FaunaClient struct {
 	headers          map[string]string
 }
 
-// QueryResult is a structure containing the result context for a given FaunaDB query.
+// QueryResult is a structure containing the result context for a given
+// Fauna query.
 type QueryResult struct {
 	Client     *FaunaClient
 	Query      Expr
@@ -123,7 +127,7 @@ type QueryResult struct {
 
 /*
 NewFaunaClient creates a new FaunaClient structure. Possible configuration options:
-	Endpoint: sets a specific FaunaDB url. Default: https://db.fauna.com
+	Endpoint: sets a specific Fauna URL. Default: https://db.fauna.com
 	HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
 */
 func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
@@ -241,7 +245,7 @@ func (client *FaunaClient) BatchQueryResult(expr []Expr) (value []Value, headers
 	return
 }
 
-// Query is the primary method used to send a query language expression to FaunaDB.
+// Query is the primary method used to send a query language expression to Fauna.
 func (client *FaunaClient) Query(expr Expr, configs ...QueryConfig) (value Value, err error) {
 	var response faunaResponse
 	var payload []byte
@@ -274,8 +278,8 @@ func (client *FaunaClient) Query(expr Expr, configs ...QueryConfig) (value Value
 	return
 }
 
-// BatchQuery will sends multiple simultaneous queries to FaunaDB. values are returned in the same order
-// as the queries.
+// BatchQuery will sends multiple simultaneous queries to Fauna. values
+// are returned in the same order as the queries.
 func (client *FaunaClient) BatchQuery(exprs []Expr) (values []Value, err error) {
 	arr := make(unescapedArr, len(exprs))
 
