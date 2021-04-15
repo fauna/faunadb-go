@@ -82,7 +82,7 @@ type casefoldFn struct {
 //  search string - The prefix to search for.
 //
 // Returns:
-//   bool - Does `value` start with `search`?
+//   bool - Does value start with search?
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/startswith?lang=go
 func StartsWith(value interface{}, search interface{}) Expr {
@@ -103,7 +103,7 @@ type startsWithFn struct {
 //  search  string - The suffix to search for.
 //
 // Returns:
-//  bool - Does `value` end with `search`?
+//  bool - Does value end with search?
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/endswith?lang=go
 func EndsWith(value interface{}, search interface{}) Expr {

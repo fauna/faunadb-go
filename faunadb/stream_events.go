@@ -22,7 +22,7 @@ const (
 	VersionEventT StreamEventType = "version"
 )
 
-// StreamEvent represents a stream event with a `type` and `txn`
+// StreamEvent represents a stream event with a type and txn
 type StreamEvent interface {
 	Type() StreamEventType
 	Txn() int64
@@ -48,7 +48,7 @@ func (event StartEvent) Txn() int64 {
 	return event.txn
 }
 
-// Event returns the stream event as a `f.Value`
+// Event returns the stream event as a f.Value
 func (event StartEvent) Event() Value {
 	return event.event
 }
@@ -70,7 +70,7 @@ func (event VersionEvent) Txn() int64 {
 	return event.txn
 }
 
-// Event returns the stream event as a `Value`
+// Event returns the stream event as a Value
 func (event VersionEvent) Event() Value {
 	return event.event
 }
@@ -97,7 +97,7 @@ func (event HistoryRewriteEvent) Txn() int64 {
 	return event.txn
 }
 
-// Event returns the stream event as a `Value`
+// Event returns the stream event as a Value
 func (event HistoryRewriteEvent) Event() Value {
 	return event.event
 }

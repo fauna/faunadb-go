@@ -258,7 +258,7 @@ func (bytes BytesV) MarshalJSON() ([]byte, error) {
 	return escape("@bytes", encoded)
 }
 
-// QueryV represents a `@query` value in Fauna.
+// QueryV represents a @query value in Fauna.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/types?lang=go#query
 type QueryV struct {
