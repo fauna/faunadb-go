@@ -67,23 +67,18 @@ type identifyFn struct {
 // Returns:
 //  Ref - The reference associated with the current key.
 //
+// Deprecated: Use CurrentIdentity instead
+//
+//
 // See: https://app.fauna.com/documentation/reference/queryapi#authentication
-func Identity() Expr { return identityFn{Identity: NullV{}} }
-
-type identityFn struct {
-	fnApply
-	Identity Expr `json:"identity" faunarepr:"noargs"`
-}
+func Identity() Expr { return CurrentIdentity() }
 
 // HasIdentity checks if the current key has an identity associated to it.
 //
 // Returns:
 //  bool - true if the current key has an identity, false otherwise.
 //
+// Deprecated: Use HasCurrentIdentity instead
+//
 // See: https://app.fauna.com/documentation/reference/queryapi#authentication
-func HasIdentity() Expr { return hasIdentityFn{HasIdentity: NullV{}} }
-
-type hasIdentityFn struct {
-	fnApply
-	HasIdentity Expr `json:"has_identity" faunarepr:"noargs"`
-}
+func HasIdentity() Expr { return HasCurrentIdentity() }

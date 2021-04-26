@@ -953,14 +953,14 @@ func TestSerializeIndentify(t *testing.T) {
 func TestSerializeIdentity(t *testing.T) {
 	assertJSON(t,
 		Identity(),
-		`{"identity":null}`,
+		`{"current_identity":null}`,
 	)
 }
 
 func TestSerializeHasIdentity(t *testing.T) {
 	assertJSON(t,
 		HasIdentity(),
-		`{"has_identity":null}`,
+		`{"has_current_identity":null}`,
 	)
 }
 
