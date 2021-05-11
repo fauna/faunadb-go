@@ -1,0 +1,16 @@
+---
+platform: linux
+image_resource:
+  type: registry-image
+  source:
+    repository: alpine/git
+    tag: v2.30.2
+
+inputs:
+  - name: fauna-go-repository
+
+outputs:
+  - name: fauna-go-repository-updated
+
+run:
+  path: ./fauna-go-repository/concourse/scripts/publish.sh
