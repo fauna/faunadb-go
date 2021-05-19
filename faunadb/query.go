@@ -128,6 +128,26 @@ func (fn getFn) setTS(e Expr) Expr {
 	return fn
 }
 
+func Cursor(ref interface{}) OptionalParameter {
+	return func(expr Expr) Expr {
+		switch e := expr.(type) {
+		case cursorParam:
+			return e.setCursor(wrap(ref))
+		default:
+			return e
+		}
+	}
+}
+
+type cursorParam interface {
+	setCursor(cursor Expr) Expr
+}
+
+func (fn paginateFn) setCursor(e Expr) Expr {
+	fn.Cursor = e
+	return fn
+}
+
 // After is an optional parameter used when cursoring that refers to the specified cursor's the next page, inclusive.
 // For more information about pages, check https://app.fauna.com/documentation/reference/queryapi#simple-type-pages.
 //

@@ -585,13 +585,14 @@ func TestSerializePaginateWithParameters(t *testing.T) {
 			Ref("databases"),
 			Before(Ref("databases/test10")),
 			After(Ref("databases/test")),
+			Cursor(Obj{"before": Ref("databases/test")}),
 			EventsOpt(true),
 			Sources(true),
 			TS(10),
 			Size(2),
 		),
 		`{"after":{"@ref":"databases/test"},"before":{"@ref":"databases/test10"},"events":true,`+
-			`"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10}`,
+			`"paginate":{"@ref":"databases"},"size":2,"sources":true,"ts":10,"cursor":{"object":{"before":{"@ref":"databases/test"}}}}`,
 	)
 }
 
