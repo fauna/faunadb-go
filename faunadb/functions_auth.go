@@ -48,7 +48,7 @@ type logoutFn struct {
 // Returns:
 //  bool - True if the password is correct, false otherwise.
 //
-// See: https://docs.fauna.com/fauna/current/api/fql/functions/identity?lang=go
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/identify?lang=go
 func Identify(ref, password interface{}) Expr {
 	return identifyFn{Identify: wrap(ref), Password: wrap(password)}
 }

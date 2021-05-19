@@ -93,6 +93,7 @@ type unionFn struct {
 // Returns:
 //  object - A new object representing the merged objects.
 //
+// See: https://docs.fauna.com/fauna/current/api/fql/functions/merge?lang=go
 func Merge(merge interface{}, with interface{}, lambda ...OptionalParameter) Expr {
 	fn := mergeFn{Merge: wrap(merge), With: wrap(with)}
 	return applyOptionals(fn, lambda)
