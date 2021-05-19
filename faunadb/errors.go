@@ -43,12 +43,12 @@ type QueryError struct {
 	Position    []string            `fauna:"position"`
 	Code        string              `fauna:"code"`
 	Description string              `fauna:"description"`
-	Failures    []ValidationFailure `fauna:"failures"`
+	Cause       []ValidationFailure `fauna:"cause"`
 }
 
 // ValidationFailure describes validation errors on a submitted query.
 type ValidationFailure struct {
-	Field       []string `fauna:"field"`
+	Position    []string `fauna:"position"`
 	Code        string   `fauna:"code"`
 	Description string   `fauna:"description"`
 }
@@ -71,13 +71,15 @@ func (err *errorResponse) queryErrors() string {
 		return "Unparseable server response."
 	}
 
-	errors := make([]string, len(err.errors))
+	errs := make([]string, len(err.errors))
 
 	for i, queryError := range err.errors {
-		errors[i] = fmt.Sprintf("[%s](%s): %s", strings.Join(queryError.Position, "/"), queryError.Code, queryError.Description)
+
+		errs[i] =
+			fmt.Sprintf("[%s](%s): %s, details: %s", strings.Join(queryError.Position, "/"), queryError.Code, queryError.Description, queryError.Cause)
 	}
 
-	return fmt.Sprintf("Errors: %s", strings.Join(errors, ", "))
+	return fmt.Sprintf("Errors: %s", strings.Join(errs, ", "))
 }
 
 func checkForResponseErrors(response *http.Response) error {

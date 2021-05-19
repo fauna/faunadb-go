@@ -99,6 +99,7 @@ func Paginate(set interface{}, options ...OptionalParameter) Expr {
 type paginateFn struct {
 	fnApply
 	Paginate Expr `json:"paginate"`
+	Cursor   Expr `json:"cursor,omitempty" faunarepr:"optfn"`
 	After    Expr `json:"after,omitempty" faunarepr:"optfn"`
 	Before   Expr `json:"before,omitempty" faunarepr:"optfn"`
 	Events   Expr `json:"events,omitempty" faunarepr:"fn=optfn,name=EventsOpt"`

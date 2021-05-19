@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	f "github.com/fauna/faunadb-go/v4/faunadb"
 	"github.com/stretchr/testify/suite"
+
+	f "github.com/fauna/faunadb-go/v4/faunadb"
 )
 
 func TestRunClientTests(t *testing.T) {
@@ -13,28 +14,31 @@ func TestRunClientTests(t *testing.T) {
 }
 
 var (
-	dataField     = f.ObjKey("data")
-	refField      = f.ObjKey("ref")
-	tsField       = f.ObjKey("ts")
-	beforeField   = f.ObjKey("before")
-	afterField    = f.ObjKey("after")
-	secretField   = f.ObjKey("secret")
-	documentField = f.ObjKey("document")
+	dataField       = f.ObjKey("data")
+	refField        = f.ObjKey("ref")
+	tsField         = f.ObjKey("ts")
+	cursorField     = f.ObjKey("cursor")
+	beforeField     = f.ObjKey("before")
+	afterField      = f.ObjKey("after")
+	secretField     = f.ObjKey("secret")
+	documentField   = f.ObjKey("document")
+	paginateColName = "paginateCollection"
 )
 
 var randomCollection,
-	spells,
-	spellbook,
-	characters,
-	allSpells,
-	spellsByElement,
-	elementsOfSpells,
-	spellbookByOwner,
-	spellBySpellbook,
-	magicMissile,
-	fireball,
-	faerieFire,
-	thor f.RefV
+paginateCollection,
+spells,
+spellbook,
+characters,
+allSpells,
+spellsByElement,
+elementsOfSpells,
+spellbookByOwner,
+spellBySpellbook,
+magicMissile,
+fireball,
+faerieFire,
+thor f.RefV
 
 type Spellbook struct {
 	Owner f.RefV `fauna:"owner"`
@@ -67,6 +71,10 @@ func (s *ClientTestSuite) SetupSuite() {
 func (s *ClientTestSuite) setupSchema() {
 	randomCollection = s.queryForRef(
 		f.CreateCollection(f.Obj{"name": "some_random_collection"}),
+	)
+
+	paginateCollection = s.queryForRef(
+		f.CreateCollection(f.Obj{"name": paginateColName}),
 	)
 
 	spells = s.queryForRef(
@@ -2809,4 +2817,52 @@ func (s *ClientTestSuite) TestScopedAccessProvider() {
 
 	//cleanup
 	adminClient.Query(f.Delete(f.Database(scopedDbName)))
+}
+
+func (s *ClientTestSuite) TestPaginateWithCursor() {
+	var data []f.RefV
+	var before, after f.Value
+	var ref f.RefV
+
+	s.query(
+		f.Foreach(
+			[]int{10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+			f.Lambda(
+				"x",
+				f.Create(f.Ref(paginateCollection, f.Var("x")), f.Obj{"data": f.Obj{"value": f.Var("x")}}))),
+	)
+
+	res := s.query(
+		f.Paginate(
+			f.Documents(f.Collection(paginateColName)),
+			f.Size(3),
+		))
+
+	res = s.query(
+		f.Paginate(
+			f.Documents(f.Collection(paginateColName)),
+			f.Size(3),
+			f.Cursor(nil),
+		))
+	s.Require().NoError(res.At(dataField).Get(&data))
+	s.Require().Len(data, 3)
+
+	s.Require().NoError(res.At(afterField).Get(&after))
+	value, _ := after.At(f.ArrIndex(0)).GetValue()
+	value.Get(&ref)
+	s.Require().Equal(ref.ID, "13")
+
+	res = s.query(
+		f.Paginate(
+			f.Documents(f.Collection(paginateColName)),
+			f.Cursor(f.Obj{"after": after}),
+		))
+	s.Require().NoError(res.At(beforeField).Get(&before))
+	value, _ = before.At(f.ArrIndex(0)).GetValue()
+	value.Get(&ref)
+	s.Require().Equal(ref.ID, "13")
+
+	s.Require().NoError(res.At(dataField).Get(&data))
+	s.Require().Len(data, 7)
+
 }

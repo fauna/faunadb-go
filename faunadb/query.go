@@ -129,14 +129,28 @@ func (fn getFn) setTS(e Expr) Expr {
 	return fn
 }
 
-// After is an optional parameter used when cursoring that refers to the
-// specified cursor's the next page, inclusive.
-//
-// See:
-//
-// * https://docs.fauna.com/fauna/current/api/fql/functions/paginate?lang=go#page
-//
-// * https://docs.fauna.com/fauna/current/api/fql/functions/paginate?lang=go#cursor
+func Cursor(ref interface{}) OptionalParameter {
+	return func(expr Expr) Expr {
+		switch e := expr.(type) {
+		case cursorParam:
+			return e.setCursor(wrap(ref))
+		default:
+			return e
+		}
+	}
+}
+
+type cursorParam interface {
+	setCursor(cursor Expr) Expr
+}
+
+func (fn paginateFn) setCursor(e Expr) Expr {
+	fn.Cursor = e
+	return fn
+}
+
+// After is an optional parameter used when cursoring that refers to the specified cursor's the next page, inclusive.
+// For more information about pages, check hhttps://docs.fauna.com/fauna/current/api/fql/types?lang=go#page.
 //
 // Functions that accept this optional parameter are: Paginate.
 func After(ref interface{}) OptionalParameter {
