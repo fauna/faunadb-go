@@ -57,7 +57,7 @@ func (s *PerformanceTestSuite) TestLoadwithDifferentHttpClients() {
 			//if faunaEndpoint == "" {
 			//	faunaEndpoint = "https://db.fauna.com"
 			//}
-			dbClient := f.NewFaunaClient(sec)
+			dbClient := f.NewFaunaClient(sec, f.Endpoint(faunaEndpoint))
 			_, err := dbClient.Query(
 				f.Paginate(
 					f.Documents(f.Collection(collName))))
@@ -79,7 +79,7 @@ func (s *PerformanceTestSuite) TestLoadwithDifferentHttpClients() {
 func (s *PerformanceTestSuite) TestLoadwithOneClient() {
 	var wg sync.WaitGroup
 	var counter counterMutex
-	var activeConnections int64 = 9000
+	var activeConnections int64 = 500
 	ch := make(chan int)
 
 	wg.Add(int(activeConnections))
