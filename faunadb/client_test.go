@@ -1,8 +1,6 @@
 package faunadb_test
 
 import (
-	"os"
-	"sync"
 	"testing"
 	"time"
 
@@ -2867,62 +2865,4 @@ func (s *ClientTestSuite) TestPaginateWithCursor() {
 	s.Require().NoError(res.At(dataField).Get(&data))
 	s.Require().Len(data, 7)
 
-}
-
-func (s *StreamsTestSuite) TestLoadwithDifferentHttpClients() {
-	var wg sync.WaitGroup
-	var counter counterMutex
-	var activeConnections int64 = 200
-	sec := os.Getenv("FAUNA_ROOT_KEY")
-	dbClient := f.NewFaunaClient(sec)
-	collName := f.RandomStartingWith("load_")
-	coll := f.Collection(collName)
-
-	_, err := dbClient.Query(f.CreateCollection(f.Obj{"name": collName}))
-	s.Require().NoError(err)
-	_, err = dbClient.Query(f.Create(coll, f.Obj{"data": f.Obj{"v": data}}))
-	s.Require().NoError(err)
-
-	wg.Add(int(activeConnections))
-	for i := 0; i < int(activeConnections); i++ {
-		go func() {
-			sec := os.Getenv("FAUNA_ROOT_KEY")
-			dbClient := f.NewFaunaClient(sec)
-			_, err := dbClient.Query(
-				f.Paginate(
-					f.Documents(f.Collection(collName))))
-			s.Require().NoError(err)
-
-			_, err = dbClient.Query(f.Multiply(f.Arr{4, 2}))
-			s.Require().NoError(err)
-
-			counter.Inc()
-			time.Sleep(1 * time.Second)
-			wg.Done()
-		}()
-	}
-
-	wg.Wait()
-	s.Require().Equal(activeConnections, counter.Value())
-}
-
-func (s *StreamsTestSuite) TestLoadwithOneClient() {
-	var wg sync.WaitGroup
-	var counter counterMutex
-	var activeConnections int64 = 100
-
-	wg.Add(int(activeConnections))
-
-	for i := 0; i < int(activeConnections); i++ {
-
-		go func() {
-			s.client.Query(f.Sum(f.Arr{1, 2}))
-			counter.Inc()
-			time.Sleep(1 * time.Second)
-			wg.Done()
-		}()
-	}
-
-	wg.Wait()
-	s.Require().Equal(activeConnections, counter.Value())
 }
