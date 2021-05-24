@@ -49,14 +49,7 @@ func (s *PerformanceTestSuite) TestLoadwithDifferentHttpClients() {
 	wg.Add(int(activeConnections))
 	for i := 0; i < int(activeConnections); i++ {
 		go func() {
-			//time.Sleep(1 * time.Second)
 			ch <- 1
-			//sec := os.Getenv("FAUNA_ROOT_KEY")
-			//faunaEndpoint := os.Getenv("FAUNA_ENDPOINT")
-
-			//if faunaEndpoint == "" {
-			//	faunaEndpoint = "https://db.fauna.com"
-			//}
 			dbClient := f.NewFaunaClient(sec, f.Endpoint(faunaEndpoint))
 			_, err := dbClient.Query(
 				f.Paginate(
