@@ -106,7 +106,7 @@ type mergeFn struct {
 	Lambda Expr `json:"lambda,omitempty" faunarepr:"optfn,name=ConflictResolver"`
 }
 
-// Reduce function applies a reducer Lambda function serially to each
+// Reduce function applies the provided Lambda function serially to each
 // member of the collection to produce a single value.
 //
 // Parameters:

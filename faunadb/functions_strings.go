@@ -5,10 +5,10 @@ package faunadb
 // Format formats values into a string.
 //
 // Parameters:
-//  format string - Format a string with format specifiers.
+//  format string - A string containing format specifiers.
 //
 // Optional parameters:
-//  values []string - List of values to format into string.
+//  values []string - List of values to format into a single string.
 //
 // Returns:
 //  string - A string.
@@ -82,7 +82,7 @@ type casefoldFn struct {
 //  search string - The prefix to search for.
 //
 // Returns:
-//   bool - Does value start with search?
+//   boolean - true if value starts with search, false otherwise.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/startswith?lang=go
 func StartsWith(value interface{}, search interface{}) Expr {
@@ -103,7 +103,7 @@ type startsWithFn struct {
 //  search  string - The suffix to search for.
 //
 // Returns:
-//  bool - Does value end with search?
+//  boolean - true if value ends with search, false otherwise.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/endswith?lang=go
 func EndsWith(value interface{}, search interface{}) Expr {

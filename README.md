@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/master/LICENSE)
 
-A Go lang driver for [FaunaDB](https://fauna.com/).
+A Go driver for [Fauna](https://fauna.com/).
 
 ## Supported Go Versions
 
@@ -184,10 +184,10 @@ GitHub pull requests are very welcome.
 
 Run `go get -t ./...` in order to install project's dependencies.
 
-Run tests against FaunaDB Cloud by passing your root database key to the
-test suite, as follows: `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
+Run tests against Fauna by passing your root database key to the test
+suite, as follows: `FAUNA_ROOT_KEY="your-cloud-secret" go test ./...`.
 
-If you have access to another running FaunaDB database, use the
+If you have access to another running Fauna database, use the
 `FAUNA_ENDPOINT` environment variable to specify its URI.
 
 Alternatively, tests can be run via a Docker container with

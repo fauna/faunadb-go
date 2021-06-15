@@ -3,7 +3,6 @@ package faunadb
 // Read
 
 // Get retrieves the document identified by the provided ref.
-// Optional parameters: TS.
 //
 // Parameters:
 //  ref Ref|SetRef - The reference to the object or a set reference.

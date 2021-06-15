@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Unmarshal json string into a FaunaDB value.
+// Unmarshal JSON string into a Fauna value.
 func UnmarshalJSON(buffer []byte, outValue *Value) error {
 	reader := bytes.NewReader(buffer)
 
@@ -23,7 +23,7 @@ func UnmarshalJSON(buffer []byte, outValue *Value) error {
 	return nil
 }
 
-// Marshal a FaunaDB value into a json string.
+// Marshal a Fauna value into a JSON string.
 func MarshalJSON(value Value) ([]byte, error) {
 	return json.Marshal(unwrap(value))
 }

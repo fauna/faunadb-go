@@ -27,7 +27,7 @@ func Example() {
 		Verified: false,
 	}
 
-	// Save profile at FaunaDB
+	// Save profile
 	newProfile, _ := client.Query(
 		f.Create(
 			f.Collection("profiles"),

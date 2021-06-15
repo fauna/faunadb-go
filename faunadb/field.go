@@ -1,12 +1,12 @@
 package faunadb
 
-// Field is a field extractor for FaunaDB values.
+// Field is a field extractor for Fauna values.
 type Field struct{ path path }
 
 // FieldValue describes an extracted field value.
 type FieldValue interface {
-	GetValue() (Value, error) // GetValue returns the extracted FaunaDB value.
-	Get(i interface{}) error  // Get decodes a FaunaDB value to a native Go type.
+	GetValue() (Value, error) // GetValue returns the extracted Fauna value.
+	Get(i interface{}) error  // Get decodes a Fauna value to a native Go type.
 }
 
 // ObjKey creates a field extractor for a JSON object based on the provided keys.

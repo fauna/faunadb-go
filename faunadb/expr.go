@@ -5,10 +5,11 @@ import (
 )
 
 /*
-Expr is the base type for FaunaDB query language expressions.
+Expr is the base type for Fauna Query Language expressions.
 
-Expressions are created by using the query language functions in query.go. Query functions are designed to compose with each other, as well as with
-custom data structures. For example:
+Expressions are created by using the query language functions in
+query.go. Query functions are designed to compose with each other, as
+well as with custom data structures. For example:
 
 	type User struct {
 		Name string

@@ -1,17 +1,21 @@
 /*
-Package faunadb implements the Fauna Query Language (FQL) for Golang applications.
+Package faunadb implements the Fauna Query Language (FQL) for Go
+applications.
 
-FaunaClient is the main client structure, containing methods to communicate with a Fauna cluster.
-This structure is designed to be reused, so avoid making copies of it.
+FaunaClient is the main client structure, containing methods to
+communicate with a Fauna cluster. This structure is designed to be
+reused, so avoid making copies of it.
 
 FQL is composed of expressions that implement the Expr interface.
-Expressions are created using the query language functions found in query.go.
+Expressions are created using the query language functions found in
+query.go.
 
-Responses returned by Fauna are wrapped into types that implement the Value interface.
-This interface provides methods for transversing and decoding Fauna values into native Go types.
+Responses returned by Fauna are wrapped into types that implement the
+Value interface. This interface provides methods for transversing and
+decoding Fauna values into native Go types.
 
 The driver allows for the user to encode custom data structures.
-You can create your own struct and encode it as a valid FaunaDB object.
+You can create your own struct and encode it as a valid Fauna object.
 
 	type User struct {
 		Name string
@@ -20,7 +24,8 @@ You can create your own struct and encode it as a valid FaunaDB object.
 
 	user := User{"John", 24} // Encodes as: {"Name": "John", "Age": 24}
 
-If you wish to control the property names, you can tag them with the "fauna" tag:
+If you wish to control the property names, you can tag them with the
+"fauna" tag:
 
 	type User struct {
 		Name string `fauna:"displayName"`

@@ -5,7 +5,8 @@ import (
 	"reflect"
 )
 
-// A DecodeError describes an error when decoding a Fauna Value to a native Golang type
+// A DecodeError describes an error when decoding a Fauna Value to a
+// native Go type
 type DecodeError struct {
 	path path
 	err  error
@@ -119,7 +120,9 @@ func (c *valueDecoder) fillStructFields(obj map[string]Value) (err error) {
 	newStruct := reflect.New(c.targetType).Elem()
 	aStructType := newStruct.Type()
 
-	//need to get all StructFields and unpack json values into the fields to check if they are empty - use allStructFields rather than
+	// need to get all StructFields and unpack JSON values into the
+	// fields to check if they are empty - use allStructFields rather
+	// than
 	for key, field := range allStructFields(newStruct) {
 		f, _ := aStructType.FieldByName(key)
 		if !field.CanInterface() {

@@ -10,7 +10,7 @@ import (
 
 var errorsField = ObjKey("errors")
 
-// A FaunaError wraps HTTP errors when sending queries to a FaunaDB cluster.
+// A FaunaError wraps HTTP errors when sending queries to a Fauna cluster.
 type FaunaError interface {
 	error
 	Status() int          // HTTP status code

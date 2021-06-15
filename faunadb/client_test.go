@@ -199,7 +199,7 @@ func (s *ClientTestSuite) TestMarshal() {
 	var after f.Value
 	s.Require().NoError(res.At(afterField).Get(&after))
 
-	//marshal cursor to json
+	//marshal cursor to JSON
 	afterJson, err := f.MarshalJSON(after)
 	s.Require().NoError(err)
 

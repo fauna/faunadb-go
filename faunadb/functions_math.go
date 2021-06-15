@@ -16,13 +16,13 @@ type absFn struct {
 	Abs Expr `json:"abs"`
 }
 
-// Acos computes the arc cosine of a number.
+// Acos computes the arccosine of a number.
 //
 // Parameters:
-//  value number - The number to take the arc cosine of.
+//  value number - The number to take the arccosine of.
 //
 // Returns:
-//  number - The arc cosine of a number.
+//  number - The arccosine of a number.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/acos?lang=go
 func Acos(value interface{}) Expr { return acosFn{Acos: wrap(value)} }
@@ -32,13 +32,13 @@ type acosFn struct {
 	Acos Expr `json:"acos"`
 }
 
-// Asin computes the arc sine of a number.
+// Asin computes the arcsine of a number.
 //
 // Parameters:
-//  value number - The number to take the arc sine of.
+//  value number - The number to take the arcsine of.
 //
 // Returns:
-//  number - The arc sine of a number.
+//  number - The arcsine of a number.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/asin?lang=go
 func Asin(value interface{}) Expr { return asinFn{Asin: wrap(value)} }
@@ -48,13 +48,13 @@ type asinFn struct {
 	Asin Expr `json:"asin"`
 }
 
-// Atan computes the arc tan of a number.
+// Atan computes the arctan of a number.
 //
 // Parameters:
-//  value number - The number to take the arc tan of.
+//  value number - The number to take the arctan of.
 //
 // Returns:
-//  number - The arc tan of a number.
+//  number - The arctan of a number.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/atan?lang=go
 func Atan(value interface{}) Expr { return atanFn{Atan: wrap(value)} }
@@ -144,10 +144,11 @@ type bitXorFn struct {
 	BitXor Expr `json:"bitxor" faunarepr:"varargs"`
 }
 
-// Ceil computes the largest integer greater than or equal to.
+// Ceil computes the smallest integer greater than or equal to the
+// provided value.
 //
 // Parameters:
-//  value number - A numbers to compute the ceil of.
+//  value number - A number to compute the ceil of.
 //
 // Returns:
 //  number - The ceil of value.
@@ -192,10 +193,10 @@ type coshFn struct {
 	Cosh Expr `json:"cosh"`
 }
 
-// Degrees computes the degrees of a number.
+// Degrees converts the provided radians to degrees.
 //
 // Parameters:
-//  value number - A number to compute the degrees of.
+//  value number - A number in radians to compute the degrees of.
 //
 // Returns:
 //  number - The degrees of value.
@@ -224,7 +225,7 @@ type divideFn struct {
 	Divide Expr `json:"divide" faunarepr:"varargs"`
 }
 
-// Exp computes the exponent of a number.
+// Exp computes the value of e to the given exponent.
 //
 // Parameters:
 //  value number - A number to compute the exponent of.
@@ -240,7 +241,8 @@ type expFn struct {
 	Exp Expr `json:"exp"`
 }
 
-// Floor computes the floor of a number.
+// Floor computes the largest integer that is smaller then, or equal to,
+// the provided value.
 //
 // Parameters:
 //  value number - A number to compute the floor of.
@@ -256,14 +258,16 @@ type floorFn struct {
 	Floor Expr `json:"floor"`
 }
 
-// Hypot computes the hypotenuse of two numbers.
+// Hypot computes the hypotenuse of a right triangle whose other two
+// sides are of length a and b.
 //
 // Parameters:
 //  a number - A side of a right triangle.
 //  b number - A side of a right triangle.
 //
 // Returns:
-//  number - The hypotenuse of value.
+//  number - The hypotenuse of a right triangle whose other two sides
+//           are of length a and b.
 //
 // See: https://docs.fauna.com/fauna/current/api/fql/functions/hypot?lang=go
 func Hypot(a, b interface{}) Expr { return hypotFn{Hypot: wrap(a), B: wrap(b)} }
@@ -371,7 +375,7 @@ type multiplyFn struct {
 	Multiply Expr `json:"multiply" faunarepr:"varargs"`
 }
 
-// Pow computes the power of a number.
+// Pow computes the value of base raised to the given exp.
 //
 // Parameters:
 //  base number - A number which is the base.
@@ -389,7 +393,7 @@ type powFn struct {
 	Pow Expr `json:"pow"`
 }
 
-// Radians computes the radians of a number.
+// Radians converts the provided degrees to radians.
 //
 // Parameters:
 //  value number - A number which is converted to radians.

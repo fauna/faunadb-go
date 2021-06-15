@@ -19,7 +19,7 @@ type abortFn struct {
 }
 
 // Do sequentially evaluates its arguments, and returns the last
-// expression. If no expressions are provided, do returns an error.
+// expression. If no expressions are provided, Do returns an error.
 //
 // Parameters:
 //  exprs []Expr - A variable number of expressions to be evaluated.
