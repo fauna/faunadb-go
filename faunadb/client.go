@@ -40,6 +40,9 @@ func Endpoint(url string) ClientConfig { return func(cli *FaunaClient) { cli.end
 // HTTP allows the user to override the http.Client used by a FaunaClient.
 func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.http = http } }
 
+// Headers configures the http headers for a FaunaClient.
+func Headers(headers map[string]string) ClientConfig { return func(cli *FaunaClient) { cli.headers = headers } }
+
 /*
 EnableTxnTimePassthrough configures the FaunaClient to keep track of the last seen transaction time.
 The last seen transaction time is used to avoid reading stale data from outdated replicas when
@@ -169,7 +172,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		client.observer = func(queryResult *QueryResult) {}
 	}
 
-	client.headers = map[string]string{
+	infoHeaders := map[string]string{
 		"Content-Type":             "application/json; charset=utf-8",
 		"X-FaunaDB-API-Version":    apiVersion,
 		"X-Fauna-Driver":           headerFaunaDriver,
@@ -177,6 +180,13 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		"X-Runtime-Environment":    getRuntimeEnvironment(),
 		"X-GO-Version":             runtime.Version(),
 		"X-Query-Timeout":          strconv.FormatUint(client.queryTimeoutMs, 10),
+	}
+	if len(client.headers) == 0 {
+		client.headers = infoHeaders
+	} else {
+		for k, v := range infoHeaders {
+			client.headers[k] = v
+		}
 	}
 
 	if client.queryTimeoutMs > 0 {
