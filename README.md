@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
-[![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/main/LICENSE)
 
 A Go lang driver for [FaunaDB](https://fauna.com/).
 
@@ -24,7 +24,7 @@ To get the latest version run:
 go get github.com/fauna/faunadb-go/v4/faunadb
 ```
 
-Please note that our driver undergoes breaking changes from time to time, so depending on our `master` branch is not recommended.
+Please note that our driver undergoes breaking changes from time to time, so depending on our `main` branch is not recommended.
 It is recommended to use one of the following methods instead:
 
 ### Importing
@@ -173,7 +173,7 @@ Specific reference documentation for the driver is hosted at
 
 
 Most users found tests for the driver as a very useful form of documentation
-[Check it out here](https://github.com/fauna/faunadb-go/tree/master/faunadb).
+[Check it out here](https://github.com/fauna/faunadb-go/tree/main/faunadb).
 
 
 ## Contributing
