@@ -225,6 +225,8 @@ func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 	if _, ok := err.(f.Unauthorized); !ok {
 		s.Require().Fail("Should have returned Unauthorized")
 	}
+
+	s.EqualError(err, "Response error 401. Errors: [](unauthorized): Unauthorized, details: []")
 }
 
 func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResource() {
@@ -236,9 +238,11 @@ func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResou
 		f.Paginate(f.Databases()),
 	)
 
-	if _, ok := err.(f.PermissionDenied); !ok {
-		s.Require().Fail("Should have returned PermissionDenied")
+	if _, ok := err.(f.PermissionDeniedError); !ok {
+		s.Require().Fail("Should have returned PermissionDeniedError")
 	}
+
+	s.EqualError(err, "Response error 403. Errors: [paginate](permission denied): Insufficient privileges to perform the action., details: []")
 }
 
 func (s *ClientTestSuite) TestReturnNotFoundForNonExistingDocument() {
@@ -246,9 +250,218 @@ func (s *ClientTestSuite) TestReturnNotFoundForNonExistingDocument() {
 		f.Get(f.Ref("collections/spells/1234")),
 	)
 
-	if _, ok := err.(f.NotFound); !ok {
-		s.Require().Fail("Should have returned NotFound")
+	if _, ok := err.(f.InstanceNotFoundError); !ok {
+		s.Require().Fail("Should have returned InstanceNotFoundError")
 	}
+
+	s.EqualError(err, "Response error 404. Errors: [](instance not found): Document not found., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnInvalidArgumentError() {
+	_, err := s.client.Query(
+		f.ToDouble(f.Now()),
+	)
+
+	if _, ok := err.(f.InvalidArgumentError); !ok {
+		s.Require().Fail("Should have returned InvalidArgumentError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [to_double](invalid argument): Cannot cast Time to Double., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnFunctionCallError() {
+	s.client.Query(
+		f.CreateFunction(f.Obj{
+			"name": "DivisionCustom",
+			"body": f.Query(f.Lambda("x", f.Divide(f.Var("x"), 0))),
+		}),
+	)
+
+	_, err := s.client.Query(
+		f.Call("DivisionCustom"),
+	)
+
+	if _, ok := err.(f.FunctionCallError); !ok {
+		s.Require().Fail("Should have returned FunctionCallError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](call error): Calling the function resulted in an error., details: [{[expr divide \x00] invalid argument Number expected, Array provided.}]")
+}
+
+func (s *ClientTestSuite) TestReturnInvalidWriteTimeError() {
+	_, err := s.client.Query(
+		f.Insert(
+			f.Ref(f.Collection("spells"), "1234"),
+			f.TimeAdd(f.Now(), 5, "days"),
+			f.ActionCreate,
+			f.Obj{
+				"data": f.Obj{
+					"color": "YELLOW",
+				},
+			},
+		),
+	)
+
+	if _, ok := err.(f.InvalidWriteTimeError); !ok {
+		s.Require().Fail("Should have returned InvalidWriteTimeError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](invalid write time): Cannot write outside of snapshot time., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnInvalidReferenceError() {
+	_, err := s.client.Query(
+		f.Paginate(f.Documents(f.Collection("spells_not_exists"))),
+	)
+
+	if _, ok := err.(f.InvalidReferenceError); !ok {
+		s.Require().Fail("Should have returned InvalidReferenceError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [paginate/documents](invalid ref): Ref refers to undefined collection 'spells_not_exists', details: []")
+}
+
+func (s *ClientTestSuite) TestReturnMissingIdentityError() {
+	_, err := s.client.Query(
+		f.CurrentIdentity(),
+	)
+
+	if _, ok := err.(f.MissingIdentityError); !ok {
+		s.Require().Fail("Should have returned MissingIdentityError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](missing identity): Authentication does not contain an identity, details: []")
+}
+
+func (s *ClientTestSuite) TestReturnInvalidTokenError() {
+	_, err := s.client.Query(
+		f.CurrentToken(),
+	)
+
+	if _, ok := err.(f.InvalidTokenError); !ok {
+		s.Require().Fail("Should have returned InvalidTokenError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](invalid token): Token metadata is not accessible., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnStackOverflowError() {
+	s.client.Query(
+		f.CreateFunction(f.Obj{
+			"name": "StackOverflowTest",
+			"body": f.Query(f.Lambda("x", f.Call("StackOverflowTest", f.Var("x")))),
+		}),
+	)
+
+	_, err := s.client.Query(
+		f.Call("StackOverflowTest"),
+	)
+
+	if _, ok := err.(f.StackOverflowError); !ok {
+		s.Require().Fail("Should have returned StackOverflowError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [expr](stack overflow): Call stack reached the maximum limit of 200., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnAuthenticationFailedError() {
+	s.client.Query(
+		f.CreateCollection(f.Obj{"name": "login_failed_test"}),
+	)
+
+	s.client.Query(
+		f.Create(f.Ref(f.Collection("login_failed_test"), "1234"), f.Obj{
+			"credentials": f.Obj{
+				"password": "secret",
+			},
+		}),
+	)
+
+	_, err := s.client.Query(
+		f.Login(
+			f.Ref(f.Collection("login_failed_test"), "1234"), f.Obj{"password": "secret2"},
+		),
+	)
+
+	if _, ok := err.(f.AuthenticationFailedError); !ok {
+		s.Require().Fail("Should have returned AuthenticationFailedError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](authentication failed): The document was not found or provided password was incorrect., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnValueNotFoundError() {
+	_, err := s.client.Query(
+		f.Select(f.Arr{"some_value", 1}, f.Obj{"a": "b"}),
+	)
+
+	if _, ok := err.(f.ValueNotFoundError); !ok {
+		s.Require().Fail("Should have returned ValueNotFoundError")
+	}
+
+	s.EqualError(err, "Response error 404. Errors: [from](value not found): Value not found at path [some_value,1]., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnInstanceAlreadyExistsError() {
+	_, err := s.client.Query(
+		f.CreateCollection(f.Obj{"name": "spells"}),
+	)
+
+	if _, ok := err.(f.InstanceAlreadyExistsError); !ok {
+		s.Require().Fail("Should have returned InstanceAlreadyExistsError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [create_collection](instance already exists): Collection already exists., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnValidationFailedError() {
+	_, err := s.client.Query(
+		f.Create(f.Collection("spells"), f.Obj{
+			"data": f.Arr{1},
+		}),
+	)
+
+	if _, ok := err.(f.ValidationFailedError); !ok {
+		s.Require().Fail("Should have returned ValidationFailedError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [create](validation failed): document data is not valid., details: []")
+}
+
+func (s *ClientTestSuite) TestReturnInstanceNotUniqueError() {
+	collectionRef := randomCollection
+
+	s.client.Query(f.CreateIndex(f.Obj{
+		"name": "test_index_for_uniqueness_error",
+		"active": true,
+		"source": collectionRef,
+		"terms": f.Arr{
+			f.Obj{
+				"field": f.Arr{
+					"data", "uniqueField",
+				},
+			},
+		},
+		"unique": true,
+	}))
+
+	s.client.Query(f.Create(collectionRef, f.Obj{
+		"data": f.Obj{
+			"uniqueField": "same value",
+		},
+	}))
+
+	_, err := s.client.Query(f.Create(collectionRef, f.Obj{
+		"data": f.Obj{
+			"uniqueField": "same value",
+		},
+	}))
+
+	if _, ok := err.(f.InstanceNotUniqueError); !ok {
+		s.Require().Fail("Should have returned InstanceNotUniqueError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [create](instance not unique): document is not unique., details: []")
 }
 
 func (s *ClientTestSuite) TestCreateAComplexInstante() {
@@ -524,7 +737,7 @@ func (s *ClientTestSuite) TestAbortExpression() {
 		f.Abort("abort message"),
 	)
 
-	if _, ok := err.(f.BadRequest); !ok {
+	if _, ok := err.(f.TransactionAbortedError); !ok {
 		s.Require().Fail("Should have returned BadRequest")
 	}
 }
