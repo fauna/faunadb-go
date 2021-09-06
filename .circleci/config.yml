@@ -61,7 +61,7 @@ jobs:
   core-stable-1-16-3:
     executor:
       name: core
-      go_version: "1.16.3"
+      go_version: "1.16.7"
       version: stable
     steps:
       - build_and_test
@@ -69,7 +69,7 @@ jobs:
   core-nightly-1-16-3:
     executor:
       name: core
-      go_version: "1.16.3"
+      go_version: "1.16.7"
       version: nightly
     steps:
       - build_and_test
@@ -77,7 +77,7 @@ jobs:
   core-stable-1-15-6:
     executor:
       name: core
-      go_version: "1.15.6"
+      go_version: "1.15.15"
       version: stable
     steps:
       - build_and_test
@@ -85,7 +85,7 @@ jobs:
   core-nightly-1-15-6:
     executor:
       name: core
-      go_version: "1.15.6"
+      go_version: "1.15.15"
       version: nightly
     steps:
       - build_and_test
@@ -93,7 +93,7 @@ jobs:
   core-stable-1-14-13:
     executor:
       name: core
-      go_version: "1.14.13"
+      go_version: "1.14.15"
       version: stable
     steps:
       - build_and_test
@@ -101,7 +101,7 @@ jobs:
   core-nightly-1-14-13:
     executor:
       name: core
-      go_version: "1.14.13"
+      go_version: "1.14.15"
       version: nightly
     steps:
       - build_and_test
@@ -109,7 +109,7 @@ jobs:
   core-stable-1-13:
     executor:
       name: core
-      go_version: "1.13"
+      go_version: "1.13.15"
       version: stable
     steps:
       - build_and_test
@@ -117,7 +117,7 @@ jobs:
   core-nightly-1-13:
     executor:
       name: core
-      go_version: "1.13"
+      go_version: "1.13.15"
       version: nightly
     steps:
       - build_and_test
@@ -126,19 +126,19 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - core-stable-1-16-3:
+      - core-stable-1-16-7:
           context: faunadb-drivers
-      - core-nightly-1-16-3:
+      - core-nightly-1-16-7:
           context: faunadb-drivers
-      - core-stable-1-15-6:
+      - core-stable-1-15-15:
           context: faunadb-drivers
-      - core-nightly-1-15-6:
+      - core-nightly-1-15-15:
           context: faunadb-drivers
-      - core-stable-1-14-13:
+      - core-stable-1-14-15:
           context: faunadb-drivers
-      - core-nightly-1-14-13:
+      - core-nightly-1-14-15:
           context: faunadb-drivers
-      - core-stable-1-13:
+      - core-stable-1-13-15:
           context: faunadb-drivers
-      - core-nightly-1-13:
+      - core-nightly-1-13-15:
           context: faunadb-drivers
