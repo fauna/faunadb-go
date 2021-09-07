@@ -51,17 +51,3 @@ services:
     working_dir: "/tmp/app"
     command:
       - concourse/scripts/integration-tests.sh
-
-  tests-13:
-    environment:
-      - FAUNA_ROOT_KEY
-      - FAUNA_ENDPOINT
-    image: golang:1.13.15-alpine3.12
-    container_name: mytests
-    depends_on:
-      - faunadb
-    volumes:
-      - "../../:/tmp/app"
-    working_dir: "/tmp/app"
-    command:
-      - concourse/scripts/integration-tests.sh
