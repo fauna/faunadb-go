@@ -42,7 +42,9 @@ func RandomStartingWith(parts ...string) string {
 
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key Value
-
+	if faunaEndpoint == "" {
+		faunaEndpoint = defaultEndpoint
+	}
 	adminClient = NewFaunaClient(
 		faunaSecret,
 		Endpoint(faunaEndpoint),
