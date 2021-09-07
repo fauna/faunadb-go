@@ -4,9 +4,9 @@ resources:
     type: git
     icon: github
     source:
-      uri: git@github.com:fauna/faunadb-go.git
+      uri: https://github.com/fauna/faunadb-go.git
       branch: OSS-899
-      private_key: ((fauna/repo.key))
+#      private_key: ((fauna/repo.key))
 
 jobs:
   - name: release
