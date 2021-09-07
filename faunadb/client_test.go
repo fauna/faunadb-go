@@ -2,6 +2,7 @@ package faunadb_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -64,6 +65,7 @@ type ClientTestSuite struct {
 func (s *ClientTestSuite) SetupSuite() {
 	client, err := f.SetupTestDB()
 	fmt.Println(">>>>>>>>>>>>>>> ", err)
+	fmt.Println("FOO>>>>>>>>>>>:", os.Getenv("FAUNA_ENDPOINT"))
 	s.Require().NoError(err)
 
 	s.client = client
