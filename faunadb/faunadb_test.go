@@ -42,6 +42,9 @@ func RandomStartingWith(parts ...string) string {
 
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key Value
+	fmt.Println("=================== ", faunaEndpoint)
+	fmt.Println("=================== ", defaultEndpoint)
+
 	if faunaEndpoint == "" {
 		faunaEndpoint = defaultEndpoint
 	}
