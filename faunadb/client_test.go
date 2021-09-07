@@ -1,6 +1,7 @@
 package faunadb_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -62,6 +63,7 @@ type ClientTestSuite struct {
 
 func (s *ClientTestSuite) SetupSuite() {
 	client, err := f.SetupTestDB()
+	fmt.Println(">>>>>>>>>>>>>>> ", err)
 	s.Require().NoError(err)
 
 	s.client = client
