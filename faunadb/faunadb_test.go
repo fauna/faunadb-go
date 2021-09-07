@@ -51,7 +51,7 @@ func SetupTestDB() (client *FaunaClient, err error) {
 
 	adminClient = NewFaunaClient(
 		faunaSecret,
-		Endpoint(faunaEndpoint),
+		Endpoint("http://faunadb:8443"),
 	)
 	if allQueriesTimeout != "" {
 		if millis, err := strconv.ParseUint(allQueriesTimeout, 10, 64); err == nil {
