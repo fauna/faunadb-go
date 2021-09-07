@@ -47,9 +47,6 @@ func SetupTestDB() (client *FaunaClient, err error) {
 	fmt.Println("=================== ", faunaEndpoint)
 	fmt.Println("=================== ", defaultEndpoint)
 
-	if faunaEndpoint == "" {
-		faunaEndpoint = defaultEndpoint
-	}
 	adminClient = NewFaunaClient(
 		faunaSecret,
 		Endpoint(faunaEndpoint),
