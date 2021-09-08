@@ -106,11 +106,73 @@ jobs:
     steps:
       - build_and_test
 
+  core-stable-1-16-6:
+    executor:
+      name: core
+      go_version: "1.16.6"
+      version: stable
+    steps:
+      - build_and_test
+
+  core-stable-1-16-5:
+    executor:
+      name: core
+      go_version: "1.16.5"
+      version: stable
+    steps:
+      - build_and_test
+
+  core-stable-1-16-4:
+    executor:
+      name: core
+      go_version: "1.16.4"
+      version: stable
+    steps:
+      - build_and_test
+
+  core-stable-1-16-3:
+    executor:
+      name: core
+      go_version: "1.16.3"
+      version: stable
+    steps:
+      - build_and_test
+
+  core-stable-1-16-2:
+    executor:
+      name: core
+      go_version: "1.16.2"
+      version: stable
+    steps:
+      - build_and_test
+
+  core-stable-1-16:
+    executor:
+      name: core
+      go_version: "1.16"
+      version: stable
+    steps:
+      - build_and_test
+
 workflows:
   version: 2
   build_and_test:
     jobs:
       - core-stable-1-16-7:
+          context: faunadb-drivers
+      - core-stable-1-16-6:
+          context: faunadb-drivers
+      - core-stable-1-16-5:
+          context: faunadb-drivers
+
+      - core-stable-1-16-4:
+          context: faunadb-drivers
+
+      - core-stable-1-16-3:
+          context: faunadb-drivers
+      - core-stable-1-16-2:
+          context: faunadb-drivers
+      - core-stable-1-16:
           context: faunadb-drivers
       - core-nightly-1-16-7:
           context: faunadb-drivers

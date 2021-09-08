@@ -1,0 +1,28 @@
+---
+platform: linux
+image_resource:
+  type: registry-image
+  source:
+    repository: karlkfi/concourse-dcind
+
+params:
+  FAUNA_ROOT_KEY:
+  FAUNA_ENDPOINT:
+
+inputs:
+  - name: fauna-go-repository
+
+run:
+  path: entrypoint.sh
+  args:
+    - bash
+    - -ceu
+    - |
+      # start containers
+      docker-compose -f fauna-go-repository/concourse/tasks/integration.yml run tests-16
+      docker-compose -f fauna-go-repository/concourse/tasks/integration.yml run tests-15
+      docker-compose -f fauna-go-repository/concourse/tasks/integration.yml run tests-14
+      # stop and remove containers
+      docker-compose -f fauna-go-repository/concourse/tasks/integration.yml down
+      # remove volumes
+      docker volume rm $(docker volume ls -q)
