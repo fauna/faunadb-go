@@ -10,6 +10,20 @@ services:
       timeout: 3s
       retries: 30
 
+  tests-17:
+    environment:
+      - FAUNA_ROOT_KEY
+      - FAUNA_ENDPOINT
+    image: golang:1.17-alpine3.13
+    container_name: mytests
+    depends_on:
+      - faunadb
+    volumes:
+      - "../../:/tmp/app"
+    working_dir: "/tmp/app"
+    command:
+      - concourse/scripts/integration-tests.sh
+
   tests-16:
     environment:
       - FAUNA_ROOT_KEY

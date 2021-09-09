@@ -15,8 +15,8 @@ jobs:
     plan:
       - get: fauna-go-repository
 
-      - task: integration-tests
-        file: fauna-go-repository/concourse/tasks/integration-tests.yml
+      - task: integration-tests-v5
+        file: fauna-go-repository/concourse/tasks/integration-tests-v5.yml
         privileged: true
         params:
           FAUNA_ROOT_KEY: ((db_secret))
