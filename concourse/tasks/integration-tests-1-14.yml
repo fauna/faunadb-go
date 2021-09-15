@@ -19,8 +19,6 @@ run:
     - -ceu
     - |
       # start containers
-      docker-compose -f fauna-go-repository/concourse/tasks/integration.yml run tests-16
-      docker-compose -f fauna-go-repository/concourse/tasks/integration.yml run tests-15
       docker-compose -f fauna-go-repository/concourse/tasks/integration.yml run tests-14
       # stop and remove containers
       docker-compose -f fauna-go-repository/concourse/tasks/integration.yml down
