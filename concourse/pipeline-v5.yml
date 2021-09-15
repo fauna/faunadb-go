@@ -4,9 +4,9 @@ resources:
     type: git
     icon: github
     source:
-      uri: https://github.com/fauna/faunadb-go.git
+      uri: git@github.com:fauna/faunadb-go.git
       branch: OSS-899-v5
-#      private_key: ((fauna/repo.key))
+      private_key: ((github_repo_key))
 
 jobs:
   - name: release
@@ -29,9 +29,9 @@ jobs:
           FAUNA_ROOT_KEY: ((db_secret))
           FAUNA_ENDPOINT: ((db_endpoint))
 
-      - task: publish
-        file: fauna-go-repository/concourse/tasks/publish.yml
+#      - task: publish
+#        file: fauna-go-repository/concourse/tasks/publish.yml
 
-      - put: fauna-go-repository
-        params:
-          repository: fauna-go-repository-updated
+#      - put: fauna-go-repository
+#        params:
+#          repository: fauna-go-repository-updated
