@@ -101,6 +101,30 @@ func (s *StreamsTestSuite) TestSelectFields() {
 	}
 }
 
+func (s *StreamsTestSuite) TestInvalidExpressionError() {
+	subscription := s.client.Stream(f.CreateCollection(f.Collection("spells")))
+	err := subscription.Start()
+
+	if _, ok := err.(f.InvalidExpressionError); !ok {
+		s.Require().Fail("Should have returned InvalidExpressionError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](invalid expression): Write effect in read-only query expression., details: []")
+}
+
+func (s *StreamsTestSuite) TestInvalidUrlParameterError() {
+	ref := s.createDocument()
+
+	subscription := s.client.Stream(ref, f.Fields("something_wrong"))
+	err := subscription.Start()
+
+	if _, ok := err.(f.InvalidUrlParameterError); !ok {
+		s.Require().Fail("Should have returned InvalidUrlParameterError")
+	}
+
+	s.EqualError(err, "Response error 400. Errors: [](invalid url parameter): Invalid url parameter fields. Invalid field name 'something_wrong'., details: []")
+}
+
 func (s *StreamsTestSuite) TestUpdateLastTxnTime() {
 	ref := s.createDocument()
 	lastTxnTime := s.client.GetLastTxnTime()

@@ -17,17 +17,31 @@ type FaunaError interface {
 	Errors() []QueryError // Errors returned by the server
 }
 
-// A BadRequest wraps an HTTP 400 error response.
-type BadRequest struct{ FaunaError }
+// The following errors wrap an HTTP 400, 403 and 404 error responses.
+type InvalidArgumentError struct{ FaunaError }
+type FunctionCallError struct{ FaunaError }
+type PermissionDeniedError struct{ FaunaError }
+type InvalidExpressionError struct{ FaunaError }
+type InvalidUrlParameterError struct{ FaunaError }
+type TransactionAbortedError struct{ FaunaError }
+type InvalidWriteTimeError struct{ FaunaError }
+type InvalidReferenceError struct{ FaunaError }
+type MissingIdentityError struct{ FaunaError }
+type InvalidTokenError struct{ FaunaError }
+type StackOverflowError struct{ FaunaError }
+type AuthenticationFailedError struct{ FaunaError }
+type ValueNotFoundError struct{ FaunaError }
+type InstanceNotFoundError struct{ FaunaError }
+type InstanceAlreadyExistsError struct{ FaunaError }
+type ValidationFailedError struct{ FaunaError }
+type InstanceNotUniqueError struct{ FaunaError }
+type FeatureNotAvailableError struct{ FaunaError }
 
 // A Unauthorized wraps an HTTP 401 error response.
 type Unauthorized struct{ FaunaError }
 
-// A PermissionDenied wraps an HTTP 403 error response.
-type PermissionDenied struct{ FaunaError }
-
-// A NotFound wraps an HTTP 404 error response.
-type NotFound struct{ FaunaError }
+// A TransactionContention wraps an HTTP 409 error response.
+type TransactionContention struct{ FaunaError }
 
 // A InternalError wraps an HTTP 500 error response.
 type InternalError struct{ FaunaError }
@@ -90,18 +104,64 @@ func checkForResponseErrors(response *http.Response) error {
 	err := parseErrorResponse(response)
 
 	switch response.StatusCode {
-	case 400:
-		return BadRequest{err}
+	case 400, 403, 404:
+		return queryError(err)
 	case 401:
 		return Unauthorized{err}
-	case 403:
-		return PermissionDenied{err}
-	case 404:
-		return NotFound{err}
+	case 409:
+		return TransactionContention{err}
 	case 500:
 		return InternalError{err}
 	case 503:
 		return Unavailable{err}
+	default:
+		return UnknownError{err}
+	}
+}
+
+func queryError(err FaunaError) error {
+	if len(err.Errors()) == 0 {
+		return UnknownError{err}
+	}
+
+	code := err.Errors()[0].Code
+	switch code {
+	case "invalid argument":
+		return InvalidArgumentError{err}
+	case "call error":
+		return FunctionCallError{err}
+	case "permission denied":
+		return PermissionDeniedError{err}
+	case "invalid expression":
+		return InvalidExpressionError{err}
+	case "invalid url parameter":
+		return InvalidUrlParameterError{err}
+	case "transaction aborted":
+		return TransactionAbortedError{err}
+	case "invalid write time":
+		return InvalidWriteTimeError{err}
+	case "invalid ref":
+		return InvalidReferenceError{err}
+	case "missing identity":
+		return MissingIdentityError{err}
+	case "invalid token":
+		return InvalidTokenError{err}
+	case "stack overflow":
+		return StackOverflowError{err}
+	case "authentication failed":
+		return AuthenticationFailedError{err}
+	case "value not found":
+		return ValueNotFoundError{err}
+	case "instance not found":
+		return InstanceNotFoundError{err}
+	case "instance already exists":
+		return InstanceAlreadyExistsError{err}
+	case "validation failed":
+		return ValidationFailedError{err}
+	case "instance not unique":
+		return InstanceNotUniqueError{err}
+	case "feature not available":
+		return FeatureNotAvailableError{err}
 	default:
 		return UnknownError{err}
 	}

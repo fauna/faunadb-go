@@ -14,9 +14,35 @@ var (
 	noErrors       = []QueryError{}
 )
 
-func TestReturnBadRequestOn400(t *testing.T) {
-	err := checkForResponseErrors(httpErrorResponseWith(400, emptyErrorBody))
-	require.Equal(t, BadRequest{errorResponseWith(400, noErrors)}, err)
+func TestReturnInvalidArgumentError(t *testing.T) {
+	json := `
+	{
+		"errors": [
+			{
+				"position": ["data", "token"],
+				"code": "invalid argument",
+				"description": "Cannot cast Time to Double."
+			}
+		]
+	}
+	`
+
+	err := checkForResponseErrors(httpErrorResponseWith(400, json))
+
+	expectedError := InvalidArgumentError {
+		errorResponseWith(400,
+			[]QueryError{
+				{
+					Position:    []string{"data", "token"},
+					Code:        "invalid argument",
+					Description: "Cannot cast Time to Double.",
+				},
+			},
+		),
+	}
+
+	require.Equal(t, expectedError, err)
+	require.EqualError(t, err, "Response error 400. Errors: [data/token](invalid argument): Cannot cast Time to Double., details: []")
 }
 
 func TestReturnUnauthorizedOn401(t *testing.T) {
@@ -26,12 +52,12 @@ func TestReturnUnauthorizedOn401(t *testing.T) {
 
 func TestReturnPermissionDeniedon403(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(403, emptyErrorBody))
-	require.Equal(t, PermissionDenied{errorResponseWith(403, noErrors)}, err)
+	require.Equal(t, UnknownError{errorResponseWith(403, noErrors)}, err)
 }
 
 func TestReturnNotFoundOn404(t *testing.T) {
 	err := checkForResponseErrors(httpErrorResponseWith(404, emptyErrorBody))
-	require.Equal(t, NotFound{errorResponseWith(404, noErrors)}, err)
+	require.Equal(t, UnknownError{errorResponseWith(404, noErrors)}, err)
 }
 
 func TestReturnInternalErrorOn500(t *testing.T) {
@@ -116,4 +142,3 @@ func errorResponseWith(status int, errors []QueryError) errorResponse {
 		errors:    errors,
 	}
 }
-
