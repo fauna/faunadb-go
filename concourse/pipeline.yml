@@ -5,7 +5,7 @@ resources:
     icon: github
     source:
       uri: git@github.com:fauna/faunadb-go.git
-      branch: main
+      branch: v5
       private_key: ((fauna/repo.key))
 
 jobs:
