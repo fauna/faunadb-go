@@ -40,6 +40,9 @@ type FeatureNotAvailableError struct{ FaunaError }
 // A Unauthorized wraps an HTTP 401 error response.
 type Unauthorized struct{ FaunaError }
 
+// A TransactionContention wraps an HTTP 409 error response.
+type TransactionContention struct{ FaunaError }
+
 // A InternalError wraps an HTTP 500 error response.
 type InternalError struct{ FaunaError }
 
@@ -105,6 +108,8 @@ func checkForResponseErrors(response *http.Response) error {
 		return queryError(err)
 	case 401:
 		return Unauthorized{err}
+	case 409:
+		return TransactionContention{err}
 	case 500:
 		return InternalError{err}
 	case 503:
