@@ -1,0 +1,44 @@
+---
+resources:
+  - name: fauna-go-repository
+    type: git
+    icon: github
+    source:
+      uri: git@github.com:fauna/faunadb-go.git
+      branch: v4
+      private_key: ((github_repo_key))
+
+jobs:
+  - name: release
+    serial: true
+    public: false
+    plan:
+      - get: fauna-go-repository
+
+      - task: integration-tests-go-1-14
+        file: fauna-go-repository/concourse/tasks/integration-tests-1-14.yml
+        privileged: true
+        params:
+          FAUNA_ROOT_KEY: ((db_secret))
+          FAUNA_ENDPOINT: ((db_endpoint))
+
+      - task: integration-tests-go-1-15
+        file: fauna-go-repository/concourse/tasks/integration-tests-1-15.yml
+        privileged: true
+        params:
+          FAUNA_ROOT_KEY: ((db_secret))
+          FAUNA_ENDPOINT: ((db_endpoint))
+
+      - task: integration-tests-go-1-16
+        file: fauna-go-repository/concourse/tasks/integration-tests-1-16.yml
+        privileged: true
+        params:
+          FAUNA_ROOT_KEY: ((db_secret))
+          FAUNA_ENDPOINT: ((db_endpoint))
+
+      - task: publish
+        file: fauna-go-repository/concourse/tasks/publish.yml
+
+      - put: fauna-go-repository
+        params:
+          repository: fauna-go-repository-updated
