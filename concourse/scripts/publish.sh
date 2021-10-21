@@ -15,3 +15,5 @@ git config --global user.email "nobody@concourse-ci.org"
 git config --global user.name "Fauna, Inc"
 
 git tag "$CURRENT_VERSION"
+
+echo "faunadb-go@$CURRENT_VERSION has been released [fyi <@ewan.edwards>]" > ../slack-message/publish
