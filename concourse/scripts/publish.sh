@@ -16,4 +16,4 @@ CURRENT_VERSION=$(cat version)
 #
 #git tag "$CURRENT_VERSION"
 
-echo "*faunadb-go@$CURRENT_VERSION test (don't pay attention to this message)*\nfyi<@stanislav.parkhomenko>" > ../slack-message/publish
+echo "faunadb-go@$CURRENT_VERSION test (don't pay attention to this message) [fyi <@stanislav.parkhomenko>]" > ../slack-message/publish
