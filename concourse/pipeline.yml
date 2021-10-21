@@ -1,5 +1,16 @@
 ---
+resource_types:
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+
 resources:
+  - name: notify
+    type: slack-notification
+    source:
+      url: ((slack-webhook))
+
   - name: fauna-go-repository
     type: git
     icon: github
@@ -15,23 +26,31 @@ jobs:
     plan:
       - get: fauna-go-repository
 
-      - task: integration-tests-1-16
-        file: fauna-go-repository/concourse/tasks/integration-tests-1-16.yml
-        privileged: true
-        params:
-          FAUNA_ROOT_KEY: ((db_secret))
-          FAUNA_ENDPOINT: ((db_endpoint))
-
-      - task: integration-tests-1-17
-        file: fauna-go-repository/concourse/tasks/integration-tests-1-17.yml
-        privileged: true
-        params:
-          FAUNA_ROOT_KEY: ((db_secret))
-          FAUNA_ENDPOINT: ((db_endpoint))
+#      - task: integration-tests-1-16
+#        file: fauna-go-repository/concourse/tasks/integration-tests-1-16.yml
+#        privileged: true
+#        params:
+#          FAUNA_ROOT_KEY: ((db_secret))
+#          FAUNA_ENDPOINT: ((db_endpoint))
+#
+#      - task: integration-tests-1-17
+#        file: fauna-go-repository/concourse/tasks/integration-tests-1-17.yml
+#        privileged: true
+#        params:
+#          FAUNA_ROOT_KEY: ((db_secret))
+#          FAUNA_ENDPOINT: ((db_endpoint))
 
       - task: publish
         file: fauna-go-repository/concourse/tasks/publish.yml
+        on_success:
+          put: notify
+          params:
+            text_file: slack-message/publish
+        on_failure:
+          put: notify
+          params:
+            text_file: slack-message/publish
 
-      - put: fauna-go-repository
-        params:
-          repository: fauna-go-repository-updated
+#      - put: fauna-go-repository
+#        params:
+#          repository: fauna-go-repository-updated
