@@ -8,12 +8,12 @@ cd fauna-go-repository-updated
 
 CURRENT_VERSION=$(cat version)
 
-#echo "Current version: $CURRENT_VERSION"
-#
-#echo "Publishing a new $CURRENT_VERSION version..."
-#git config --global user.email "nobody@concourse-ci.org"
-#git config --global user.name "Fauna, Inc"
-#
-#git tag "$CURRENT_VERSION"
+echo "Current version: $CURRENT_VERSION"
 
-echo "faunadb-go@$CURRENT_VERSION test (don't pay attention to this message) [fyi <@stanislav.parkhomenko>]" > ../slack-message/publish
+echo "Publishing a new $CURRENT_VERSION version..."
+git config --global user.email "nobody@concourse-ci.org"
+git config --global user.name "Fauna, Inc"
+
+git tag "$CURRENT_VERSION"
+
+echo "faunadb-go@$CURRENT_VERSION has been released [fyi <@ewan.edwards>]" > ../slack-message/publish
