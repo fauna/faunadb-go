@@ -11,6 +11,7 @@ inputs:
 
 outputs:
   - name: fauna-go-repository-updated
+  - name: slack-message
 
 run:
   path: ./fauna-go-repository/concourse/scripts/publish.sh
