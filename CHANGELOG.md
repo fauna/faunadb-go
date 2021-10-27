@@ -1,4 +1,14 @@
-# v4.0.0 (April, 2021) [current]
+# v5.0.0 (October, 2021) [current]
+
+- Supports fauna database API v5
+- Implemented new driver exception hierarchy
+
+# v4.1.0 (May, 2021)
+
+- Adds support for custom headers
+- Adds support for paginate cursor object
+
+# v4.0.0 (April, 2021)
 
 - Add document streaming.
 - Add third-party authentication functions: AccessProvider, AccessProviders, CreateAccessProvider,
