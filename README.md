@@ -175,6 +175,34 @@ Specific reference documentation for the driver is hosted at
 Most users found tests for the driver as a very useful form of documentation
 [Check it out here](https://github.com/fauna/faunadb-go/tree/main/faunadb).
 
+### Errors handling
+Since 5.0.0 release, we introduced wrapper types for FaunaError interface,
+for example:
+```
+type InvalidReferenceError struct{ FaunaError }
+type MissingIdentityError struct{ FaunaError }
+type InvalidTokenError struct{ FaunaError }
+type StackOverflowError struct{ FaunaError }
+type AuthenticationFailedError struct{ FaunaError }
+```
+where each wrapper type returned from an error result according to the error code from fauna database server,
+you can inspect "errors.go" file for more information on how it is implemented.
+
+You should now notice from your error handling code that the error message has slight changes,
+and you are now able to use wrapper names to check the error type,  
+take a look at the example of handling an error for non-existent collection  
+that are taken from one of the unit tests (you can see more such examples in "client_test.go"):
+```
+_, err := s.client.Query(
+    f.Paginate(f.Documents(f.Collection("spells_not_exists"))),
+)
+
+if _, ok := err.(f.InvalidReferenceError); !ok {
+    s.Require().Fail("Should have returned InvalidReferenceError")
+}
+
+s.EqualError(err, "Response error 400. Errors: [paginate/documents](invalid ref): Ref refers to undefined collection 'spells_not_exists', details: []")
+```
 
 ## Contributing
 
