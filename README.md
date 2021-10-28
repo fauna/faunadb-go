@@ -21,7 +21,7 @@ Currently, the driver is tested on:
 To get the latest version run:
 
 ```bash
-go get github.com/fauna/faunadb-go/v4/faunadb
+go get github.com/fauna/faunadb-go/v5/faunadb
 ```
 
 Please note that our driver undergoes breaking changes from time to time, so depending on our `main` branch is not recommended.
@@ -36,7 +36,7 @@ For better usage, we recommend that you import this driver with an alias import.
 To import a specific version when using `go get`, use:
 
 ```go
-import f "github.com/fauna/faunadb-go/v4/faunadb"
+import f "github.com/fauna/faunadb-go/v5/faunadb"
 ```
 
 ### Basic Usage
@@ -47,7 +47,7 @@ package main
 import (
 	"fmt"
 
-	f "github.com/fauna/faunadb-go/v4/faunadb"
+	f "github.com/fauna/faunadb-go/v5/faunadb"
 )
 
 type User struct {
@@ -76,7 +76,7 @@ func main() {
 ```go
 package main
 
-import f "github.com/fauna/faunadb-go/v4/faunadb"
+import f "github.com/fauna/faunadb-go/v5/faunadb"
 
 func main() {
 	secret := ""
@@ -100,7 +100,7 @@ func main() {
 			// do smth on start event
 	
 		case f.HistoryRewriteEventT:
-			// do smth on historyRewrite event	
+			// do smth on historyRewrite event
 			
 		case f.VersionEventT:
 			// do smth on version event
@@ -117,7 +117,7 @@ func main() {
 ```go
 package main
 
-import f "github.com/fauna/faunadb-go/v4/faunadb"
+import f "github.com/fauna/faunadb-go/v5/faunadb"
 
 func main() {
 	secret := ""
@@ -156,7 +156,7 @@ Driver uses http2 by default. To use http 1.x provide custom http client to `Fau
 ```go
 package main
 
-import f "github.com/fauna/faunadb-go/v4/faunadb"
+import f "github.com/fauna/faunadb-go/v5/faunadb"
 
 func main() {
 	secret := ""
@@ -169,7 +169,7 @@ For more information about Fauna Query Language (FQL), consult our query languag
 [reference documentation](https://docs.fauna.com/fauna/current/api/fql/).
 
 Specific reference documentation for the driver is hosted at
-[GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v4).
+[GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v5).
 
 
 Most users found tests for the driver as a very useful form of documentation
