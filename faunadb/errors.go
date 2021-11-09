@@ -13,7 +13,7 @@ var errorsField = ObjKey("errors")
 // A FaunaError wraps HTTP errors when sending queries to a FaunaDB cluster.
 type FaunaError interface {
 	error
-	Status() int          // HTTP status code
+	HttpStatusCode() int  // HTTP status code
 	Errors() []QueryError // Errors returned by the server
 }
 
@@ -73,7 +73,7 @@ type errorResponse struct {
 	errors    []QueryError
 }
 
-func (err errorResponse) Status() int          { return err.status }
+func (err errorResponse) HttpStatusCode() int  { return err.status }
 func (err errorResponse) Errors() []QueryError { return err.errors }
 
 func (err errorResponse) Error() string {
