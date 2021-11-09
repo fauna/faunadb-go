@@ -203,6 +203,12 @@ if _, ok := err.(f.InvalidReferenceError); !ok {
 
 // should return: "Response error 400. Errors: [paginate/documents](invalid ref): Ref refers to undefined collection 'spells_not_exists', details: []"
 fmt.Print(err)
+
+// you can get some additional info about the error:
+specificError := err.(f.InvalidReferenceError)
+specificError.HttpStatusCode()
+specificError.Errors()[0].Description
+specificError.Errors()[0].Position
 ```
 
 ## Contributing
