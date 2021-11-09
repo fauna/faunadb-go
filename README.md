@@ -193,15 +193,16 @@ and you are now able to use wrapper names to check the error type,
 take a look at the example of handling an error for non-existent collection  
 that are taken from one of the unit tests (you can see more such examples in "client_test.go"):
 ```
-_, err := s.client.Query(
+_, err := dbClient.Query(
     f.Paginate(f.Documents(f.Collection("spells_not_exists"))),
 )
 
 if _, ok := err.(f.InvalidReferenceError); !ok {
-    s.Require().Fail("Should have returned InvalidReferenceError")
+    fmt.Print("Should have returned InvalidReferenceError")
 }
 
-s.EqualError(err, "Response error 400. Errors: [paginate/documents](invalid ref): Ref refers to undefined collection 'spells_not_exists', details: []")
+// should return: "Response error 400. Errors: [paginate/documents](invalid ref): Ref refers to undefined collection 'spells_not_exists', details: []"
+fmt.Print(err)
 ```
 
 ## Contributing

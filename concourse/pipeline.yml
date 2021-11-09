@@ -32,6 +32,7 @@ jobs:
         params:
           FAUNA_ROOT_KEY: ((db_secret))
           FAUNA_ENDPOINT: ((db_endpoint))
+          FAUNA_REPO_PASSWORD: ((gcr-key))
 
       - task: integration-tests-1-17
         file: fauna-go-repository/concourse/tasks/integration-tests-1-17.yml
@@ -39,6 +40,7 @@ jobs:
         params:
           FAUNA_ROOT_KEY: ((db_secret))
           FAUNA_ENDPOINT: ((db_endpoint))
+          FAUNA_REPO_PASSWORD: ((gcr-key))
 
       - task: publish
         file: fauna-go-repository/concourse/tasks/publish.yml
