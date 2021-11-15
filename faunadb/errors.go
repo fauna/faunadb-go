@@ -39,6 +39,10 @@ type FeatureNotAvailableError struct{ FaunaError }
 
 // A Unauthorized wraps an HTTP 401 error response.
 type Unauthorized struct{ FaunaError }
+func (m Unauthorized) Error() string {
+	return fmt.Sprintf("Response error 401. Check that endpoint, schema, port and secret are correct during client’s instantiation")
+
+}
 
 // A TransactionContention wraps an HTTP 409 error response.
 type TransactionContention struct{ FaunaError }
