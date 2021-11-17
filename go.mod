@@ -1,4 +1,4 @@
-module github.com/fauna/faunadb-go/v4
+module github.com/fauna/faunadb-go/v5
 
 require (
 	github.com/stretchr/testify v1.6.1
