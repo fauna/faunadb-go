@@ -426,6 +426,12 @@ func (s *ClientTestSuite) TestReturnValidationFailedError() {
 	}
 
 	s.EqualError(err, "Response error 400. Errors: [create](validation failed): document data is not valid., details: []")
+
+	specificError := err.(f.ValidationFailedError)
+	failure := specificError.Errors()[0].Failures[0]
+	s.Equal(failure.Field[0], "data")
+	s.Equal(failure.Code, "invalid type")
+	s.Equal(failure.Description, "Invalid type Array, expected type Map.")
 }
 
 func (s *ClientTestSuite) TestReturnInstanceNotUniqueError() {

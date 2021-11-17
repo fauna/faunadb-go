@@ -104,7 +104,7 @@ func TestParseErrorResponse(t *testing.T) {
 					Position:    []string{"data", "token"},
 					Code:        "invalid token",
 					Description: "Invalid token.",
-					Cause: []ValidationFailure{
+					Cause: []QueryError{
 						{
 							Position:    []string{"data", "token"},
 							Code:        "invalid token",
