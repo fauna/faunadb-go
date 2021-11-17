@@ -285,7 +285,7 @@ func (s *ClientTestSuite) TestReturnFunctionCallError() {
 		s.Require().Fail("Should have returned FunctionCallError")
 	}
 
-	s.EqualError(err, "Response error 400. Errors: [](call error): Calling the function resulted in an error., details: [{[expr divide \x00] invalid argument Number expected, Array provided.}]")
+	s.EqualError(err, "Response error 400. Errors: [](call error): Calling the function resulted in an error., details: [{[expr divide \x00] invalid argument Number expected, Array provided. [] []}]")
 }
 
 func (s *ClientTestSuite) TestReturnInvalidWriteTimeError() {
