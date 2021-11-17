@@ -226,7 +226,7 @@ func (s *ClientTestSuite) TestReturnUnauthorizedOnInvalidSecret() {
 		s.Require().Fail("Should have returned Unauthorized")
 	}
 
-	s.EqualError(err, "Response error 401. Errors: [](unauthorized): Unauthorized, details: []")
+	s.EqualError(err, "Response error 401. Check that endpoint, schema, port and secret are correct during client’s instantiation")
 }
 
 func (s *ClientTestSuite) TestReturnPermissionDeniedWhenAccessingRestrictedResource() {
