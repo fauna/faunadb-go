@@ -117,7 +117,7 @@ func TestParseErrorResponse(t *testing.T) {
 	}
 
 	require.Equal(t, expectedError, err)
-	require.EqualError(t, err, "Response error 401. Errors: [data/token](invalid token): Invalid token., details: [{[data token] invalid token invalid token}]")
+	require.EqualError(t, err, "Response error 401. Errors: [data/token](invalid token): Invalid token., details: [{[data token] invalid token invalid token [] []}]")
 }
 
 func TestUnparseableResponse(t *testing.T) {
