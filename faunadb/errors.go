@@ -57,7 +57,7 @@ type QueryError struct {
 	Position    []string            `fauna:"position"`
 	Code        string              `fauna:"code"`
 	Description string              `fauna:"description"`
-	Cause       []QueryError 		`fauna:"cause"`
+	Cause       []QueryError        `fauna:"cause"`
 	Failures    []ValidationFailure `fauna:"failures"`
 }
 
