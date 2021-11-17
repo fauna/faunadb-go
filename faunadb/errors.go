@@ -57,12 +57,13 @@ type QueryError struct {
 	Position    []string            `fauna:"position"`
 	Code        string              `fauna:"code"`
 	Description string              `fauna:"description"`
-	Cause       []ValidationFailure `fauna:"cause"`
+	Cause       []QueryError        `fauna:"cause"`
+	Failures    []ValidationFailure `fauna:"failures"`
 }
 
 // ValidationFailure describes validation errors on a submitted query.
 type ValidationFailure struct {
-	Position    []string `fauna:"position"`
+	Field       []string `fauna:"field"`
 	Code        string   `fauna:"code"`
 	Description string   `fauna:"description"`
 }
