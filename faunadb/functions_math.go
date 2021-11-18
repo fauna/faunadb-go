@@ -16,6 +16,8 @@ type absFn struct {
 	Abs Expr `json:"abs"`
 }
 
+func (fn absFn) String() string { return printFn(fn) }
+
 // Acos computes the arccosine of a number.
 //
 // Parameters:
@@ -31,6 +33,8 @@ type acosFn struct {
 	fnApply
 	Acos Expr `json:"acos"`
 }
+
+func (fn acosFn) String() string { return printFn(fn) }
 
 // Asin computes the arcsine of a number.
 //
@@ -48,6 +52,8 @@ type asinFn struct {
 	Asin Expr `json:"asin"`
 }
 
+func (fn asinFn) String() string { return printFn(fn) }
+
 // Atan computes the arctan of a number.
 //
 // Parameters:
@@ -63,6 +69,8 @@ type atanFn struct {
 	fnApply
 	Atan Expr `json:"atan"`
 }
+
+func (fn atanFn) String() string { return printFn(fn) }
 
 // Add computes the sum of a list of numbers.
 //
@@ -80,6 +88,8 @@ type addFn struct {
 	Add Expr `json:"add" faunarepr:"varargs"`
 }
 
+func (fn addFn) String() string { return printFn(fn) }
+
 // BitAnd computes the and of a list of numbers.
 //
 // Parameters:
@@ -95,6 +105,8 @@ type bitAndFn struct {
 	fnApply
 	BitAnd Expr `json:"bitand" faunarepr:"varargs"`
 }
+
+func (fn bitAndFn) String() string { return printFn(fn) }
 
 // BitNot computes the 2's complement of a number
 //
@@ -112,6 +124,8 @@ type bitNotFn struct {
 	BitNot Expr `json:"bitnot"`
 }
 
+func (fn bitNotFn) String() string { return printFn(fn) }
+
 // BitOr computes the OR of a list of numbers.
 //
 // Parameters:
@@ -127,6 +141,8 @@ type bitOrFn struct {
 	fnApply
 	BitOr Expr `json:"bitor" faunarepr:"varargs"`
 }
+
+func (fn bitOrFn) String() string { return printFn(fn) }
 
 // BitXor computes the XOR of a list of numbers.
 //
@@ -144,6 +160,8 @@ type bitXorFn struct {
 	BitXor Expr `json:"bitxor" faunarepr:"varargs"`
 }
 
+func (fn bitXorFn) String() string { return printFn(fn) }
+
 // Ceil computes the largest integer greater than or equal to
 //
 // Parameters:
@@ -159,6 +177,8 @@ type ceilFn struct {
 	fnApply
 	Ceil Expr `json:"ceil"`
 }
+
+func (fn ceilFn) String() string { return printFn(fn) }
 
 // Cos computes the Cosine of a number
 //
@@ -176,6 +196,8 @@ type cosFn struct {
 	Cos Expr `json:"cos"`
 }
 
+func (fn cosFn) String() string { return printFn(fn) }
+
 // Cosh computes the Hyperbolic Cosine of a number
 //
 // Parameters:
@@ -191,6 +213,8 @@ type coshFn struct {
 	fnApply
 	Cosh Expr `json:"cosh"`
 }
+
+func (fn coshFn) String() string { return printFn(fn) }
 
 // Degrees computes the degress of a number
 //
@@ -208,6 +232,8 @@ type degreesFn struct {
 	Degrees Expr `json:"degrees"`
 }
 
+func (fn degreesFn) String() string { return printFn(fn) }
+
 // Divide computes the quotient of a list of numbers.
 //
 // Parameters:
@@ -223,6 +249,8 @@ type divideFn struct {
 	fnApply
 	Divide Expr `json:"divide" faunarepr:"varargs"`
 }
+
+func (fn divideFn) String() string { return printFn(fn) }
 
 // Exp computes the Exp of a number
 //
@@ -240,6 +268,8 @@ type expFn struct {
 	Exp Expr `json:"exp"`
 }
 
+func (fn expFn) String() string { return printFn(fn) }
+
 // Floor computes the Floor of a number
 //
 // Parameters:
@@ -255,6 +285,8 @@ type floorFn struct {
 	fnApply
 	Floor Expr `json:"floor"`
 }
+
+func (fn floorFn) String() string { return printFn(fn) }
 
 // Hypot computes the Hypotenuse of two numbers
 //
@@ -274,6 +306,8 @@ type hypotFn struct {
 	B     Expr `json:"b"`
 }
 
+func (fn hypotFn) String() string { return printFn(fn) }
+
 // Ln computes the natural log of a number
 //
 // Parameters:
@@ -289,6 +323,8 @@ type lnFn struct {
 	fnApply
 	Ln Expr `json:"ln"`
 }
+
+func (fn lnFn) String() string { return printFn(fn) }
 
 // Log computes the Log of a number
 //
@@ -306,6 +342,8 @@ type logFn struct {
 	Log Expr `json:"log"`
 }
 
+func (fn logFn) String() string { return printFn(fn) }
+
 // Max computes the max of a list of numbers.
 //
 // Parameters:
@@ -321,6 +359,8 @@ type maxFn struct {
 	fnApply
 	Max Expr `json:"max" faunarepr:"varargs"`
 }
+
+func (fn maxFn) String() string { return printFn(fn) }
 
 // Min computes the Min of a list of numbers.
 //
@@ -338,6 +378,8 @@ type minFn struct {
 	Min Expr `json:"min" faunarepr:"varargs"`
 }
 
+func (fn minFn) String() string { return printFn(fn) }
+
 // Modulo computes the reminder after the division of a list of numbers.
 //
 // Parameters:
@@ -354,6 +396,8 @@ type moduloFn struct {
 	Modulo Expr `json:"modulo" faunarepr:"varargs"`
 }
 
+func (fn moduloFn) String() string { return printFn(fn) }
+
 // Multiply computes the product of a list of numbers.
 //
 // Parameters:
@@ -369,6 +413,8 @@ type multiplyFn struct {
 	fnApply
 	Multiply Expr `json:"multiply" faunarepr:"varargs"`
 }
+
+func (fn multiplyFn) String() string { return printFn(fn) }
 
 // Pow computes the Power of a number
 //
@@ -388,6 +434,8 @@ type powFn struct {
 	Pow Expr `json:"pow"`
 }
 
+func (fn powFn) String() string { return printFn(fn) }
+
 // Radians computes the Radians of a number
 //
 // Parameters:
@@ -403,6 +451,8 @@ type radiansFn struct {
 	fnApply
 	Radians Expr `json:"radians"`
 }
+
+func (fn radiansFn) String() string { return printFn(fn) }
 
 // Round a number at the given percission
 //
@@ -425,6 +475,8 @@ type roundFn struct {
 	Precision Expr `json:"precision,omitempty" faunarepr:"optfn"`
 }
 
+func (fn roundFn) String() string { return printFn(fn) }
+
 // Sign computes the Sign of a number
 //
 // Parameters:
@@ -440,6 +492,8 @@ type signFn struct {
 	fnApply
 	Sign Expr `json:"sign"`
 }
+
+func (fn signFn) String() string { return printFn(fn) }
 
 // Sin computes the Sine of a number
 //
@@ -457,6 +511,8 @@ type sinFn struct {
 	Sin Expr `json:"sin"`
 }
 
+func (fn sinFn) String() string { return printFn(fn) }
+
 // Sinh computes the Hyperbolic Sine of a number
 //
 // Parameters:
@@ -472,6 +528,8 @@ type sinhFn struct {
 	fnApply
 	Sinh Expr `json:"sinh"`
 }
+
+func (fn sinhFn) String() string { return printFn(fn) }
 
 // Sqrt computes the square root of a number
 //
@@ -489,6 +547,8 @@ type sqrtFn struct {
 	Sqrt Expr `json:"sqrt"`
 }
 
+func (fn sqrtFn) String() string { return printFn(fn) }
+
 // Subtract computes the difference of a list of numbers.
 //
 // Parameters:
@@ -504,6 +564,8 @@ type subtractFn struct {
 	fnApply
 	Subtract Expr `json:"subtract" faunarepr:"varargs"`
 }
+
+func (fn subtractFn) String() string { return printFn(fn) }
 
 // Tan computes the Tangent of a number
 //
@@ -521,6 +583,8 @@ type tanFn struct {
 	Tan Expr `json:"tan"`
 }
 
+func (fn tanFn) String() string { return printFn(fn) }
+
 // Tanh computes the Hyperbolic Tangent of a number
 //
 // Parameters:
@@ -536,6 +600,8 @@ type tanhFn struct {
 	fnApply
 	Tanh Expr `json:"tanh"`
 }
+
+func (fn tanhFn) String() string { return printFn(fn) }
 
 // Trunc truncates a number at the given percission
 //
@@ -557,3 +623,5 @@ type truncFn struct {
 	Trunc     Expr `json:"trunc"`
 	Precision Expr `json:"precision,omitempty" faunarepr:"optfn"`
 }
+
+func (fn truncFn) String() string { return printFn(fn) }

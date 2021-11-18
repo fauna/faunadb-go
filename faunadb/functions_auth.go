@@ -23,6 +23,8 @@ type loginFn struct {
 	Params Expr `json:"params"`
 }
 
+func (fn loginFn) String() string { return printFn(fn) }
+
 // Logout deletes the current session token. If invalidateAll is true, logout will delete all tokens associated with the current session.
 //
 // Parameters:
@@ -35,6 +37,8 @@ type logoutFn struct {
 	fnApply
 	Logout Expr `json:"logout"`
 }
+
+func (fn logoutFn) String() string { return printFn(fn) }
 
 // Identify checks the given password against the provided ref's credentials.
 //
@@ -56,6 +60,8 @@ type identifyFn struct {
 	Password Expr `json:"password"`
 }
 
+func (fn identifyFn) String() string { return printFn(fn) }
+
 // Identity returns the document reference associated with the current key.
 //
 // For example, the current key token created using:
@@ -75,6 +81,8 @@ type identityFn struct {
 	Identity Expr `json:"identity" faunarepr:"noargs"`
 }
 
+func (fn identityFn) String() string { return printFn(fn) }
+
 // HasIdentity checks if the current key has an identity associated to it.
 //
 // Returns:
@@ -87,3 +95,5 @@ type hasIdentityFn struct {
 	fnApply
 	HasIdentity Expr `json:"has_identity" faunarepr:"noargs"`
 }
+
+func (fn hasIdentityFn) String() string { return printFn(fn) }
