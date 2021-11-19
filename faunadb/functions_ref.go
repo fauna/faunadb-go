@@ -28,20 +28,6 @@ type legacyRefFn struct {
 	Ref Expr `json:"@ref"`
 }
 
-// RefClass creates a new Ref based on the provided class and ID.
-//
-// Parameters:
-//  classRef Ref - A class reference.
-//  id string|int64 - The document ID.
-//
-// Deprecated: Use RefCollection instead, RefClass is kept for backwards compatibility
-//
-// Returns:
-//  Ref - A new reference type.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#special-type
-func RefClass(classRef, id interface{}) Expr { return refFn{Ref: wrap(classRef), ID: wrap(id)} }
-
 type refFn struct {
 	fnApply
 	Ref Expr `json:"ref"`
@@ -138,25 +124,6 @@ func ScopedIndex(name interface{}, scope interface{}) Expr {
 	}
 }
 
-// Class creates a new class ref.
-//
-// Parameters:
-//  name string - The name of the class.
-//
-// Deprecated: Use Collection instead, Class is kept for backwards compatibility
-//
-// Returns:
-//  Ref - The class reference.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func Class(name interface{}) Expr { return classFn{Class: wrap(name)} }
-
-type classFn struct {
-	fnApply
-	Class Expr `json:"class"`
-	Scope Expr `json:"scope,omitempty" faunarepr:"scopedfn"`
-}
-
 // Collection creates a new collection ref.
 //
 // Parameters:
@@ -191,22 +158,6 @@ func Documents(collection interface{}) Expr {
 type documentsFn struct {
 	fnApply
 	Documents Expr `json:"documents"`
-}
-
-// ScopedClass creates a new class ref inside a database.
-//
-// Parameters:
-//  name string - The name of the class.
-//  scope Ref - The reference of the class's scope.
-//
-// Deprecated: Use ScopedCollection instead, ScopedClass is kept for backwards compatibility
-//
-// Returns:
-//  Ref - The collection reference.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func ScopedClass(name interface{}, scope interface{}) Expr {
-	return classFn{Class: wrap(name), Scope: wrap(scope)}
 }
 
 // ScopedCollection creates a new collection ref inside a database.
@@ -283,21 +234,6 @@ type roleFn struct {
 // See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
 func ScopedRole(name, scope interface{}) Expr { return roleFn{Role: wrap(name), Scope: wrap(scope)} }
 
-// Classes creates a native ref for classes.
-//
-// Deprecated: Use Collections instead, Classes is kept for backwards compatibility
-//
-// Returns:
-//  Ref - The reference of the class set.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func Classes() Expr { return classesFn{Classes: NullV{}} }
-
-type classesFn struct {
-	fnApply
-	Classes Expr `json:"classes" faunarepr:"scopedfn"`
-}
-
 // Collections creates a native ref for collections.
 //
 // Returns:
@@ -310,19 +246,6 @@ type collectionsFn struct {
 	fnApply
 	Collections Expr `json:"collections" faunarepr:"scopedfn"`
 }
-
-// ScopedClasses creates a native ref for classes inside a database.
-//
-// Parameters:
-//  scope Ref - The reference of the class set's scope.
-//
-// Deprecated: Use ScopedCollections instead, ScopedClasses is kept for backwards compatibility
-//
-// Returns:
-//  Ref - The reference of the class set.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func ScopedClasses(scope interface{}) Expr { return classesFn{Classes: wrap(scope)} }
 
 // ScopedCollections creates a native ref for collections inside a database.
 //
@@ -505,23 +428,6 @@ func ScopedCredentials(scope interface{}) Expr {
 type credentialsFn struct {
 	fnApply
 	Credentials Expr `json:"credentials" faunarepr:"scopedfn"`
-}
-
-// Miscellaneous
-
-// NextID produces a new identifier suitable for use when constructing refs.
-//
-// Deprecated: Use NewId instead
-//
-// Returns:
-//  string - The new ID.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func NextID() Expr { return nextIDFn{NextID: NullV{}} }
-
-type nextIDFn struct {
-	fnApply
-	NextID Expr `json:"next_id" faunarepr:"noargs"`
 }
 
 // NewId produces a new identifier suitable for use when constructing refs.

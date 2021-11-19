@@ -167,7 +167,7 @@ func (p *jsonParser) parseRef() (value Value, err error) {
 		if col == nil && db == nil {
 			value = nativeFromName(id)
 		} else {
-			value = RefV{id, col, col, db}
+			value = RefV{id, col, db}
 		}
 	}
 

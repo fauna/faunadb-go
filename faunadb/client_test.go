@@ -762,7 +762,7 @@ func (s *ClientTestSuite) TestEvalDoExpression() {
 	)
 
 	s.Require().NoError(res.Get(&ref))
-	s.Require().Equal(ref, f.RefV{randomID, &randomCollection, &randomCollection, nil})
+	s.Require().Equal(ref, f.RefV{randomID, &randomCollection, nil})
 
 	var array []int
 	err := s.query(f.Do(f.Arr{1, 2, 3})).Get(&array)
@@ -1749,18 +1749,18 @@ func (s *ClientTestSuite) TestEvalRefFunctions() {
 		&refs,
 	)
 
-	n1 := &f.RefV{"thing", f.NativeCollections(), f.NativeCollections(), nil}
-	n2 := &f.RefV{"thing", f.NativeCollections(), f.NativeCollections(), nil}
+	n1 := &f.RefV{"thing", f.NativeCollections(), nil}
+	n2 := &f.RefV{"thing", f.NativeCollections(), nil}
 
 	s.Require().Equal([]f.RefV{
-		f.RefV{"123", n1, n1, nil},
-		f.RefV{"123", n2, n2, nil},
-		f.RefV{"123", n2, n2, nil},
-		f.RefV{"idx", f.NativeIndexes(), f.NativeIndexes(), nil},
-		f.RefV{"cls", f.NativeCollections(), f.NativeCollections(), nil},
-		f.RefV{"db", f.NativeDatabases(), f.NativeDatabases(), nil},
-		f.RefV{"fn", f.NativeFunctions(), f.NativeFunctions(), nil},
-		f.RefV{"role", f.NativeRoles(), f.NativeRoles(), nil},
+		f.RefV{"123", n1, nil},
+		f.RefV{"123", n2, nil},
+		f.RefV{"123", n2, nil},
+		f.RefV{"idx", f.NativeIndexes(), nil},
+		f.RefV{"cls", f.NativeCollections(), nil},
+		f.RefV{"db", f.NativeDatabases(), nil},
+		f.RefV{"fn", f.NativeFunctions(), nil},
+		f.RefV{"role", f.NativeRoles(), nil},
 	}, refs)
 }
 
@@ -1779,11 +1779,11 @@ func (s *ClientTestSuite) TestEvalScopedRefFunctions() {
 	)
 
 	s.Require().Equal([]f.RefV{
-		f.RefV{"idx", f.NativeIndexes(), f.NativeIndexes(), f.DbRef()},
-		f.RefV{"cls", f.NativeCollections(), f.NativeCollections(), f.DbRef()},
-		f.RefV{"db", f.NativeDatabases(), f.NativeDatabases(), f.DbRef()},
-		f.RefV{"fn", f.NativeFunctions(), f.NativeFunctions(), f.DbRef()},
-		f.RefV{"role", f.NativeRoles(), f.NativeRoles(), f.DbRef()},
+		f.RefV{"idx", f.NativeIndexes(), f.DbRef()},
+		f.RefV{"cls", f.NativeCollections(), f.DbRef()},
+		f.RefV{"db", f.NativeDatabases(), f.DbRef()},
+		f.RefV{"fn", f.NativeFunctions(), f.DbRef()},
+		f.RefV{"role", f.NativeRoles(), f.DbRef()},
 	}, refs)
 }
 
@@ -1824,14 +1824,11 @@ func (s *ClientTestSuite) TestNestedCollectionRef() {
 			f.RefV{
 				aCollection,
 				f.NativeCollections(),
-				f.NativeCollections(),
 				&f.RefV{
 					childDb,
 					f.NativeDatabases(),
-					f.NativeDatabases(),
 					&f.RefV{
 						parentDb,
-						f.NativeDatabases(),
 						f.NativeDatabases(),
 						nil,
 					},
@@ -1880,18 +1877,16 @@ func (s *ClientTestSuite) TestNestedKeyRef() {
 	s.Require().NoError(err)
 	result.At(dataField).Get(&keys)
 
-	var parent = &f.RefV{ID: parentDb, Collection: f.NativeDatabases(), Class: f.NativeDatabases()}
+	var parent = &f.RefV{ID: parentDb, Collection: f.NativeDatabases()}
 	var nativeKeyRef = &f.RefV{ID: f.NativeKeys().ID, Database: parent}
 
 	var nestedServerKeyRef = f.RefV{
 		ID:         serverKey.ID,
-		Class:      nativeKeyRef,
 		Collection: nativeKeyRef,
 	}
 
 	var nestedAdminKeyRef = f.RefV{
 		ID:         adminKey.ID,
-		Class:      nativeKeyRef,
 		Collection: nativeKeyRef,
 	}
 
@@ -1906,22 +1901,6 @@ func (s *ClientTestSuite) TestEvalEqualsExpression() {
 
 	s.queryAndDecode(f.Equals("fire", "fire"), &isEqual)
 	s.Require().True(isEqual)
-}
-
-func (s *ClientTestSuite) TestEvalContainsExpression() {
-	var contains bool
-
-	s.queryAndDecode(
-		f.Contains(
-			f.Arr{"favorites", "foods"},
-			f.Obj{"favorites": f.Obj{
-				"foods": f.Arr{"crunchings", "munchings"},
-			}},
-		),
-		&contains,
-	)
-
-	s.Require().True(contains)
 }
 
 func (s *ClientTestSuite) TestEvalContainsFunctions() {

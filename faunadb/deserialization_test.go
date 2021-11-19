@@ -113,8 +113,8 @@ func TestDeserializeRefV(t *testing.T) {
 	var ref RefV
 
 	require.NoError(t, decodeJSON(`{"@ref":{"id":"42","collection":{"@ref":{"id":"spells","collection":{"@ref":{"id":"collections"}}}}}}`, &ref))
-	r1 := &RefV{"spells", NativeCollections(), NativeCollections(), nil}
-	r2 := RefV{"42", r1, r1, nil}
+	r1 := &RefV{"spells", NativeCollections(), nil}
+	r2 := RefV{"42", r1, nil}
 	require.Equal(t, r2, r2, ref)
 }
 
@@ -212,7 +212,7 @@ func TestDeserializeSetRefV(t *testing.T) {
 
 	require.Equal(t,
 		SetRefV{ObjectV{
-			"match": RefV{"spells_by_element", NativeIndexes(), NativeIndexes(), nil},
+			"match": RefV{"spells_by_element", NativeIndexes(), nil},
 			"terms": StringV("fire"),
 		}},
 		setRef,
@@ -461,11 +461,11 @@ func TestDeserializeComplexStruct(t *testing.T) {
 		"Null": null
 	}
 	`
-	r1 := &RefV{"spells", NativeCollections(), NativeCollections(), nil}
+	r1 := &RefV{"spells", NativeCollections(), nil}
 
 	expected := complexStruct{
 		TaggedString: "TaggedString",
-		Ref:          RefV{"42", r1, r1, nil},
+		Ref:          RefV{"42", r1, nil},
 		Any:          StringV("any value"),
 		Date:         time.Date(1970, time.January, 3, 0, 0, 0, 0, time.UTC),
 		Time:         time.Date(1970, time.January, 1, 0, 0, 0, 5, time.UTC),

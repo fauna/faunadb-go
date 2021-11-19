@@ -2,6 +2,8 @@
 
 - Supports fauna database API v5
 - Implemented new driver exception hierarchy
+- Contains, RefClass, Class, ScopedClass, Classes, ScopedClasses, NextID, CreateClass
+  were deprecated.
 
 # v4.1.0 (May, 2021)
 

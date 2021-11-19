@@ -20,24 +20,6 @@ type createFn struct {
 	Params Expr `json:"params"`
 }
 
-// CreateClass creates a new class.
-//
-// Parameters:
-//  params Object - An object with attributes of the class.
-//
-// Deprecated: Use CreateCollection instead, CreateClass is kept for backwards compatibility
-//
-// Returns:
-//  Object - The new created class object.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#write-functions
-func CreateClass(params interface{}) Expr { return createClassFn{CreateClass: wrap(params)} }
-
-type createClassFn struct {
-	fnApply
-	CreateClass Expr `json:"create_class"`
-}
-
 // CreateCollection creates a new collection.
 //
 // Parameters:

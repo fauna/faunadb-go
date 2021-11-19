@@ -100,7 +100,6 @@ func (localTime TimeV) MarshalJSON() ([]byte, error) {
 type RefV struct {
 	ID         string
 	Collection *RefV
-	Class      *RefV //Deprecated: As of 2.7 Class is deprecated, use Collection instead
 	Database   *RefV
 }
 
@@ -126,15 +125,15 @@ func (ref RefV) MarshalJSON() ([]byte, error) {
 }
 
 var (
-	nativeClasses     = RefV{"classes", nil, nil, nil}
-	nativeCollections = RefV{"collections", nil, nil, nil}
-	nativeIndexes     = RefV{"indexes", nil, nil, nil}
-	nativeDatabases   = RefV{"databases", nil, nil, nil}
-	nativeFunctions   = RefV{"functions", nil, nil, nil}
-	nativeRoles       = RefV{"roles", nil, nil, nil}
-	nativeKeys        = RefV{"keys", nil, nil, nil}
-	nativeTokens      = RefV{"tokens", nil, nil, nil}
-	nativeCredentials = RefV{"credentials", nil, nil, nil}
+	nativeClasses     = RefV{"classes", nil, nil}
+	nativeCollections = RefV{"collections", nil, nil}
+	nativeIndexes     = RefV{"indexes", nil, nil}
+	nativeDatabases   = RefV{"databases", nil, nil}
+	nativeFunctions   = RefV{"functions", nil, nil}
+	nativeRoles       = RefV{"roles", nil, nil}
+	nativeKeys        = RefV{"keys", nil, nil}
+	nativeTokens      = RefV{"tokens", nil, nil}
+	nativeCredentials = RefV{"credentials", nil, nil}
 )
 
 func NativeClasses() *RefV     { return &nativeClasses }
@@ -169,7 +168,7 @@ func nativeFromName(id string) *RefV {
 		return &nativeCredentials
 	}
 
-	return &RefV{id, nil, nil, nil}
+	return &RefV{id, nil, nil}
 }
 
 // SetRefV represents a FaunaDB setref type.

@@ -104,5 +104,5 @@ func GetSecret(key Value) (secret string) {
 }
 
 func DbRef() *RefV {
-	return &RefV{dbName, NativeDatabases(), NativeDatabases(), nil}
+	return &RefV{dbName, NativeDatabases(), nil}
 }

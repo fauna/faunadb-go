@@ -173,28 +173,6 @@ type isNonEmptyFn struct {
 	IsNonEmpty Expr `json:"is_nonempty"`
 }
 
-// Contains checks if the provided value contains the path specified.
-//
-// Parameters:
-//  path Path - An array representing a path to check for the existence of. Path can be either strings or ints.
-//  value Object - An object to search against.
-//
-// Returns:
-//  bool - true if the path contains any value, false otherwise.
-//
-// Deprecated: Use ContainsPath instead. Contains will be removed in API v4.
-//
-// See: https://app.fauna.com/documentation/reference/queryapi#miscellaneous-functions
-func Contains(path, value interface{}) Expr {
-	return containsFn{Contains: wrap(path), Value: wrap(value)}
-}
-
-type containsFn struct {
-	fnApply
-	Contains Expr `json:"contains"`
-	Value    Expr `json:"in"`
-}
-
 // ContainsPath checks if the provided value contains the path specified.
 //
 // Parameters:

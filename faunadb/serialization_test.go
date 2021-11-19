@@ -301,15 +301,6 @@ func TestSerializeRemove(t *testing.T) {
 	)
 }
 
-func TestSerializeCreateClass(t *testing.T) {
-	assertJSON(t,
-		CreateClass(Obj{
-			"name": "boons",
-		}),
-		`{"create_class":{"object":{"name":"boons"}}}`,
-	)
-}
-
 func TestSerializeCreateCollection(t *testing.T) {
 	assertJSON(t,
 		CreateCollection(Obj{
@@ -996,18 +987,6 @@ func TestSerializeIndex(t *testing.T) {
 	)
 }
 
-func TestSerializeClass(t *testing.T) {
-	assertJSON(t,
-		Class("test-class"),
-		`{"class":"test-class"}`,
-	)
-
-	assertJSON(t,
-		ScopedClass("test-db", Database("scope")),
-		`{"class":"test-db","scope":{"database":"scope"}}`,
-	)
-}
-
 func TestSerializeCollection(t *testing.T) {
 	assertJSON(t,
 		Collection("test-collection"),
@@ -1041,18 +1020,6 @@ func TestSerializeRole(t *testing.T) {
 	assertJSON(t,
 		ScopedRole("test-role", Database("scope")),
 		`{"role":"test-role","scope":{"database":"scope"}}`,
-	)
-}
-
-func TestSerializeClasses(t *testing.T) {
-	assertJSON(t,
-		Classes(),
-		`{"classes":null}`,
-	)
-
-	assertJSON(t,
-		ScopedClasses(Database("scope")),
-		`{"classes":{"database":"scope"}}`,
 	)
 }
 
@@ -1169,18 +1136,6 @@ func TestSerializeEquals(t *testing.T) {
 	assertJSON(t,
 		Equals("fire", "air"),
 		`{"equals":["fire","air"]}`,
-	)
-}
-
-func TestSerializeContains(t *testing.T) {
-	assertJSON(t,
-		Contains(
-			Arr{"favorites", "foods"},
-			Obj{"favorites": Obj{
-				"foods": Arr{"stake"},
-			}},
-		),
-		`{"contains":["favorites","foods"],"in":{"object":{"favorites":{"object":{"foods":["stake"]}}}}}`,
 	)
 }
 
