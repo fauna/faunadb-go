@@ -13,7 +13,7 @@ executors:
     docker:
       - image: circleci/golang:<<parameters.go_version>>
 
-      - image: gcr.io/faunadb-cloud/faunadb/enterprise:latest
+      - image: gcr.io/faunadb-cloud/faunadb/core/nightly:latest
         name: core
         auth:
           username: _json_key
