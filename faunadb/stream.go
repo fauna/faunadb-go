@@ -8,6 +8,7 @@ const (
 	PrevField     StreamField = "prev"
 	DocumentField StreamField = "document"
 	ActionField   StreamField = "action"
+	IndexField    StreamField = "index"
 )
 
 type streamConfig struct {

@@ -20,6 +20,9 @@ const (
 
 	// VersionEventT is the stream version event type
 	VersionEventT StreamEventType = "version"
+
+	// SetT is the stream set event type
+	SetEventT StreamEventType = "set"
 )
 
 // StreamEvent represents a stream event with a `type` and `txn`
@@ -82,6 +85,33 @@ func (event VersionEvent) String() string {
 // Type returns the stream event type
 func (event VersionEvent) Type() StreamEventType {
 	return VersionEventT
+}
+
+// VersionEvent represents a version event that occurs upon any
+// modifications to the current state of the subscribed document.
+type SetEvent struct {
+	StreamEvent
+	txn   int64
+	event Value
+}
+
+// Txn returns the stream event timestamp
+func (event SetEvent) Txn() int64 {
+	return event.txn
+}
+
+// Event returns the stream event as a `Value`
+func (event SetEvent) Event() Value {
+	return event.event
+}
+
+func (event SetEvent) String() string {
+	return fmt.Sprintf("SetEvent{txn=%d, event=%s}", event.Txn(), event.Event())
+}
+
+// Type returns the stream event type
+func (event SetEvent) Type() StreamEventType {
+	return SetEventT
 }
 
 // HistoryRewriteEvent represents a history rewrite event which occurs upon any modifications
@@ -148,6 +178,11 @@ func unMarshalStreamEvent(data Obj) (evt StreamEvent, err error) {
 			}
 		case VersionEventT:
 			evt = VersionEvent{
+				txn:   int64(data["txn"].(LongV)),
+				event: data["event"].(ObjectV),
+			}
+		case SetEventT:
+			evt = SetEvent{
 				txn:   int64(data["txn"].(LongV)),
 				event: data["event"].(ObjectV),
 			}
