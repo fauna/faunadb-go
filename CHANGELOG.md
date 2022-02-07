@@ -1,4 +1,13 @@
-# v4.0.0 (April, 2021) [current]
+# v4.2.0 (February, 2022) [current]
+
+- Adds support for [set streaming](https://docs.fauna.com/fauna/current/drivers/streaming).
+
+# v4.1.0 (May, 2021)
+
+- Adds support for custom headers
+- Adds support for paginate cursor object
+
+# v4.0.0 (April, 2021)
 
 - Add document streaming.
 - Add third-party authentication functions: AccessProvider, AccessProviders, CreateAccessProvider,
@@ -32,7 +41,7 @@
    IsLambda(), IsCollection(), IsDatabase(), IsIndex(), IsFunction()
    IsKey(), IsToken(), IsCredentials(), IsRole()
 
-# v2.11.0 (February, 2020) [current]
+# v2.11.0 (February, 2020)
 
 - Add StartsWith(), EndsWith(), ContainsStr(), ContainsStrRegex(), RegexEscape()
 - Add TimeAdd(), TimeSubtract(), TimeDiff()
