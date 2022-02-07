@@ -143,7 +143,7 @@ func NewFaunaClient(secret string, configs ...ClientConfig) *FaunaClient {
 		client.queryTimeoutMs = uint64(requestTimeout / time.Millisecond)
 	}
 	streamURI := "stream"
-	if client.endpoint[len(streamURI)-1:] != "/" {
+	if client.endpoint[len(client.endpoint)-1] != '/' {
 		streamURI = "/" + streamURI
 	}
 	client.streamEndpoint = client.endpoint + streamURI

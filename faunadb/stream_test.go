@@ -232,6 +232,31 @@ func (s *StreamsTestSuite) TestListenToLargeEvents() {
 	}
 }
 
+func (s *StreamsTestSuite) TestListenToSetEvents() {
+	var (
+		expected, actual f.Value
+		action           string
+	)
+
+	subscription := s.client.Stream(f.Documents(streamCollection))
+	s.Require().NoError(subscription.Start())
+
+	for evt := range subscription.StreamEvents() {
+		switch evt.Type() {
+		case f.StartEventT:
+			expected = s.createDocument()
+
+		case f.SetEventT:
+			e := evt.(f.SetEvent)
+			e.Event().At(f.ObjKey("document", "ref")).Get(&actual)
+			e.Event().At(f.ObjKey("action")).Get(&action)
+			s.Equal(actual, expected)
+			s.Equal(action, "add")
+			subscription.Close()
+		}
+	}
+}
+
 func (s *StreamsTestSuite) defaultStreamError(evt f.StreamEvent) {
 	s.Equal(f.ErrorEventT, evt.Type())
 	s.NotZero(evt.Txn())
