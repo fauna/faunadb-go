@@ -3,6 +3,10 @@
 - Supports fauna database API v5
 - Implemented new driver exception hierarchy
 
+# v4.2.0 (February, 2022)
+
+- Adds support for [set streaming](https://docs.fauna.com/fauna/current/drivers/streaming).
+
 # v4.1.0 (May, 2021)
 
 - Adds support for custom headers
@@ -42,7 +46,7 @@
    IsLambda(), IsCollection(), IsDatabase(), IsIndex(), IsFunction()
    IsKey(), IsToken(), IsCredentials(), IsRole()
 
-# v2.11.0 (February, 2020) [current]
+# v2.11.0 (February, 2020)
 
 - Add StartsWith(), EndsWith(), ContainsStr(), ContainsStrRegex(), RegexEscape()
 - Add TimeAdd(), TimeSubtract(), TimeDiff()
