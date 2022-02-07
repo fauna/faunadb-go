@@ -1,4 +1,13 @@
-# v4.0.0 (April, 2021) [current]
+# v4.2.0 (February, 2022)
+
+- Adds support for [set streaming](https://docs.fauna.com/fauna/current/drivers/streaming).
+
+# v4.1.0 (May, 2021)
+
+- Adds support for custom headers
+- Adds support for paginate cursor object
+
+# v4.0.0 (April, 2021)
 
 - Add document streaming.
 - Add third-party authentication functions: AccessProvider, AccessProviders, CreateAccessProvider,
