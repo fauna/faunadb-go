@@ -1,4 +1,4 @@
-# v4.2.0 (February, 2022)
+# v4.2.0 (February, 2022) [current]
 
 - Adds support for [set streaming](https://docs.fauna.com/fauna/current/drivers/streaming).
 
@@ -41,7 +41,7 @@
    IsLambda(), IsCollection(), IsDatabase(), IsIndex(), IsFunction()
    IsKey(), IsToken(), IsCredentials(), IsRole()
 
-# v2.11.0 (February, 2020) [current]
+# v2.11.0 (February, 2020)
 
 - Add StartsWith(), EndsWith(), ContainsStr(), ContainsStrRegex(), RegexEscape()
 - Add TimeAdd(), TimeSubtract(), TimeDiff()
