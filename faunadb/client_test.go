@@ -1,7 +1,6 @@
 package faunadb_test
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -2665,7 +2664,6 @@ func (s *ClientTestSuite) TestTraceparent() {
 }
 
 func (s *ClientTestSuite) TestTags() {
-	fmt.Println("running")
 	h := "X-Fauna-Tags"
 	k := "foo"
 	v := "bar"

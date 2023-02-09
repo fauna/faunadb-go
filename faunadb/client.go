@@ -521,10 +521,6 @@ func (client *FaunaClient) prepareRequest(ctx context.Context, body io.Reader, e
 			}
 		}
 
-		if !isValidTraceparentHeader(request.Header) {
-			request.Header.Del(headerTraceparent)
-		}
-
 		client.addLastTxnTimeHeader(request)
 	}
 
@@ -608,15 +604,6 @@ func parseTxnTimeHeader(header http.Header) (txnTime int64, err error) {
 		txnTime, err = strconv.ParseInt(lastSeenHeader, 10, 64)
 	}
 	return
-}
-
-func isValidTraceparentHeader(header http.Header) bool {
-	tp := header.Get(headerTraceparent)
-	if tp == "" {
-		return true
-	}
-	r, _ := regexp.Compile("^[\\da-f]{2}-[\\da-f]{32}-[\\da-f]{16}-[\\da-f]{2}$")
-	return r.MatchString(tp)
 }
 
 func basicAuth(secret string) string {
