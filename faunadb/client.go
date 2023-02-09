@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -24,9 +25,14 @@ const (
 	apiVersion        = "4"
 	defaultEndpoint   = "https://db.fauna.com"
 	requestTimeout    = 60 * time.Second
+	headerFaunaDriver = "go"
 	headerTxnTime     = "X-Txn-Time"
 	headerLastSeenTxn = "X-Last-Seen-Txn"
-	headerFaunaDriver = "go"
+	headerTraceparent = "Traceparent"
+	headerTags        = "X-Fauna-Tags"
+	maxTagEntries     = 25
+	maxTagKeyLength   = 40
+	maxTagValueLength = 80
 )
 
 var resource = ObjKey("resource")
@@ -41,7 +47,9 @@ func Endpoint(url string) ClientConfig { return func(cli *FaunaClient) { cli.end
 func HTTP(http *http.Client) ClientConfig { return func(cli *FaunaClient) { cli.http = http } }
 
 // Headers configures the http headers for a FaunaClient.
-func Headers(headers map[string]string) ClientConfig { return func(cli *FaunaClient) { cli.headers = headers } }
+func Headers(headers map[string]string) ClientConfig {
+	return func(cli *FaunaClient) { cli.headers = headers }
+}
 
 /*
 EnableTxnTimePassthrough configures the FaunaClient to keep track of the last seen transaction time.
@@ -72,8 +80,38 @@ func DisableTxnTimePassthrough() ClientConfig {
 	return func(cli *FaunaClient) { cli.isTxnTimeEnabled = false }
 }
 
-//QueryConfig is the base type for query specific configuration parameters.
+// QueryConfig is the base type for query specific configuration parameters.
 type QueryConfig func(*faunaRequest)
+
+func Traceparent(tp string) QueryConfig {
+	return func(req *faunaRequest) {
+		// drop the traceparent if it isn't in the expected format
+		r, _ := regexp.Compile("^[\\da-f]{2}-[\\da-f]{32}-[\\da-f]{16}-[\\da-f]{2}$")
+		if r.MatchString(tp) {
+			req.headers[headerTraceparent] = tp
+		}
+	}
+}
+
+func Tag(key string, value string) QueryConfig {
+	return func(req *faunaRequest) {
+
+		// drop the tag if the key or value are too long
+		if len(key) <= maxTagKeyLength && len(value) <= maxTagValueLength {
+			h := req.headers[headerTags]
+			tags := strings.Split(h, ",")
+
+			// drop the tag if over the entry limit
+			if len(tags) <= maxTagEntries {
+				if h != "" {
+					h = h + ","
+				}
+				h = h + key + "=" + value
+				req.headers[headerTags] = h
+			}
+		}
+	}
+}
 
 type faunaRequest struct {
 	headers map[string]string
@@ -126,6 +164,7 @@ type QueryResult struct {
 
 /*
 NewFaunaClient creates a new FaunaClient structure. Possible configuration options:
+
 	Endpoint: sets a specific FaunaDB url. Default: https://db.fauna.com
 	HTTP: sets a specific http.Client. Default: a new net.Client with 60 seconds timeout.
 */
@@ -413,8 +452,9 @@ func (client *FaunaClient) GetLastTxnTime() int64 {
 // SyncLastTxnTime syncs the freshest timestamp seen by this client.
 // This has no effect if more stale than the currently stored timestamp.
 // WARNING: This should be used only when coordinating timestamps across
-//          multiple clients. Moving the timestamp arbitrarily forward into
-//          the future will cause transactions to stall.
+//
+//	multiple clients. Moving the timestamp arbitrarily forward into
+//	the future will cause transactions to stall.
 func (client *FaunaClient) SyncLastTxnTime(newTxnTime int64) {
 	if client.isTxnTimeEnabled {
 		for {
@@ -479,6 +519,10 @@ func (client *FaunaClient) prepareRequest(ctx context.Context, body io.Reader, e
 			for k, v := range req.headers {
 				request.Header.Add(k, v)
 			}
+		}
+
+		if !isValidTraceparentHeader(request.Header) {
+			request.Header.Del(headerTraceparent)
 		}
 
 		client.addLastTxnTimeHeader(request)
@@ -564,6 +608,15 @@ func parseTxnTimeHeader(header http.Header) (txnTime int64, err error) {
 		txnTime, err = strconv.ParseInt(lastSeenHeader, 10, 64)
 	}
 	return
+}
+
+func isValidTraceparentHeader(header http.Header) bool {
+	tp := header.Get(headerTraceparent)
+	if tp == "" {
+		return true
+	}
+	r, _ := regexp.Compile("^[\\da-f]{2}-[\\da-f]{32}-[\\da-f]{16}-[\\da-f]{2}$")
+	return r.MatchString(tp)
 }
 
 func basicAuth(secret string) string {
