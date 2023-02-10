@@ -138,7 +138,7 @@ func (s *StreamsTestSuite) TestHandleBadQuery() {
 
 	sub := s.client.Stream(query)
 	err := sub.Start()
-	s.EqualError(err, "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, got String., details: []")
+	s.EqualError(err, "Response error 400. Errors: [](invalid argument): Expected a Document Ref or Version, or a Set Ref, got String., details: []")
 
 }
 
