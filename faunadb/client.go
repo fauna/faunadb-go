@@ -30,9 +30,6 @@ const (
 	headerLastSeenTxn = "X-Last-Seen-Txn"
 	headerTraceparent = "Traceparent"
 	headerTags        = "X-Fauna-Tags"
-	maxTagEntries     = 25
-	maxTagKeyLength   = 40
-	maxTagValueLength = 80
 )
 
 var resource = ObjKey("resource")
