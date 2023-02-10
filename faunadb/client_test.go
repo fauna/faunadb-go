@@ -1,6 +1,7 @@
 package faunadb_test
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -26,19 +27,19 @@ var (
 )
 
 var randomCollection,
-paginateCollection,
-spells,
-spellbook,
-characters,
-allSpells,
-spellsByElement,
-elementsOfSpells,
-spellbookByOwner,
-spellBySpellbook,
-magicMissile,
-fireball,
-faerieFire,
-thor f.RefV
+	paginateCollection,
+	spells,
+	spellbook,
+	characters,
+	allSpells,
+	spellsByElement,
+	elementsOfSpells,
+	spellbookByOwner,
+	spellBySpellbook,
+	magicMissile,
+	fireball,
+	faerieFire,
+	thor f.RefV
 
 type Spellbook struct {
 	Owner f.RefV `fauna:"owner"`
@@ -2643,6 +2644,40 @@ func (s *ClientTestSuite) TestMetricsWithQueryResult() {
 	_, headers, err := s.client.QueryResult(f.NewId())
 	s.Require().NoError(err)
 	s.assertMetrics(headers)
+}
+
+func (s *ClientTestSuite) TestTraceparent() {
+	h := "Traceparent"
+	tp1 := "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+	seg1 := strings.Split(tp1, "-")
+	newClient := s.client.NewWithObserver(func(queryResult *f.QueryResult) {
+		s.Require().Contains(queryResult.Headers, h)
+		s.Require().Equal(1, len(queryResult.Headers[h]))
+		tp2 := queryResult.Headers[h][0]
+		seg2 := strings.Split(tp2, "-")
+		s.Require().Equal(len(seg1), len(seg2))
+		s.Require().Equal(seg1[0], seg2[0])
+		s.Require().Equal(seg1[1], seg2[1])
+	})
+	_, err := newClient.Query(f.NewId(), f.Traceparent(tp1))
+	s.Require().NoError(err)
+}
+
+func (s *ClientTestSuite) TestTags() {
+	h := "X-Fauna-Tags"
+	k := "foo"
+	v := "bar"
+	newClient := s.client.NewWithObserver(func(queryResult *f.QueryResult) {
+		s.Require().Contains(queryResult.Headers, h)
+		s.Require().Equal(1, len(queryResult.Headers[h]))
+		txt := queryResult.Headers[h][0]
+		tag := strings.Split(txt, "=")
+		s.Require().Equal(2, len(tag))
+		s.Require().Equal(k, tag[0])
+		s.Require().Equal(v, tag[1])
+	})
+	_, err := newClient.Query(f.NewId(), f.Tag(k, v))
+	s.Require().NoError(err)
 }
 
 func (s *ClientTestSuite) TestMetricsWithBatchQueryResult() {
