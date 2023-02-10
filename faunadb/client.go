@@ -95,21 +95,12 @@ func Traceparent(tp string) QueryConfig {
 
 func Tag(key string, value string) QueryConfig {
 	return func(req *faunaRequest) {
-
-		// drop the tag if the key or value are too long
-		if len(key) <= maxTagKeyLength && len(value) <= maxTagValueLength {
-			h := req.headers[headerTags]
-			tags := strings.Split(h, ",")
-
-			// drop the tag if over the entry limit
-			if len(tags) <= maxTagEntries {
-				if h != "" {
-					h = h + ","
-				}
-				h = h + key + "=" + value
-				req.headers[headerTags] = h
-			}
+		h := req.headers[headerTags]
+		if h != "" {
+			h = h + ","
 		}
+		h = h + key + "=" + value
+		req.headers[headerTags] = h
 	}
 }
 
