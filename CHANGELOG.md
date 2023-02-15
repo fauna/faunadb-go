@@ -1,4 +1,8 @@
-# v4.2.0 (February, 2022) [current]
+# 4.3.0 (February, 2023) [current]
+
+- Adds support for `tags` and `traceparent` headers
+
+# v4.2.0 (February, 2022)
 
 - Adds support for [set streaming](https://docs.fauna.com/fauna/current/drivers/streaming).
 
