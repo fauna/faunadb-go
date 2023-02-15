@@ -2,7 +2,7 @@
 
 set -eou
 
-apk add --update make gcc musl-dev
+apk add --update make gcc musl-dev curl
 
 while ! $(curl --output /dev/null --silent --fail --max-time 1 http://faunadb:8443/ping); do sleep 1; done
 
