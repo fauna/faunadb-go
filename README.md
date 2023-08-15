@@ -6,7 +6,7 @@
 
 A Golang driver for [FaunaDB](https://fauna.com/).
 
-Note: This driver supports an older version of the Fauna API. The latest version of the official Fauna Golang Driver is located [here](https://pkg.go.dev/github.com/fauna/fauna-go).
+Note: This driver supports an older version of the Fauna API. The latest version of the official Fauna Golang Driver is located [here](https://pkg.go.dev/github.com/fauna/fauna-go) (we encourage all new development to use this new version where possible).
 
 ## Supported Go Versions
 
