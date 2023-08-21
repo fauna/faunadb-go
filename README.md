@@ -1,10 +1,12 @@
-# FaunaDB Go Driver
+# The Official Golang driver for v4 API of Fauna
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/main/LICENSE)
 
-A Go lang driver for [FaunaDB](https://fauna.com/).
+A Golang driver for [FaunaDB](https://fauna.com/).
+
+Note: This driver supports an older version of the Fauna API. The latest version of the official Fauna Golang Driver is located [here](https://pkg.go.dev/github.com/fauna/fauna-go) (we encourage all new development to use this new version where possible).
 
 ## Supported Go Versions
 
@@ -166,7 +168,7 @@ func main() {
 ```
 <br>
 For more information about Fauna Query Language (FQL), consult our query language
-[reference documentation](https://docs.fauna.com/fauna/current/api/fql/).
+[reference documentation](https://docs.fauna.com/fauna/v4/api/fql/).
 
 Specific reference documentation for the driver is hosted at
 [GoDoc](https://pkg.go.dev/github.com/fauna/faunadb-go/v4).
