@@ -1,12 +1,17 @@
-# The Official Golang driver for v4 API of Fauna
+# Official Golang driver for Fauna v4
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/main/LICENSE)
 
-A Golang driver for [FaunaDB](https://fauna.com/).
+> [!CAUTION]
+> This driver is not compatible with Fauna v10, the latest version.
+>
+> For new development, use the official Fauna v10 driver:
+> [https://github.com/fauna/fauna-go](https://github.com/fauna/fauna-go).
 
-Note: This driver supports an older version of the Fauna API. The latest version of the official Fauna Golang Driver is located [here](https://pkg.go.dev/github.com/fauna/fauna-go) (we encourage all new development to use this new version where possible).
+The offical Golang driver for [Fauna v4](https://docs.fauna.com/fauna/v4/).
+
 
 ## Supported Go Versions
 
@@ -97,16 +102,16 @@ func main() {
 	}
 	for a := range subscription.StreamEvents() {
 		switch a.Type() {
-	
+
 		case f.StartEventT:
 			// do smth on start event
-	
+
 		case f.HistoryRewriteEventT:
-			// do smth on historyRewrite event	
-			
+			// do smth on historyRewrite event
+
 		case f.VersionEventT:
 			// do smth on version event
-			
+
 		case f.ErrorEventT:
 			// do smth on error event
 			subscription.Close() // if you want to close streaming on errors
