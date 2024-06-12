@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/main/LICENSE)
 
 > [!WARNING]
->  Fauna is decomissioning FQL v4. See the [v4 end of life (EOL)
+>  Fauna is decomissioning FQL v4 on June 30, 2025. See the [v4 end of life (EOL)
 > announcement](https://docs.fauna.com/fauna/v4/#fql-v4-end-of-life) and
 > [related FAQ](https://docs.fauna.com/fauna/v4/migration/faq).
 >
