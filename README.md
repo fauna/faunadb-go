@@ -4,10 +4,13 @@
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
 [![License](https://img.shields.io/badge/license-MPL_2.0-blue.svg?maxAge=2592000)](https://raw.githubusercontent.com/fauna/faunadb-go/main/LICENSE)
 
-> [!CAUTION]
-> This driver is not compatible with Fauna v10, the latest version.
+> [!WARNING]
+>  Fauna is decomissioning FQL v4 on June 30, 2025. See the [v4 end of life (EOL)
+> announcement](https://docs.fauna.com/fauna/v4/#fql-v4-end-of-life) and
+> [related FAQ](https://docs.fauna.com/fauna/v4/migration/faq).
 >
-> For new development, use the official Fauna v10 driver:
+> This driver is not compatible with FQL v10, the latest version. Ensure you
+> migrate existing projects to the official v10 driver by the v4 EOL date:
 > [https://github.com/fauna/fauna-go](https://github.com/fauna/fauna-go).
 
 The offical Golang driver for [Fauna v4](https://docs.fauna.com/fauna/v4/).
