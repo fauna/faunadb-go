@@ -1,4 +1,4 @@
-# Official Golang driver for Fauna v4
+# Golang driver for Fauna v4 (deprecated)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fauna/faunadb-go)](https://goreportcard.com/report/github.com/fauna/faunadb-go)
 [![GoDoc](https://godoc.org/github.com/fauna/faunadb-go/faunadb?status.svg)](https://pkg.go.dev/github.com/fauna/faunadb-go/v4)
