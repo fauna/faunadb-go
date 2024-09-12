@@ -2624,8 +2624,8 @@ func (s *ClientTestSuite) TestSyncLastTxnTime() {
 }
 
 func (s *ClientTestSuite) assertMetrics(headers map[string][]string) {
-	s.Require().Contains(headers, "X-Read-Ops")
-	s.Require().Contains(headers, "X-Write-Ops")
+	s.Require().Contains(headers, "X-Byte-Read-Ops")
+	s.Require().Contains(headers, "X-Byte-Write-Ops")
 	s.Require().Contains(headers, "X-Storage-Bytes-Read")
 	s.Require().Contains(headers, "X-Storage-Bytes-Write")
 	s.Require().Contains(headers, "X-Query-Bytes-In")

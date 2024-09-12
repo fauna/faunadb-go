@@ -66,7 +66,7 @@ func (s *StreamsTestSuite) TestRejectNonReadOnlyQuery() {
 	query := f.CreateCollection(f.Obj{"name": "collection"})
 	sub := s.client.Stream(query)
 	err := sub.Start()
-	s.EqualError(err, "Response error 400. Errors: [](invalid expression): Write effect in read-only query expression., details: []")
+	s.EqualError(err, "Response error 400. Errors: [](invalid expression): Call performs a write, which is not allowed in stream requests., details: []")
 }
 
 func (s *StreamsTestSuite) TestSelectFields() {
