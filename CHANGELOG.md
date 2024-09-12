@@ -1,4 +1,7 @@
-# 4.3.0 (February, 2023) [current]
+# 4.3.1 (September, 2024) [current]
+- Bump patch version to publish latest README with FQL v4 deprecation notice.
+
+# 4.3.0 (February, 2023)
 
 - Adds support for `tags` and `traceparent` headers
 
