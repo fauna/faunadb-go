@@ -1,12 +1,17 @@
 package faunadb
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+)
+
+const (
+	maxWaitSeconds = 10
 )
 
 var (
@@ -40,6 +45,17 @@ func RandomStartingWith(parts ...string) string {
 	return fmt.Sprintf("%s%v", strings.Join(parts, ""), rand.Uint32())
 }
 
+func WaitForDB(client *FaunaClient) error {
+	for i := 0; i < maxWaitSeconds*1000; i += 100 {
+		res, err := client.Query(NewId())
+		if res != nil && err == nil {
+			return nil
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	return errors.New(fmt.Sprintf("database didn't send valid response after %d seconds", maxWaitSeconds))
+}
+
 func SetupTestDB() (client *FaunaClient, err error) {
 	var key Value
 
@@ -47,6 +63,12 @@ func SetupTestDB() (client *FaunaClient, err error) {
 		faunaSecret,
 		Endpoint(faunaEndpoint),
 	)
+
+	err = WaitForDB(adminClient)
+	if err != nil {
+		return nil, err
+	}
+
 	if allQueriesTimeout != "" {
 		if millis, err := strconv.ParseUint(allQueriesTimeout, 10, 64); err == nil {
 			adminClient = NewFaunaClient(
